@@ -10,7 +10,7 @@ options:
     gen_linking: dynamic
     generate_options: hb
     hier_block_src_path: '.:'
-    id: qpsk_encoder
+    id: qpsk_masked_encoder
     max_nouts: '0'
     output_language: python
     placement: (0,0)
@@ -21,7 +21,7 @@ options:
     run_options: prompt
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: QPSK Encoder
+    title: QPSK Masked Encoder
     window_size: ''
   states:
     bus_sink: false
@@ -93,7 +93,40 @@ blocks:
     bus_structure: null
     coordinate: [944, 272.0]
     rotation: 0
-    state: true
+    state: enabled
+- name: blocks_char_to_float_2
+  id: blocks_char_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    scale: '1'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [360, 460.0]
+    rotation: 0
+    state: enabled
+- name: blocks_float_to_complex_0
+  id: blocks_float_to_complex
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [536, 464.0]
+    rotation: 0
+    state: enabled
 - name: blocks_multiply_const_vxx_0
   id: blocks_multiply_const_vxx
   parameters:
@@ -111,7 +144,7 @@ blocks:
     bus_structure: null
     coordinate: [736, 180.0]
     rotation: 0
-    state: true
+    state: enabled
 - name: blocks_multiply_const_vxx_1
   id: blocks_multiply_const_vxx
   parameters:
@@ -130,6 +163,61 @@ blocks:
     coordinate: [464, 300.0]
     rotation: 0
     state: true
+- name: blocks_multiply_xx_0
+  id: blocks_multiply_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1080, 288.0]
+    rotation: 0
+    state: true
+- name: blocks_null_source_0
+  id: blocks_null_source
+  parameters:
+    affinity: ''
+    alias: ''
+    bus_structure_source: '[[0,],]'
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_outputs: '1'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [376, 496.0]
+    rotation: 0
+    state: enabled
+- name: blocks_repeat_0
+  id: blocks_repeat
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    interp: '16'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [192, 460.0]
+    rotation: 0
+    state: enabled
 - name: channels_channel_model_0
   id: channels_channel_model
   parameters:
@@ -255,9 +343,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1072, 284.0]
+    coordinate: [1248, 300.0]
     rotation: 0
-    state: true
+    state: enabled
 - name: pad_source_0
   id: pad_source
   parameters:
@@ -277,7 +365,27 @@ blocks:
     bus_structure: null
     coordinate: [48, 180.0]
     rotation: 0
-    state: true
+    state: enabled
+- name: pad_source_1
+  id: pad_source
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    label: mask
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_streams: '1'
+    optional: 'False'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [48, 460.0]
+    rotation: 0
+    state: enabled
 - name: time_offset
   id: parameter
   parameters:
@@ -297,13 +405,19 @@ blocks:
     state: true
 
 connections:
-- [blocks_add_xx_0, '0', pad_sink_0, '0']
+- [blocks_add_xx_0, '0', blocks_multiply_xx_0, '0']
+- [blocks_char_to_float_2, '0', blocks_float_to_complex_0, '0']
+- [blocks_float_to_complex_0, '0', blocks_multiply_xx_0, '1']
 - [blocks_multiply_const_vxx_0, '0', blocks_add_xx_0, '0']
 - [blocks_multiply_const_vxx_1, '0', blocks_add_xx_0, '1']
+- [blocks_multiply_xx_0, '0', pad_sink_0, '0']
+- [blocks_null_source_0, '0', blocks_float_to_complex_0, '1']
+- [blocks_repeat_0, '0', blocks_char_to_float_2, '0']
 - [channels_channel_model_0, '0', blocks_multiply_const_vxx_0, '0']
 - [digital_constellation_modulator_0, '0', blocks_multiply_const_vxx_1, '0']
 - [digital_constellation_modulator_0, '0', channels_channel_model_0, '0']
 - [pad_source_0, '0', digital_constellation_modulator_0, '0']
+- [pad_source_1, '0', blocks_repeat_0, '0']
 
 metadata:
   file_format: 1
