@@ -29,7 +29,7 @@ from qpsk_masked_encoder import qpsk_masked_encoder  # grc-generated hier_block
 
 class qpsk_overshadowing(gr.top_block):
 
-    def __init__(self, channel_noise_attacker=1, channel_noise_victim=1, frequency_offset_attacker=0, frequency_offset_victim=0, in_file='/data/satnogs/AQUA_PADDED.raw', noise_voltage_attacker=0.0001, noise_voltage_victim=0.0001, num_packets=1024, out_file='/data/satnogs/OVERSHADOW.raw', overshadow_strength=5, padding_bytes=32, timing_offset_attacker=1, timing_offset_victim=1):
+    def __init__(self, channel_noise_attacker=1, channel_noise_victim=1, frequency_offset_attacker=0, frequency_offset_victim=0, in_file='/data/samples/ATTACK_PADDED.raw', noise_voltage_attacker=0.0001, noise_voltage_victim=0.0001, num_packets=1024, out_file='/data/samples/OVERSHADOW.raw', overshadow_strength=5, padding_bytes=32, timing_offset_attacker=1, timing_offset_victim=1):
         gr.top_block.__init__(self, "qpsk_overshadowing")
 
         ##################################################
@@ -215,7 +215,7 @@ def argument_parser():
         "--frequency-offset-victim", dest="frequency_offset_victim", type=eng_float, default="0.0",
         help="Set Victim: Frequency Offset [default=%(default)r]")
     parser.add_argument(
-        "--in-file", dest="in_file", type=str, default='/data/satnogs/AQUA_PADDED.raw',
+        "--in-file", dest="in_file", type=str, default='/data/satnogs/ATTACK_PADDED.raw',
         help="Set Input file: bytes to overshadow [default=%(default)r]")
     parser.add_argument(
         "--noise-voltage-attacker", dest="noise_voltage_attacker", type=eng_float, default="100.0u",
