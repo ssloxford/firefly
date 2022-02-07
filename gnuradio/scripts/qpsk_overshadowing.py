@@ -215,7 +215,7 @@ def argument_parser():
         "--frequency-offset-victim", dest="frequency_offset_victim", type=eng_float, default="0.0",
         help="Set Victim: Frequency Offset [default=%(default)r]")
     parser.add_argument(
-        "--in-file", dest="in_file", type=str, default='/data/satnogs/ATTACK_PADDED.raw',
+        "--in-file", dest="in_file", type=str, default='/data/samples/ATTACK_PADDED.raw',
         help="Set Input file: bytes to overshadow [default=%(default)r]")
     parser.add_argument(
         "--noise-voltage-attacker", dest="noise_voltage_attacker", type=eng_float, default="100.0u",
@@ -227,7 +227,7 @@ def argument_parser():
         "--num-packets", dest="num_packets", type=intx, default=1024,
         help="Set Number of Packets [default=%(default)r]")
     parser.add_argument(
-        "--out-file", dest="out_file", type=str, default='/data/satnogs/OVERSHADOW.raw',
+        "--out-file", dest="out_file", type=str, default='/data/samples/OVERSHADOW.raw',
         help="Set Output file [default=%(default)r]")
     parser.add_argument(
         "--overshadow-strength", dest="overshadow_strength", type=eng_float, default="5.0",
