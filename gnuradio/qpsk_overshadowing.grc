@@ -18,7 +18,7 @@ options:
     realtime_scheduling: ''
     run: 'True'
     run_command: '{python} -u {filename}'
-    run_options: prompt
+    run_options: run
     sizing_mode: fixed
     thread_safe_setters: ''
     title: qpsk_overshadowing
@@ -27,7 +27,7 @@ options:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 8]
+    coordinate: [8, 12.0]
     rotation: 0
     state: enabled
 
@@ -41,7 +41,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [184, 12]
+    coordinate: [200, 12.0]
     rotation: 0
     state: disabled
 - name: analog_agc3_xx_0
@@ -63,29 +63,28 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1104, 244.0]
+    coordinate: [1104, 524.0]
     rotation: 0
     state: enabled
-- name: analog_random_source_x_0
-  id: analog_random_source_x
+- name: analog_random_uniform_source_x_0
+  id: analog_random_uniform_source_x
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    max: '255'
+    maximum: '255'
     maxoutbuf: '0'
-    min: '0'
+    minimum: '0'
     minoutbuf: '0'
-    num_samps: '10000'
-    repeat: 'True'
+    seed: '0'
     type: byte
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [96, 124.0]
+    coordinate: [40, 484.0]
     rotation: 0
-    state: disabled
+    state: true
 - name: blocks_add_xx_0
   id: blocks_add_xx
   parameters:
@@ -101,7 +100,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [984, 272.0]
+    coordinate: [984, 552.0]
     rotation: 0
     state: enabled
 - name: blocks_file_sink_0
@@ -119,32 +118,10 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1584, 268.0]
+    coordinate: [1552, 548.0]
     rotation: 0
     state: enabled
 - name: blocks_file_source_1
-  id: blocks_file_source
-  parameters:
-    affinity: ''
-    alias: ''
-    begin_tag: pmt.PMT_NIL
-    comment: ''
-    file: in_file_attack
-    length: '0'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    offset: '0'
-    repeat: 'True'
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [104, 324.0]
-    rotation: 0
-    state: enabled
-- name: blocks_file_source_1_0
   id: blocks_file_source
   parameters:
     affinity: ''
@@ -156,14 +133,68 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     offset: '0'
-    repeat: 'False'
+    repeat: 'True'
     type: byte
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [104, 196.0]
+    coordinate: [96, 596.0]
+    rotation: 0
+    state: enabled
+- name: blocks_head_0_0
+  id: blocks_head
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: 1024*3*num_packets
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [272, 500.0]
+    rotation: 0
+    state: enabled
+- name: blocks_head_0_0_0
+  id: blocks_head
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: 1024*3*num_packets
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [272, 628.0]
+    rotation: 0
+    state: enabled
+- name: blocks_head_0_0_0_0
+  id: blocks_head
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: 1024*3*num_packets
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [272, 756.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_vxx_0
@@ -181,66 +212,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [720, 372.0]
+    coordinate: [720, 644.0]
     rotation: 0
-    state: true
-- name: blocks_throttle_1
-  id: blocks_throttle
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    ignoretag: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samples_per_second: samp_rate
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [272, 468.0]
-    rotation: 0
-    state: disabled
-- name: blocks_throttle_1_0
-  id: blocks_throttle
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    ignoretag: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samples_per_second: samp_rate
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [272, 356.0]
-    rotation: 0
-    state: disabled
-- name: blocks_throttle_1_0_0
-  id: blocks_throttle
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    ignoretag: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samples_per_second: samp_rate
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [272, 228.0]
-    rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_vector_source_x_0
   id: blocks_vector_source_x
   parameters:
@@ -258,27 +232,78 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [48, 452.0]
+    coordinate: [40, 740.0]
     rotation: 0
     state: enabled
-- name: in_file
+- name: channel_noise_attacker
   id: parameter
   parameters:
     alias: ''
     comment: ''
     hide: none
-    label: 'Input file: original'
+    label: 'Attacker: Channel Noise'
     short_id: ''
-    type: str
-    value: /dev/urandom
+    type: intx
+    value: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [304, 12.0]
+    coordinate: [1192, 12.0]
     rotation: 0
-    state: enabled
-- name: in_file_attack
+    state: true
+- name: channel_noise_victim
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: 'Victim: Channel Noise'
+    short_id: ''
+    type: intx
+    value: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1024, 12.0]
+    rotation: 0
+    state: true
+- name: frequency_offset_attacker
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: 'Attacker: Frequency Offset'
+    short_id: ''
+    type: eng_float
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1192, 204.0]
+    rotation: 0
+    state: true
+- name: frequency_offset_victim
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: 'Victim: Frequency Offset'
+    short_id: ''
+    type: eng_float
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1024, 204.0]
+    rotation: 0
+    state: true
+- name: in_file
   id: parameter
   parameters:
     alias: ''
@@ -292,26 +317,60 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [456, 12.0]
+    coordinate: [320, 12.0]
     rotation: 0
     state: enabled
-- name: in_file_attack_mask
+- name: noise_voltage_attacker
   id: parameter
   parameters:
     alias: ''
     comment: ''
     hide: none
-    label: 'Input file: overshadowing mask'
+    label: 'Attacker: Noise Voltage'
     short_id: ''
-    type: str
-    value: STDIN
+    type: eng_float
+    value: '0.0001'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [632, 12.0]
+    coordinate: [1192, 108.0]
     rotation: 0
-    state: disabled
+    state: true
+- name: noise_voltage_victim
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: 'Victim: Noise Voltage'
+    short_id: ''
+    type: eng_float
+    value: '0.0001'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1024, 108.0]
+    rotation: 0
+    state: true
+- name: num_packets
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Number of Packets
+    short_id: ''
+    type: intx
+    value: '1024'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [840, 12.0]
+    rotation: 0
+    state: true
 - name: out_file
   id: parameter
   parameters:
@@ -326,7 +385,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [800, 12.0]
+    coordinate: [496, 12.0]
     rotation: 0
     state: enabled
 - name: overshadow_strength
@@ -343,7 +402,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1048, 12.0]
+    coordinate: [1392, 12.0]
     rotation: 0
     state: enabled
 - name: padding_bytes
@@ -360,9 +419,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [88, 532.0]
+    coordinate: [712, 12.0]
     rotation: 0
-    state: true
+    state: enabled
 - name: qpsk_decoder_0
   id: qpsk_decoder
   parameters:
@@ -378,7 +437,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1344, 268.0]
+    coordinate: [1328, 548.0]
     rotation: 0
     state: enabled
 - name: qpsk_encoder_0
@@ -388,17 +447,17 @@ blocks:
     alias: ''
     comment: ''
     excess_bw: '0.350'
-    freq_offset: '0'
+    freq_offset: frequency_offset_victim
     maxoutbuf: '0'
     minoutbuf: '0'
-    noise: '1'
-    noise_volt: '0.0001'
-    time_offset: '1.000'
+    noise: channel_noise_victim
+    noise_volt: noise_voltage_victim
+    time_offset: timing_offset_victim
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [488, 196.0]
+    coordinate: [488, 468.0]
     rotation: 0
     state: enabled
 - name: qpsk_masked_encoder_0
@@ -408,28 +467,64 @@ blocks:
     alias: ''
     comment: ''
     excess_bw: '0.350'
-    freq_offset: '0'
+    freq_offset: frequency_offset_attacker
     maxoutbuf: '0'
     minoutbuf: '0'
-    noise: '1'
-    noise_volt: '0.0001'
-    time_offset: '1.000'
+    noise: channel_noise_attacker
+    noise_volt: noise_voltage_attacker
+    time_offset: timing_offset_attacker
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [488, 340.0]
+    coordinate: [488, 612.0]
     rotation: 0
     state: enabled
+- name: timing_offset_attacker
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: 'Attacker: Timing Offset'
+    short_id: ''
+    type: eng_float
+    value: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1192, 300.0]
+    rotation: 0
+    state: true
+- name: timing_offset_victim
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: 'Victim: Timing Offset'
+    short_id: ''
+    type: eng_float
+    value: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1024, 300.0]
+    rotation: 0
+    state: true
 
 connections:
 - [analog_agc3_xx_0, '0', qpsk_decoder_0, '0']
-- [analog_random_source_x_0, '0', blocks_throttle_1_0_0, '0']
+- [analog_random_uniform_source_x_0, '0', blocks_head_0_0, '0']
 - [blocks_add_xx_0, '0', analog_agc3_xx_0, '0']
-- [blocks_file_source_1, '0', qpsk_masked_encoder_0, '0']
-- [blocks_file_source_1_0, '0', qpsk_encoder_0, '0']
+- [blocks_file_source_1, '0', blocks_head_0_0_0, '0']
+- [blocks_head_0_0, '0', qpsk_encoder_0, '0']
+- [blocks_head_0_0_0, '0', qpsk_masked_encoder_0, '0']
+- [blocks_head_0_0_0_0, '0', qpsk_masked_encoder_0, '1']
 - [blocks_multiply_const_vxx_0, '0', blocks_add_xx_0, '1']
-- [blocks_vector_source_x_0, '0', qpsk_masked_encoder_0, '1']
+- [blocks_vector_source_x_0, '0', blocks_head_0_0_0_0, '0']
 - [qpsk_decoder_0, '0', blocks_file_sink_0, '0']
 - [qpsk_encoder_0, '0', blocks_add_xx_0, '0']
 - [qpsk_masked_encoder_0, '0', blocks_multiply_const_vxx_0, '0']
