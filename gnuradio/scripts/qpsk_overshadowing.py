@@ -25,6 +25,7 @@ from gnuradio import eng_notation
 from qpsk_decoder import qpsk_decoder  # grc-generated hier_block
 from qpsk_encoder import qpsk_encoder  # grc-generated hier_block
 from qpsk_masked_encoder import qpsk_masked_encoder  # grc-generated hier_block
+import satellites.hier
 
 
 class qpsk_overshadowing(gr.top_block):
@@ -52,6 +53,7 @@ class qpsk_overshadowing(gr.top_block):
         ##################################################
         # Blocks
         ##################################################
+        self.satellites_rms_agc_0 = satellites.hier.rms_agc(alpha=1e-2, reference=1.0)
         self.qpsk_masked_encoder_0 = qpsk_masked_encoder(
             excess_bw=0.350,
             freq_offset=frequency_offset_attacker,
@@ -82,17 +84,14 @@ class qpsk_overshadowing(gr.top_block):
         self.blocks_file_sink_0.set_unbuffered(False)
         self.blocks_add_xx_0 = blocks.add_vcc(1)
         self.analog_random_uniform_source_x_0 = analog.random_uniform_source_b(0, 255, 0)
-        self.analog_agc3_xx_0 = analog.agc3_cc(1e-3, 1e-4, 1.0, 1.0, 1)
-        self.analog_agc3_xx_0.set_max_gain(65536)
 
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_agc3_xx_0, 0), (self.qpsk_decoder_0, 0))
         self.connect((self.analog_random_uniform_source_x_0, 0), (self.blocks_head_0_0, 0))
-        self.connect((self.blocks_add_xx_0, 0), (self.analog_agc3_xx_0, 0))
+        self.connect((self.blocks_add_xx_0, 0), (self.satellites_rms_agc_0, 0))
         self.connect((self.blocks_file_source_1, 0), (self.blocks_head_0_0_0, 0))
         self.connect((self.blocks_head_0_0, 0), (self.qpsk_encoder_0, 0))
         self.connect((self.blocks_head_0_0_0, 0), (self.qpsk_masked_encoder_0, 0))
@@ -102,6 +101,7 @@ class qpsk_overshadowing(gr.top_block):
         self.connect((self.qpsk_decoder_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.qpsk_encoder_0, 0), (self.blocks_add_xx_0, 0))
         self.connect((self.qpsk_masked_encoder_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.satellites_rms_agc_0, 0), (self.qpsk_decoder_0, 0))
 
 
     def get_channel_noise_attacker(self):
