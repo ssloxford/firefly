@@ -1,3 +1,5 @@
-./byte_aligner/byte_aligner
+byte_aligner/byte_aligner
+byte_aligner/denoiser
+byte_aligner/header_counter
 gnuradio/samples/results*
 __pycache__
