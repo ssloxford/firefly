@@ -1,1 +1,3 @@
 ./byte_aligner/byte_aligner
+gnuradio/samples/results*
+__pycache__

@@ -26,7 +26,7 @@ if __name__ == "__main__":
     for noise_victim in channel_noise_victim:
         for noise_attacker in channel_noise_attacker:
             for overshadow in overshadow_strength:
-                if run_count >= start_count:
+                if run_count == start_count:
                     print("Run {}: Parameters {}, {}, {}".format(run_count, noise_victim, noise_attacker, overshadow))
 
                     out_file = out_format.format(
