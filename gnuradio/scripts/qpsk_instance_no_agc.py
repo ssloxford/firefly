@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 import sys
-from qpsk_overshadowing import qpsk_overshadowing
+from qpsk_overshadowing_no_agc import qpsk_overshadowing_no_agc
 
 in_file = "/data/samples/ATTACK_PADDED.raw"
-out_dir = "/data/samples/results_overshadowing/"
+out_dir = "/data/samples/results_overshadowing_no_agc/"
 padding_bytes = 64
 num_packets = 1024
 
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     for noise_victim in channel_noise_victim:
         for noise_attacker in channel_noise_attacker:
             for overshadow in overshadow_strength:
-                if run_count >= start_count:
+                if run_count == start_count:
                     print("Run {}: Parameters {}, {}, {}".format(run_count, noise_victim, noise_attacker, overshadow))
 
                     out_file = out_format.format(
@@ -35,7 +35,7 @@ if __name__ == "__main__":
                         overshadow = int(overshadow*10)
                     )
 
-                    qpsk = qpsk_overshadowing(
+                    qpsk = qpsk_overshadowing_no_agc(
                         in_file = in_file,
                         out_file = out_file,
                         padding_bytes = padding_bytes,
