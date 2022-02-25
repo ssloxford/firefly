@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <memory>
+#include <utility>
 
 #include "proxy.h"
 
@@ -16,6 +17,7 @@
 // TODO: shift to uint8_t where appropriate
 // TODO: test bit outputs
 // TODO: sort out get_mutable syntax and dirtying checksum
+// TODO: JT incantationconstexpr
 uint32_t SYNC_MARKER = 0x1acffc1d;
 
 // Default encoding table, from generator polynomial x**8 + x**7 + x**5 + x**3 + 1
@@ -80,46 +82,46 @@ private:
 
 
 public:
-  auto version_number() && {
+  auto version_number() const & {
     return (uint16_t) _version_number;
   }
 
   auto version_number() & {
     return Proxy{
-      [this] { return std::move(*this).version_number(); },
+      [this] { return std::as_const(*this).version_number(); },
       [this](uint16_t x) { _version_number = x; }
     };
   }
 
-  auto scid() && {
+  auto scid() const & {
     return (uint16_t) _scid_h << 2 | _scid_l;
   }
 
   auto scid() & {
     return Proxy{
-      [this] { return std::move(*this).scid(); },
+      [this] { return std::as_const(*this).scid(); },
       [this](uint16_t x) { _scid_h = (x >> 2) & 0xff; _scid_l = x & 0x03; }
     };
   }
 
-  auto vcid() && {
+  auto vcid() const & {
     return (uint16_t) _vcid;
   }
 
   auto vcid() & {
     return Proxy{
-      [this] { return std::move(*this).vcid(); },
+      [this] { return std::as_const(*this).vcid(); },
       [this](uint16_t x) { _vcid = x; }
     };
   }
 
-  auto vcdu_counter() && {
+  auto vcdu_counter() const & {
     return (uint32_t) _vcdu_counter_h << 16 | _vcdu_counter_m << 8 | _vcdu_counter_l;
   }
 
   auto vcdu_counter() & {
     return Proxy{
-      [this] { return std::move(*this).vcdu_counter(); },
+      [this] { return std::as_const(*this).vcdu_counter(); },
       [this](uint32_t x) {
         _vcdu_counter_h = (x >> 16) & 0xff;
         _vcdu_counter_m = (x >> 8) & 0xff;
@@ -128,47 +130,58 @@ public:
     };
   }
 
-  auto replay_flag() && {
+  auto replay_flag() const & {
     return (uint32_t) _replay_flag;
   }
 
   auto replay_flag() & {
     return Proxy{
-      [this] { return std::move(*this).replay_flag(); },
+      [this] { return std::as_const(*this).replay_flag(); },
       [this](uint32_t x) { _replay_flag= x; }
     };
   }
 
-  auto vcdu_spare() && {
+  auto vcdu_spare() const & {
     return (uint32_t) _vcdu_spare;
   }
 
   auto vcdu_spare() & {
     return Proxy{
-      [this] { return std::move(*this).vcdu_spare(); },
+      [this] { return std::as_const(*this).vcdu_spare(); },
       [this](uint32_t x) { _vcdu_spare = x; }
     };
   }
 
-  auto m_pdu_spare() && {
+  auto m_pdu_spare() const & {
     return (uint16_t) _m_pdu_spare;
   }
 
   auto m_pdu_spare() & {
     return Proxy{
-      [this] { return std::move(*this).m_pdu_spare(); },
+      [this] { return std::as_const(*this).m_pdu_spare(); },
       [this](uint16_t x) { _m_pdu_spare = x; }
     };
   }
 
-  auto first_header_pointer() && {
+  auto first_header_pointer() const & {
     return (uint16_t) _first_header_pointer_h << 8 | _first_header_pointer_l;
   }
 
   auto first_header_pointer() & {
     return Proxy{
-      [this] { return std::move(*this).first_header_pointer(); },
+      [this] { return std::as_const(*this).first_header_pointer(); },
       [this](uint16_t x) { _first_header_pointer_h = x >> 8; _first_header_pointer_l= x & 0xff; }
+    };
+  }
+
+  auto data() const & {
+    return _data;
+  }
+
+  auto data() & {
+    return Proxy{
+      [this] { return std::as_const(*this).data(); },
+      [this](std::array<std::byte, 884> x) { _data = x; }
     };
   }
 };
