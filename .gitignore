@@ -1,5 +1,8 @@
 byte_aligner/byte_aligner
 byte_aligner/denoiser
 byte_aligner/header_counter
+byte_aligner/checksum_corrector
+cadu_utils/bin/*
 gnuradio/samples/results*
 __pycache__
+modisl1db/
