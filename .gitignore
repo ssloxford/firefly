@@ -6,3 +6,4 @@ cadu_utils/bin/*
 gnuradio/samples/results*
 __pycache__
 modisl1db/
+**.so

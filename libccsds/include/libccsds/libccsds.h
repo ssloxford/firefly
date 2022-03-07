@@ -1,9 +1,9 @@
 #include <array>
 #include <bitset>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <iostream>
 #include <stdexcept>
 #include <span>
 #include <memory>
@@ -11,11 +11,7 @@
 #include <utility>
 #include <vector>
 
-extern "C" {
-#include "fec.h"
-}
-
-#include "proxy.h"
+#include "libccsds/proxy.h"
 
 // https://public.ccsds.org/Pubs/133x0b2e1.pdf
 
@@ -44,16 +40,23 @@ static_assert(std::is_standard_layout_v<CCSDSPrimaryHeader>,
 static_assert(sizeof(CCSDSPrimaryHeader) == 6,
               "CCSDSPrimaryHeader is not of size 6 as in the spec");
 
+// 0 denotes a data section of a single byte
+static constexpr std::size_t CCSDS_MAX_DATA_LEN = std::pow(2, 16);
+
 struct CCSDSDataField {
-  // Can I tell this not to initialise yet?
-  std::vector<std::byte> data; // TODO: initialise into secondary header and user data field
+  friend CCSDSPacket;
+  friend auto operator<<(std::ostream & output, CCSDSPacket & packet) -> std::ostream &;
+  friend auto operator>>(std::istream & input, CCSDSPacket & packet) -> std::istream &;
+private:
+  // TODO: initialise into secondary header and user data field
+  std::vector<std::byte> _data = std::vector<std::byte>(0);
 
   auto resize(int len) {
-    data.resize(len);
+    _data.resize(len);
   }
 
   auto size() const -> size_t {
-    return data.size();
+    return _data.size();
   }
 };
 
@@ -62,6 +65,9 @@ struct CCSDSPacket {
 private:
   CCSDSPrimaryHeader primary_header;
   CCSDSDataField data_field;
+
+  // TODO: refactor so that CCSDSPacket is laid out in memory more like the real packet?
+  bool dirty_length = true;
 
 public:
   auto version_number() const & {
@@ -140,9 +146,31 @@ public:
   auto data_len() & {
     return Proxy{
       [this]() -> decltype(auto) { return std::as_const(*this).data_len(); },
-      [this](int x) {
-        primary_header._data_len_h = (x >> 8) & 0xff;
-        primary_header._data_len_l = (x) & 0xff;
+      [this](int len) {
+        data_field.resize(len+1);
+        dirty_length = false;
+        primary_header._data_len_h = (len >> 8) & 0xff;
+        primary_header._data_len_l = (len) & 0xff;
+      }
+    };
+  }
+
+  auto data() const & -> auto const & {
+    return data_field._data;
+  }
+
+  auto data() & {
+    return Proxy{
+      [this]() -> decltype(auto) { return std::as_const(*this).data(); },
+      [this](std::span<std::byte> s) { 
+        // Data section must contain at least a single octet
+        if (s.size() == 0) {
+          throw (std::invalid_argument("Data field must contain at least one byte"));
+        }
+        dirty_length = true;
+        int size = std::min(s.size(), CCSDS_MAX_DATA_LEN);
+        data_field.resize(size);
+        std::copy_n(s.begin(), size, data_field._data.begin());
       }
     };
   }
@@ -153,7 +181,7 @@ public:
     std::memcpy(&primary_header, input, sizeof(CCSDSPrimaryHeader));
     auto len = data_len() + 1;   // Length 0 is used to mean a single byte
     data_field.resize(len);
-    std::memcpy(&data_field.data, &(input[sizeof(CCSDSPrimaryHeader)]), len);
+    std::memcpy(&data_field._data, &(input[sizeof(CCSDSPrimaryHeader)]), len);
   }
 
   auto size() -> size_t {
@@ -166,8 +194,12 @@ public:
 
 
 auto operator<<(std::ostream & output, CCSDSPacket & packet) -> std::ostream & {
+  if (packet.dirty_length) {
+    // Set the length in accordance with the data length
+    packet.data_len() = packet.data_field.size() - 1;
+  }
   output.write(reinterpret_cast<char*>(&packet.primary_header), sizeof(CCSDSPrimaryHeader));
-  output.write(reinterpret_cast<char*>(&packet.data_field), packet.data_field.size());
+  output.write(reinterpret_cast<char*>(packet.data_field._data.data()), packet.data_field.size());
   return output;
 }
 
@@ -182,6 +214,6 @@ auto operator>>(std::istream & input, CCSDSPacket & packet) -> std::istream & {
   data.resize(data_len);
   input.read(&data[0], data_len);
   packet.data_field.resize(data_len);
-  std::memcpy(packet.data_field.data.data(), data.data(), data_len);
+  std::memcpy(packet.data_field._data.data(), data.data(), data_len);
   return input;
 }
