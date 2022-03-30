@@ -204,6 +204,7 @@ auto operator<<(std::ostream & output, CCSDSPacket & packet) -> std::ostream & {
 }
 
 
+// TODO: is this safe in the case where there we didn't read enough input?
 auto operator>>(std::istream & input, CCSDSPacket & packet) -> std::istream & {
   std::array<char, sizeof(CCSDSPrimaryHeader)> header = {};
   input.read(header.data(), sizeof(CCSDSPrimaryHeader));

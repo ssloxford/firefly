@@ -28,5 +28,9 @@ int main() {
 
   CCSDSPacket packet;
   packet.data() = buffer;
+  packet.sec_hdr_flag() = 1;
+  packet.app_id() = APP_ID_AQUA_MODIS;
+  packet.seq_flags() = 1;
+  packet.seq_cnt_or_name() = 16003;
   std::cout << packet;
 }

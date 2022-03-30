@@ -208,13 +208,14 @@ public:
 
   // TODO: check whether this needs to be a ref
   auto data_header_aligned() const & -> auto const {
-    return std::views::counted(data().begin() + first_header_pointer(), CADU_DATA_LEN - first_header_pointer());
+    return std::views::counted(data().begin() + first_header_pointer(), CADU_DATA_LEN - (first_header_pointer()));
   }
 
   auto data_header_aligned() & {
     return Proxy {
       [this]() -> decltype(auto) { return std::as_const(*this).data_header_aligned(); },
-      [this](std::vector<std::byte> s) {
+      // TODO: replace with std::span?
+      [this](std::span<std::byte> s) {
         std::copy_n(
           s.begin(),
           std::min(static_cast<int>(s.size()), CADU_DATA_LEN - first_header_pointer()),
@@ -231,7 +232,7 @@ public:
   auto checksum() & {
     return Proxy{
       [this]() -> decltype(auto) { return std::as_const(*this).checksum(); },
-      [this](std::array<std::byte, 128> x) { _checksum = x; }
+      [this](std::array<std::byte, 128> x) { _checksum = x; } // Consider dirty checksum?
     };
   }
 };
@@ -359,8 +360,10 @@ public:
 
 namespace nonrandomised {
   auto operator<<(std::ostream & output, CADU & cadu) -> std::ostream & {
-    if (cadu.dirty_checksum)
+    if (cadu.dirty_checksum) {
+      std::cerr << "dirty checksum. recalculating..." << std::endl;
       cadu.recalculate_checksum();
+    }
     output.write(reinterpret_cast<char*>(&cadu.impl), sizeof(cadu.impl));
     return output;
   }
