@@ -137,7 +137,12 @@ int main(int argc, char *argv[]) {
   auto buffer = std::remove_cvref_t<decltype(std::declval<CADU>()->data())>();
   auto vcdu_counter = result["vcdu_counter"].as<int>();
 
-  while (std::cin.read(reinterpret_cast<char*>(buffer.data()), CADU_DATA_LEN)) {
+  while (std::cin.read(reinterpret_cast<char*>(buffer.data()), CADU_DATA_LEN) || std::cin.gcount() > 0) {
+    std::cerr << "Characters extracted: " << std::cin.gcount() << std::endl;
+    if (std::cin.gcount() < CADU_DATA_LEN) {
+      // If insufficient characters read, pad with zeros
+      std::fill(buffer.begin() + std::cin.gcount(), buffer.end(), std::byte{0});
+    }
     CADU cadu;
     cadu.get_mutable().version_number() = result["version_number"].as<int>();
     cadu.get_mutable().scid() = scid;
