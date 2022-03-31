@@ -17,56 +17,56 @@ int main(int argc, char *argv[]) {
     (
       "n,version_number", 
       "Set version number field - <int (0-"
-        + std::to_string((int)pow(2, VERSION_NUMBER_LEN))
+        + std::to_string((int)pow(2, VERSION_NUMBER_LEN)-1)
         + ")>",
-      cxxopts::value<int>()->default_value("1")
+      cxxopts::value<int>()->default_value("0")
     )
     (
       "s,scid",
       "Set spacecraft ID field - terra|aqua|<int (0-"
-        + std::to_string((int)pow(2, SCID_LEN))
+        + std::to_string((int)pow(2, SCID_LEN)-1)
         + ")>",
       cxxopts::value<std::string>()->default_value("0")
     )
     (
       "i,vcid",
       "Set virtual channel (instrument) field - aqua_gbad|aqua_ceres_10|aqua_ceres_15|aqua_amsu_20|aqua_amsu_25|aqua_modis|aqua_airs|aqua_amsr|aqua_hsb|<int (0-"
-        + std::to_string((int)pow(2, VCID_LEN))
+        + std::to_string((int)pow(2, VCID_LEN)-1)
         + ")>",
       cxxopts::value<std::string>()->default_value("0")
     )
     (
       "c,vcdu_counter",
       "Set VCDU starting counter, incrementing for each consecutive CADU - <int (0-"
-        + std::to_string((int)pow(2, VCDU_COUNTER_LEN))
+        + std::to_string((int)pow(2, VCDU_COUNTER_LEN)-1)
         + ")>",
       cxxopts::value<int>()->default_value("0")
     )
     (
       "r,replay_flag",
       "Set replay flag - <int(0-"
-        + std::to_string((int)pow(2, REPLAY_FLAG_LEN))
+        + std::to_string((int)pow(2, REPLAY_FLAG_LEN)-1)
         + ")>",
       cxxopts::value<int>()->default_value("0")
     )
     (
       "vcdu_spare",
       "Set virtual channel data unit spare bits - <int (0-"
-        + std::to_string((int)pow(2, VCDU_SPARE_LEN))
+        + std::to_string((int)pow(2, VCDU_SPARE_LEN)-1)
         + ")>",
       cxxopts::value<int>()->default_value("0")
     )
     (
       "m_pdu_spare",
       "Set multiplexing protocol data unit spare bits - <int (0-"
-        + std::to_string((int)pow(2, M_PDU_SPARE_LEN))
+        + std::to_string((int)pow(2, M_PDU_SPARE_LEN)-1)
         + ")>",
       cxxopts::value<int>()->default_value("0")
     )
     (
       "p,first_header_pointer",
       "Sets the pointer to the first CCSDS header within the data - <int (0-"
-        + std::to_string((int)pow(2, FIRST_HEADER_POINTER_LEN))
+        + std::to_string((int)pow(2, FIRST_HEADER_POINTER_LEN)-1)
         + ")>",
       cxxopts::value<int>()->default_value("0")
     )
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
   bool valid = true;
 
   if (result["version_number"].as<int>() >= pow(2, VERSION_NUMBER_LEN)) {
-    std::cerr << "Error: version_number must be between 0 and " << pow(2, VERSION_NUMBER_LEN) << std::endl;
+    std::cerr << "Error: version_number must be between 0 and " << pow(2, VERSION_NUMBER_LEN)-1 << std::endl;
     valid = false;
   }
 
@@ -96,13 +96,19 @@ int main(int argc, char *argv[]) {
   catch(std::out_of_range) {
     try {
       scid = std::stoi(result["scid"].as<std::string>());
+      if (scid >= pow(2, SCID_LEN)) {
+        std::cerr << "Error: scid must be between 0 and " << pow(2, SCID_LEN)-1 << std::endl;
+        valid = false;
+      }
     }
     catch(std::invalid_argument) {
       // TODO: create this dynamically at compile time
       std::cerr << "Error: scid must be either \"terra\", \"aqua\", or an int" << std::endl;
+      valid = false;
     }
     catch(std::out_of_range) {
       std::cerr << "Error: scid out of range" << std::endl;
+      valid = false;
     }
   }
 
@@ -115,14 +121,45 @@ int main(int argc, char *argv[]) {
     try {
       // Attempt to use the ID as an integer
       vcid = std::stoi(result["vcid"].as<std::string>());
+      if (vcid >= pow(2, VCID_LEN)) {
+        std::cerr << "Error: vcid must be between 0 and " << pow(2, VCID_LEN)-1 << std::endl;
+        valid = false;
+      }
     }
     catch(std::invalid_argument) {
       // TODO: create this dynamically at compile time
       std::cerr << "Error: vcid must be either \"aqua_gbad\", \"aqua_ceres_10\", \"aqua_ceres_15\", \"aqua_amsu_20\", \"aqua_amsu_25\", \"aqua_modis\", \"aqua_airs\", \"aqua_amsr\", \"aqua_hsb\", or an int" << std::endl;
+      valid = false;
     }
     catch(std::out_of_range) {
       std::cerr << "Error: vcid out of range" << std::endl;
+      valid = false;
     }
+  }
+
+  if (result["vcdu_counter"].as<int>() >= pow(2, VCDU_COUNTER_LEN)) {
+    std::cerr << "Error: vcdu_counter must be between 0 and " << pow(2, VCDU_COUNTER_LEN)-1 << std::endl;
+    valid = false;
+  }
+
+  if (result["replay_flag"].as<int>() >= pow(2, REPLAY_FLAG_LEN)) {
+    std::cerr << "Error: replay_flag must be between 0 and " << pow(2, REPLAY_FLAG_LEN)-1 << std::endl;
+    valid = false;
+  }
+
+  if (result["vcdu_spare"].as<int>() >= pow(2, VCDU_SPARE_LEN)) {
+    std::cerr << "Error: vcdu_spare must be between 0 and " << pow(2, VCDU_SPARE_LEN)-1 << std::endl;
+    valid = false;
+  }
+
+  if (result["m_pdu_spare"].as<int>() >= pow(2, M_PDU_SPARE_LEN)) {
+    std::cerr << "Error: m_pdu_spare must be between 0 and " << pow(2, M_PDU_SPARE_LEN)-1 << std::endl;
+    valid = false;
+  }
+
+  if (result["first_header_pointer"].as<int>() >= pow(2, FIRST_HEADER_POINTER_LEN)) {
+    std::cerr << "Error: first_header_pointer must be between 0 and " << pow(2, FIRST_HEADER_POINTER_LEN)-1 << std::endl;
+    valid = false;
   }
 
   if (!valid) {
@@ -155,6 +192,6 @@ int main(int argc, char *argv[]) {
     cadu.get_mutable().data() = buffer;
     std::cout << cadu;
 
-    ++vcdu_counter;
+    ++vcdu_counter; // TODO: roll over correctly
   }
 }
