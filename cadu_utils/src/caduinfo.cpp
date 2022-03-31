@@ -18,7 +18,7 @@ void print_checksum(std::array<std::byte, 128> checksum) {
 }
 
 int main() {
-  using namespace randomised;
+  using namespace nonrandomised;
   CADU cadu;
   while (std::cin >> cadu) {
     std::cout << "version_number: " << cadu->version_number() << std::endl;

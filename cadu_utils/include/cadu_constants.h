@@ -1,12 +1,20 @@
-constexpr uint16_t SCID_TERRA = 42;
+#include <map>
 
-constexpr uint16_t SCID_AQUA = 154;
-constexpr uint16_t VCID_AQUA_GBAD = 3;
-constexpr uint16_t VCID_AQUA_CERES_10 = 10;
-constexpr uint16_t VCID_AQUA_CERES_15 = 15;
-constexpr uint16_t VCID_AQUA_AMSU_20 = 20;
-constexpr uint16_t VCID_AQUA_AMSU_25 = 25;
-constexpr uint16_t VCID_AQUA_MODIS = 30;  // TODO: is this just for AQUA?
-constexpr uint16_t VCID_AQUA_AIRS = 35;
-constexpr uint16_t VCID_AQUA_AMSR = 40;
-constexpr uint16_t VCID_AQUA_HSB = 45;
+// TODO: should be constexpr, but there's no constexpr constructor for std::map
+std::map<std::string, int> SCIDs {
+  {"terra", 42},
+  {"aqua", 154}
+};
+
+// TODO: should be constexpr, but there's no constexpr constructor for std::map
+std::map<std::string, int> VCIDs {
+  {"aqua_gbad", 3},
+  {"aqua_ceres_10", 10},
+  {"aqua_ceres_15", 15},
+  {"aqua_amsu_20", 20},
+  {"aqua_amsu_25", 25},
+  {"aqua_modis", 30},
+  {"aqua_airs", 35},
+  {"aqua_amsr", 40},
+  {"aqua_hsb", 45}
+};

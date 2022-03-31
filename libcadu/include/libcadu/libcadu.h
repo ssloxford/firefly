@@ -29,7 +29,16 @@ extern "C" {
 // TODO: calculate the sync marker most significant bit version by byte shifting in constexpr
 constexpr uint32_t SYNC_MARKER = 0x1acffc1d;
 constexpr uint32_t SYNC_MARKER_MSB = 0x1dfccf1a;
+constexpr int VERSION_NUMBER_LEN = 2;
+constexpr int SCID_LEN = 8;
+constexpr int VCID_LEN = 6;
+constexpr int VCDU_COUNTER_LEN = 24;
+constexpr int REPLAY_FLAG_LEN = 1;
+constexpr int VCDU_SPARE_LEN = 7;
+constexpr int M_PDU_SPARE_LEN = 5;
+constexpr int FIRST_HEADER_POINTER_LEN = 11;
 constexpr int CADU_DATA_LEN = 884;
+
 
 // Default encoding table, from generator polynomial x**8 + x**7 + x**5 + x**3 + 1
 // From gov/nasa/gsfc/drl/rtstps/core/PnDecoder.java, originally from
@@ -69,17 +78,17 @@ const uint8_t randomise_table[] = {
 struct VC_PDU {
   friend class CVCDU;
 private:
-  uint16_t _scid_h : 6 = 0;
-  uint16_t _version_number : 2 = 0;
-  uint16_t _vcid : 6 = 0;
+  uint16_t _scid_h : SCID_LEN - 2 = 0;
+  uint16_t _version_number : VERSION_NUMBER_LEN = 0;
+  uint16_t _vcid : VCID_LEN = 0;
   uint16_t _scid_l : 2 = 0;
   uint32_t _vcdu_counter_h : 8 = 0;
   uint32_t _vcdu_counter_m : 8 = 0;
   uint32_t _vcdu_counter_l : 8 = 0;
-  uint32_t _vcdu_spare : 7 = 0;
-  uint32_t _replay_flag : 1 = 0;
-  uint16_t _first_header_pointer_h : 3 = 0;
-  uint16_t _m_pdu_spare : 5 = 0;
+  uint32_t _vcdu_spare : VCDU_SPARE_LEN = 0;
+  uint32_t _replay_flag : REPLAY_FLAG_LEN = 0;
+  uint16_t _first_header_pointer_h : FIRST_HEADER_POINTER_LEN - 8 = 0;
+  uint16_t _m_pdu_spare : M_PDU_SPARE_LEN = 0;
   uint16_t _first_header_pointer_l : 8 = 0;
   std::array<std::byte, CADU_DATA_LEN> _data = {};
 };
@@ -156,7 +165,7 @@ public:
   auto replay_flag() & {
     return Proxy{
       [this]() -> decltype(auto) { return std::as_const(*this).replay_flag(); },
-      [this](int x) { vc_pdu._replay_flag= x; }
+      [this](int x) { vc_pdu._replay_flag = x; }
     };
   }
 
