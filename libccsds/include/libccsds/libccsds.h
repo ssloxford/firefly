@@ -17,19 +17,27 @@
 
 struct CCSDSPacket;
 
+constexpr int VERSION_NUMBER_LEN = 3;
+constexpr int TYPE_FLAG_LEN = 1;
+constexpr int SEC_HDR_FLAG_LEN = 1;
+constexpr int APP_ID_LEN = 11;
+constexpr int SEQ_FLAGS_LEN = 2;
+constexpr int SEQ_CNT_OR_NAME_LEN = 14;
+constexpr int DATA_LEN_LEN = 16;
+
 #pragma pack(push, 1)
 struct CCSDSPrimaryHeader{
   friend CCSDSPacket;
 private:
-  uint16_t _app_id_h : 3 = 0;
-  uint16_t _sec_hdr_flag : 1 = 0;
-  uint16_t _type : 1 = 0;
-  uint16_t _version_number : 3 = 0;
+  uint16_t _app_id_h : APP_ID_LEN - 8 = 0;
+  uint16_t _sec_hdr_flag : SEC_HDR_FLAG_LEN = 0;
+  uint16_t _type : TYPE_FLAG_LEN = 0;
+  uint16_t _version_number : VERSION_NUMBER_LEN = 0;
   uint16_t _app_id_l : 8 = 0;
-  uint16_t _seq_cnt_or_name_h : 6 = 0;
-  uint16_t _seq_flags : 2 = 0;
+  uint16_t _seq_cnt_or_name_h : SEQ_CNT_OR_NAME_LEN - 8 = 0;
+  uint16_t _seq_flags : SEQ_FLAGS_LEN = 0;
   uint16_t _seq_cnt_or_name_l : 8 = 0;
-  uint16_t _data_len_h : 8 = 0;
+  uint16_t _data_len_h : DATA_LEN_LEN - 8 = 0;
   uint16_t _data_len_l : 8 = 0;
 };
 #pragma pack(pop)

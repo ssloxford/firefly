@@ -1,13 +1,28 @@
 // Given a stream of CADUs on stdin, extracts and outputs the stream of CCSDS packets on stdout
 
 #include <iostream>
+#include <cxxopts.hpp>
+
 #include "libcadu/libcadu.h"
 
 std::ostream& operator<< (std::ostream& os, std::byte b) {
   return os << std::bitset<8>(std::to_integer<int>(b));
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+  cxxopts::Options options("caduunpack", "Unpack a CADU stream from stdin to stdout");
+  options.add_options()
+    ("h,help", "Print usage")
+    ;
+
+  auto result = options.parse(argc, argv);
+
+  // Show help menu
+  if (result.count("help")) {
+    std::cerr << options.help() << std::endl;
+    exit(0);
+  }
+
   using namespace randomised;
   CADU cadu;
 

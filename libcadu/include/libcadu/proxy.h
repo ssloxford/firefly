@@ -6,7 +6,7 @@ template <typename Get, typename Set> class Proxy {
     Get get;
     Set set;
 
-    // TODO: this is the problem - the result of Get is not the argument of set, necessarily
+    // TODO: this is a problem - the result of Get is not the argument of set, necessarily
     using type = std::invoke_result_t<Get>;
 
   public:
