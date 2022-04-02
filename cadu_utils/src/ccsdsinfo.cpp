@@ -3,6 +3,8 @@
 
 #include "libccsds/libccsds.h"
 
+// TODO: select desired outputs through flags
+
 int main(int argc, char *argv[]) {
   cxxopts::Options options("ccsdsinfo", "Displays the header contents of a CCSDS packet stream from stdin");
   options.add_options()
@@ -18,14 +20,15 @@ int main(int argc, char *argv[]) {
   }
 
   CCSDSPacket packet;
+  std::cerr << "version-number\ttype-flag\tsec-hdr-flag\tapp-id\tseq-flags\tseq-cnt-or-name\tdata-len" << std::endl;
   while (std::cin >> packet) {
-    std::cout << "version-number: " << packet.version_number() << "\n";
-    std::cout << "type-flag: " << packet.type() << "\n";
-    std::cout << "sec-hdr-flag: " << packet.sec_hdr_flag() << "\n";
-    std::cout << "app-id: " << packet.app_id() << "\n";
-    std::cout << "seq-flags: " << packet.seq_flags() << "\n";
-    std::cout << "seq-cnt-or-name: " << packet.seq_cnt_or_name() << "\n";
-    std::cout << "data-len: " << packet.data_len() << "\n";
-    std::cout << std::endl;
+    std::cout << packet.version_number() << "\t\t" \
+              << packet.type() << "\t\t" \
+              << packet.sec_hdr_flag() << "\t\t" \
+              << packet.app_id() << "\t" \
+              << packet.seq_flags() << "\t\t" \
+              << packet.seq_cnt_or_name() << "\t\t" \
+              << packet.data_len() \
+              << std::endl;
   }
 }

@@ -1,6 +1,10 @@
+#include <algorithm>
 #include <iostream>
 #include <cxxopts.hpp>
+
 #include "libcadu/libcadu.h"
+
+// TODO: select desired outputs through flags
 
 std::ostream& operator<< (std::ostream& os, std::byte b) {
   std::hex(os);
@@ -9,9 +13,9 @@ std::ostream& operator<< (std::ostream& os, std::byte b) {
   return os;
 }
 
-void print_checksum(std::array<std::byte, 128> checksum) {
-  for (int i=0; i<sizeof(checksum); i++) {
-    std::cout << checksum[i] << " ";
+void print_checksum(std::array<std::byte, 128> checksum, long unsigned int n_bytes = sizeof(checksum)) {
+  for (int i=0; i<std::min(n_bytes, sizeof(checksum)); i++) {
+    std::cout << checksum[i];
   }
   std::cout << "\n";
 }
@@ -32,17 +36,17 @@ int main(int argc, char *argv[]) {
 
   using namespace nonrandomised;
   CADU cadu;
+  std::cerr << "version-number\tscid\tvcid\tvcdu-counter\treplay-flag\tvcdu-spare\tm-pdu-spare\tfirst-header-pointer\tchecksum" << std::endl;
   while (std::cin >> cadu) {
-    std::cout << "version-number: " << cadu->version_number() << std::endl;
-    std::cout << "scid: " << cadu->scid() << std::endl;
-    std::cout << "vcid: " << cadu->vcid() << std::endl;
-    std::cout << "vcdu-counter: " << cadu->vcdu_counter() << std::endl;
-    std::cout << "replay-flag: " << cadu->replay_flag() << std::endl;
-    std::cout << "vcdu-spare: " << cadu->vcdu_spare() << std::endl;
-    std::cout << "m-pdu-spare: " << cadu->m_pdu_spare() << std::endl;
-    std::cout << "first-header-pointer: " << cadu->first_header_pointer() << std::endl;
-    std::cout << "checksum: ";
-    print_checksum(cadu->checksum());
+    std::cout << cadu->version_number() << "\t\t"
+              << cadu->scid() << "\t"
+              << cadu->vcid() << "\t"
+              << cadu->vcdu_counter() << "\t\t"
+              << cadu->replay_flag() << "\t\t"
+              << cadu->vcdu_spare() << "\t\t"
+              << cadu->m_pdu_spare() << "\t\t"
+              << cadu->first_header_pointer() << "\t\t\t";
+    print_checksum(cadu->checksum(), 5);
     std::cout << std::endl;
   }
 }
