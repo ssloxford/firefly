@@ -5,10 +5,6 @@
 
 #include "libcadu/libcadu.h"
 
-std::ostream& operator<< (std::ostream& os, std::byte b) {
-  return os << std::bitset<8>(std::to_integer<int>(b));
-}
-
 int main(int argc, char *argv[]) {
   cxxopts::Options options("caduunpack", "Unpack a CADU stream from stdin to stdout");
   options.add_options()

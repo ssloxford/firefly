@@ -1,5 +1,10 @@
 #include <map>
 
+// constexpr std::array<std::tuple<std::stringview, int>>
+// Lookup: std::find (one of the ones in <algorithms>
+// Express this as a datastructure for this
+// Maybe use Jason Turner's
+
 // TODO: should be constexpr, but there's no constexpr constructor for std::map
 std::map<std::string, int> SCIDs {
   {"terra", 42},

@@ -1,4 +1,4 @@
-all: caduinfo cadupack caduunpack cadurandomise ccsdsinfo ccsdspack
+all: caduinfo cadupack caduunpack cadurandomise ccsdsinfo ccsdspack ccsdsunpack
 
 caduinfo: src/caduinfo.cpp include/cadu_constants.h
 	g++ --std=c++20 -o bin/caduinfo -I ./include/ -I ../libcadu/include/ -g src/caduinfo.cpp -lfec
@@ -18,7 +18,5 @@ ccsdsinfo: src/ccsdsinfo.cpp
 ccsdspack: src/ccsdspack.cpp
 	g++ --std=c++20 -o bin/ccsdspack -I ./include/ -I ../libcadu/include/ -I ../libccsds/include/ -g src/ccsdspack.cpp -lfec
 
-# Not yet building due to a proxy bug
 ccsdsunpack: src/ccsdsunpack.cpp
 	g++ --std=c++20 -o bin/ccsdsunpack -I ./include/ -I ../libcadu/include/ -I ../libccsds/include/ -g src/ccsdsunpack.cpp -lfec
-

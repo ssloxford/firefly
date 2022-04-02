@@ -1,11 +1,8 @@
 #include <iostream>
+#include <vector>
 #include <cxxopts.hpp>
 
 #include "libccsds/libccsds.h"
-
-std::ostream& operator<< (std::ostream& os, std::byte b) {
-  return os << std::bitset<8>(std::to_integer<int>(b));
-}
 
 int main(int argc, char *argv[]) {
   cxxopts::Options options("ccsdsunpack", "Unpack a CCSDS packet stream from stdin to stdout");
@@ -23,6 +20,9 @@ int main(int argc, char *argv[]) {
 
   CCSDSPacket packet;
   while (std::cin >> packet) {
-    std::cout << packet.data().data;
+    std::vector<std::byte> data = packet.data();
+    for (auto&& it : data) {
+      std::cout << static_cast<const uint8_t>(it);
+    }
   }
 }
