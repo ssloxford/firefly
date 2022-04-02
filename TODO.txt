@@ -1,0 +1,1 @@
+Deduplicate proxy.h from libcadu and libccsds implementations

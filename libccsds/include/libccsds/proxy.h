@@ -6,14 +6,36 @@ template <typename Get, typename Set> class Proxy {
     Get get;
     Set set;
 
+    // TODO: this is a problem - the result of Get is not the argument of set, necessarily
     using type = std::invoke_result_t<Get>;
 
   public:
+    // TODO: find out why this is a std::move.  Might we have to copy the function otherwise?
     Proxy(Get get, Set set) : get{std::move(get)}, set{std::move(set)} {}
 
     operator type() { return get(); }
 
     void operator=(std::remove_cvref_t<type> x) { set(x); }
+
+    auto begin() & -> decltype(auto) {
+      using std::begin;
+      return begin(this.get());
+    }
+
+    auto begin() && -> decltype(auto) {
+      using std::begin;
+      return begin(this->get());
+    }
+
+    auto end() & -> decltype(auto) {
+      using std::end;
+      return end(this.get());
+    }
+
+    auto end() && -> decltype(auto) {
+      using std::end;
+      return end(this->proxy.get());
+    }
 
     Proxy(Proxy const &) = delete;
     Proxy(Proxy const &&) = delete;
