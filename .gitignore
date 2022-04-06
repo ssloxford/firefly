@@ -5,5 +5,6 @@ byte_aligner/checksum_corrector
 cadu_utils/bin/*
 gnuradio/samples/results*
 __pycache__
-modisl1db/
 **.so
+modisl1db/MODISL1DB_1.9_SPA_1.2.tar.gz
+modisl1db/data/*
