@@ -1,6 +1,6 @@
 FROM centos
 WORKDIR /root
-COPY ./MODISL1DB_1.9_SPA_1.2.tar.gz /root
+COPY ./src/MODISL1DB_1.9_SPA_1.2.tar.gz /root
 RUN tar -xzvf MODISL1DB_1.9_SPA_1.2.tar.gz
 RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-* &&\
     sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
@@ -11,6 +11,4 @@ RUN ln -s /usr/bin/python2 /usr/bin/python
 RUN sed -ie "s/6\.1\.15b/6\.2\.1_obpg/" /root/SPA/modisl1db/algorithm/run/scripts/modules/modis_utils.py 
 RUN sed -ie 's/<env name="OCSSW_BIN" value="{modis_L1_home}{\/}run{\/}bin"\/>/<env name="OCSSW_BIN" value="{modis_L1_home}{\/}modisl1db{\/}bin"\/>/' /root/SPA/modisl1db/wrapper/l1atob/generic.xml
 
-COPY run.sh /root/run.sh
-
-ENTRYPOINT ["/root/run.sh"]
+COPY netrc /root/.netrc

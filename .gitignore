@@ -8,3 +8,10 @@ __pycache__
 **.so
 modisl1db/MODISL1DB_1.9_SPA_1.2.tar.gz
 modisl1db/data/*
+papers/
+
+decoder_pipeline/data/
+decoder_pipeline/modisl1db/src/
+decoder_pipeline/mod14/src/
+decoder_pipeline/bluemarble/src/
+decoder_pipeline/modisl1db/netrc
