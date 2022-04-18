@@ -10,35 +10,71 @@
 #include <optional>
 #include <utility>
 #include <vector>
+#include <variant>
 
-#include "libccsds/proxy.h"
+#include "getsetproxy/proxy.h"
 
 // https://public.ccsds.org/Pubs/133x0b2e1.pdf
 
 struct CCSDSPacket;
 
-constexpr int VERSION_NUMBER_LEN = 3;
-constexpr int TYPE_FLAG_LEN = 1;
-constexpr int SEC_HDR_FLAG_LEN = 1;
-constexpr int APP_ID_LEN = 11;
-constexpr int SEQ_FLAGS_LEN = 2;
-constexpr int SEQ_CNT_OR_NAME_LEN = 14;
-constexpr int DATA_LEN_LEN = 16;
+namespace ccsds {
+  constexpr int VERSION_NUMBER_LEN = 3;
+  constexpr int TYPE_FLAG_LEN = 1;
+  constexpr int SEC_HDR_FLAG_LEN = 1;
+  constexpr int APP_ID_LEN = 11;
+  constexpr int SEQ_FLAGS_LEN = 2;
+  constexpr int SEQ_CNT_OR_NAME_LEN = 14;
+  constexpr int DATA_LEN_LEN = 16;
+};
 
 #pragma pack(push, 1)
 struct CCSDSPrimaryHeader{
   friend CCSDSPacket;
 private:
-  uint16_t _app_id_h : APP_ID_LEN - 8 = 0;
-  uint16_t _sec_hdr_flag : SEC_HDR_FLAG_LEN = 0;
-  uint16_t _type : TYPE_FLAG_LEN = 0;
-  uint16_t _version_number : VERSION_NUMBER_LEN = 0;
+  uint16_t _app_id_h : ccsds::APP_ID_LEN - 8 = 0;
+  uint16_t _sec_hdr_flag : ccsds::SEC_HDR_FLAG_LEN = 0;
+  uint16_t _type : ccsds::TYPE_FLAG_LEN = 0;
+  uint16_t _version_number : ccsds::VERSION_NUMBER_LEN = 0;
   uint16_t _app_id_l : 8 = 0;
-  uint16_t _seq_cnt_or_name_h : SEQ_CNT_OR_NAME_LEN - 8 = 0;
-  uint16_t _seq_flags : SEQ_FLAGS_LEN = 0;
+  uint16_t _seq_cnt_or_name_h : ccsds::SEQ_CNT_OR_NAME_LEN - 8 = 0;
+  uint16_t _seq_flags : ccsds::SEQ_FLAGS_LEN = 0;
   uint16_t _seq_cnt_or_name_l : 8 = 0;
-  uint16_t _data_len_h : DATA_LEN_LEN - 8 = 0;
+  uint16_t _data_len_h : ccsds::DATA_LEN_LEN - 8 = 0;
   uint16_t _data_len_l : 8 = 0;
+
+public:
+  struct Iterator {
+    using iterator_category = std::forward_iterator_tag;
+    using difference_type   = std::ptrdiff_t;
+    using value_type        = std::byte;
+    using pointer           = value_type*;
+    using reference         = value_type&;
+
+    Iterator(const pointer ptr) : m_ptr(ptr) {}
+
+    reference operator*() const { return *m_ptr; }
+    pointer operator->() { return m_ptr; }
+
+    // Prefix increment
+    Iterator& operator++() { m_ptr++; return *this; }  
+
+    // Postfix increment
+    Iterator operator++(int) { Iterator tmp = *this; ++(*this); return tmp; }
+
+    friend bool operator== (const Iterator& a, const Iterator& b) { return a.m_ptr == b.m_ptr; };
+    friend bool operator!= (const Iterator& a, const Iterator& b) { return a.m_ptr != b.m_ptr; };     
+  private:
+    pointer m_ptr;
+
+  };
+
+  // TODO: do I need non-const member functions for the iterator?
+  auto begin() { return Iterator(reinterpret_cast<std::byte*>(this)); }
+  auto end() { return Iterator(reinterpret_cast<std::byte*>(this + 6)); }
+
+  auto begin() const { return Iterator(reinterpret_cast<const std::byte*>(this)); }
+  auto end() const { return Iterator(reinterpret_cast<const std::byte*>(this + 6)); }
 };
 #pragma pack(pop)
 static_assert(std::is_trivially_copyable_v<CCSDSPrimaryHeader>,
@@ -66,6 +102,14 @@ private:
   auto size() const -> size_t {
     return _data.size();
   }
+
+public:
+  // TODO: do I need non-const member functions for the iterator?
+  auto begin() { return _data.begin(); }
+  auto end() { return _data.end(); }
+
+  auto begin() const { return _data.begin(); }
+  auto end() const { return _data.end(); }
 };
 
 
@@ -78,6 +122,69 @@ private:
   bool dirty_length = true;
 
 public:
+  // TODO: could this iterator be implemented more efficiently, without having to compare
+  // the variant each time?
+  struct Iterator {
+    using iterator_category = std::forward_iterator_tag;
+    using difference_type   = int;
+    using value_type        = std::byte;
+    using reference         = std::byte&;
+
+    Iterator(
+      CCSDSPrimaryHeader::Iterator it,
+      CCSDSPacket* parent
+      ) : it(it), parent(parent) {}
+    Iterator(std::vector<std::byte>::iterator it) : it(it) {}
+
+    const reference operator*() const { 
+      return std::visit(
+        [](auto x) -> reference { return *x; },
+        it);
+    } 
+
+    // Prefix increment
+    Iterator& operator++() { 
+      // Increment the iterator
+      if (std::holds_alternative<CCSDSPrimaryHeader::Iterator>(it)) {
+        std::get<CCSDSPrimaryHeader::Iterator>(it)++;
+      } else {
+        std::get<std::vector<std::byte>::iterator>(it)++;
+      }
+
+      // Wrap over to next field
+      if (std::holds_alternative<CCSDSPrimaryHeader::Iterator>(it) &&
+          std::get<const CCSDSPrimaryHeader::Iterator>(it) == parent->primary_header.end()) {
+        it = parent->data_field.begin();
+      }
+      return *this; 
+    }
+
+    // Postfix increment
+    Iterator operator++(int) { Iterator tmp = *this; ++(*this); return tmp; }
+
+    Iterator operator+(int x) const {
+      auto tmp = *this;
+      for (int i=0; i<x; i++) {
+        if (std::holds_alternative<std::vector<std::byte>::iterator>(tmp.it) &&
+            std::get<std::vector<std::byte>::iterator>(tmp.it) == tmp.parent->data_field.end()) {
+          break;
+        } 
+        tmp++;
+      }
+      return tmp;
+    }
+
+    friend bool operator== (const Iterator& a, const Iterator& b) { return a.it == b.it; };
+    friend bool operator!= (const Iterator& a, const Iterator& b) { return a.it != b.it; };     
+
+  private:
+    std::variant<const CCSDSPrimaryHeader::Iterator, const std::vector<std::byte>::iterator> it;
+    const CCSDSPacket* parent;
+  };
+
+  Iterator begin() { return Iterator(primary_header.begin(), this); }
+  Iterator end() { return Iterator(data_field.end()); }
+
   auto version_number() const & {
     return static_cast<int>(primary_header._version_number);
   }
@@ -205,6 +312,7 @@ auto operator<<(std::ostream & output, CCSDSPacket & packet) -> std::ostream & {
   if (packet.dirty_length) {
     // Set the length in accordance with the data length
     packet.data_len() = packet.data_field.size() - 1;
+    packet.dirty_length = false;
   }
   output.write(reinterpret_cast<char*>(&packet.primary_header), sizeof(CCSDSPrimaryHeader));
   output.write(reinterpret_cast<char*>(packet.data_field._data.data()), packet.data_field.size());

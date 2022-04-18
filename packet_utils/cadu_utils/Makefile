@@ -4,7 +4,7 @@ caduinfo: src/caduinfo.cpp include/cadu_constants.h
 	g++ --std=c++20 -o bin/caduinfo -I ./include/ -I ../libcadu/include/ -g src/caduinfo.cpp -lfec
 	
 cadupack: src/cadupack.cpp include/cadu_constants.h
-	g++ --std=c++20 -o bin/cadupack -I ./include/ -I ../libcadu/include/ -g src/cadupack.cpp -lfec
+	g++ --std=c++20 -o bin/cadupack -I ./include/ -I ../getsetproxy/include/ -I ../libcadu/include/ -I ../libccsds/include/ -g src/cadupack.cpp -lfec
 	
 caduunpack: src/caduunpack.cpp include/cadu_constants.h
 	g++ --std=c++20 -o bin/caduunpack -I ./include/ -I ../libcadu/include/ -g src/caduunpack.cpp -lfec

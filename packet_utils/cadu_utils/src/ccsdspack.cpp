@@ -1,5 +1,7 @@
 // Packs a byte stream into CCSDS packets
 
+// TODO: make this work for multiple packets
+
 #include <iostream>
 #include <ranges>
 #include <cxxopts.hpp>

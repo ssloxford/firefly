@@ -17,7 +17,7 @@ extern "C" {
 #include "fec.h"
 }
 
-#include "proxy.h"
+#include "getsetproxy/proxy.h"
 
 
 // TODO: implement is_fill test on CADU
@@ -27,18 +27,19 @@ extern "C" {
 
 // TODO: test bit outputs
 // TODO: calculate the sync marker most significant bit version by byte shifting in constexpr
-constexpr uint32_t SYNC_MARKER = 0x1acffc1d;
-constexpr uint32_t SYNC_MARKER_MSB = 0x1dfccf1a;
-constexpr int VERSION_NUMBER_LEN = 2;
-constexpr int SCID_LEN = 8;
-constexpr int VCID_LEN = 6;
-constexpr int VCDU_COUNTER_LEN = 24;
-constexpr int REPLAY_FLAG_LEN = 1;
-constexpr int VCDU_SPARE_LEN = 7;
-constexpr int M_PDU_SPARE_LEN = 5;
-constexpr int FIRST_HEADER_POINTER_LEN = 11;
-constexpr int CADU_DATA_LEN = 884;
-
+namespace cadu {
+  constexpr uint32_t SYNC_MARKER = 0x1acffc1d;
+  constexpr uint32_t SYNC_MARKER_MSB = 0x1dfccf1a;
+  constexpr int VERSION_NUMBER_LEN = 2;
+  constexpr int SCID_LEN = 8;
+  constexpr int VCID_LEN = 6;
+  constexpr int VCDU_COUNTER_LEN = 24;
+  constexpr int REPLAY_FLAG_LEN = 1;
+  constexpr int VCDU_SPARE_LEN = 7;
+  constexpr int M_PDU_SPARE_LEN = 5;
+  constexpr int FIRST_HEADER_POINTER_LEN = 11;
+  constexpr int DATA_LEN = 884;
+}
 
 // Default encoding table, from generator polynomial x**8 + x**7 + x**5 + x**3 + 1
 // From gov/nasa/gsfc/drl/rtstps/core/PnDecoder.java, originally from
@@ -78,19 +79,19 @@ const uint8_t randomise_table[] = {
 struct VC_PDU {
   friend class CVCDU;
 private:
-  uint16_t _scid_h : SCID_LEN - 2 = 0;
-  uint16_t _version_number : VERSION_NUMBER_LEN = 0;
-  uint16_t _vcid : VCID_LEN = 0;
+  uint16_t _scid_h : cadu::SCID_LEN - 2 = 0;
+  uint16_t _version_number : cadu::VERSION_NUMBER_LEN = 0;
+  uint16_t _vcid : cadu::VCID_LEN = 0;
   uint16_t _scid_l : 2 = 0;
   uint32_t _vcdu_counter_h : 8 = 0;
   uint32_t _vcdu_counter_m : 8 = 0;
   uint32_t _vcdu_counter_l : 8 = 0;
-  uint32_t _vcdu_spare : VCDU_SPARE_LEN = 0;
-  uint32_t _replay_flag : REPLAY_FLAG_LEN = 0;
-  uint16_t _first_header_pointer_h : FIRST_HEADER_POINTER_LEN - 8 = 0;
-  uint16_t _m_pdu_spare : M_PDU_SPARE_LEN = 0;
+  uint32_t _vcdu_spare : cadu::VCDU_SPARE_LEN = 0;
+  uint32_t _replay_flag : cadu::REPLAY_FLAG_LEN = 0;
+  uint16_t _first_header_pointer_h : cadu::FIRST_HEADER_POINTER_LEN - 8 = 0;
+  uint16_t _m_pdu_spare : cadu::M_PDU_SPARE_LEN = 0;
   uint16_t _first_header_pointer_l : 8 = 0;
-  std::array<std::byte, CADU_DATA_LEN> _data = {};
+  std::array<std::byte, cadu::DATA_LEN> _data = {};
 };
 #pragma pack(pop)
 static_assert(std::is_trivially_copyable_v<VC_PDU>,
@@ -209,7 +210,7 @@ public:
   auto data() & {
     return Proxy{
       [this]() -> decltype(auto) { return std::as_const(*this).data(); },
-      [this](std::span<std::byte, CADU_DATA_LEN> s) { 
+      [this](std::span<std::byte, cadu::DATA_LEN> s) { 
         std::copy(s.begin(), s.end(), vc_pdu._data.begin());
       }
     };
@@ -217,7 +218,7 @@ public:
 
   // TODO: check whether this needs to be a ref
   auto data_header_aligned() const & -> auto const {
-    return std::views::counted(data().begin() + first_header_pointer(), CADU_DATA_LEN - (first_header_pointer()));
+    return std::views::counted(data().begin() + first_header_pointer(), cadu::DATA_LEN - (first_header_pointer()));
   }
 
   auto data_header_aligned() & {
@@ -227,7 +228,7 @@ public:
       [this](std::span<std::byte> s) {
         std::copy_n(
           s.begin(),
-          std::min(static_cast<int>(s.size()), CADU_DATA_LEN - first_header_pointer()),
+          std::min(static_cast<int>(s.size()), cadu::DATA_LEN - first_header_pointer()),
           vc_pdu._data.begin() + first_header_pointer()
         );
       }
@@ -268,7 +269,7 @@ namespace randomised {
 struct CADU {
 private:
   struct Impl {
-    const uint32_t sync = SYNC_MARKER_MSB;
+    const uint32_t sync = cadu::SYNC_MARKER_MSB;
     CVCDU cvcdu;
 
     Impl() = default;
@@ -387,7 +388,7 @@ namespace nonrandomised {
       prefix_buffer |= byte_buffer;
 
       // Check for matching prefix
-      if (prefix_buffer == SYNC_MARKER) {
+      if (prefix_buffer == cadu::SYNC_MARKER) {
         found_header = true;
         break;
       }

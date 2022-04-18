@@ -1,3 +1,5 @@
+#pragma once
+
 #include <type_traits>
 #include <utility>
 
@@ -10,7 +12,6 @@ template <typename Get, typename Set> class Proxy {
     using type = std::invoke_result_t<Get>;
 
   public:
-    // TODO: find out why this is a std::move.  Might we have to copy the function otherwise?
     Proxy(Get get, Set set) : get{std::move(get)}, set{std::move(set)} {}
 
     operator type() { return get(); }
