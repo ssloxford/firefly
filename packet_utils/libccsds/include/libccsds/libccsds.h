@@ -26,6 +26,10 @@ namespace ccsds {
   constexpr int SEQ_FLAGS_LEN = 2;
   constexpr int SEQ_CNT_OR_NAME_LEN = 14;
   constexpr int DATA_LEN_LEN = 16;
+
+  // 0 denotes a data section of a single byte
+  static constexpr std::size_t MAX_DATA_LEN = 1 << ccsds::DATA_LEN_LEN;
+
 };
 
 #pragma pack(push, 1)
@@ -70,7 +74,7 @@ public:
   };
 
   Iterator begin() { return Iterator(reinterpret_cast<std::byte*>(this)); }
-  Iterator end() { return Iterator(reinterpret_cast<std::byte*>(this + 6)); }
+  Iterator end() { return Iterator(reinterpret_cast<std::byte*>(this) + sizeof(CCSDSPrimaryHeader)); }
 };
 #pragma pack(pop)
 static_assert(std::is_trivially_copyable_v<CCSDSPrimaryHeader>,
@@ -79,9 +83,6 @@ static_assert(std::is_standard_layout_v<CCSDSPrimaryHeader>,
               "CCSDSPrimaryHeader is not a standard layout type");
 static_assert(sizeof(CCSDSPrimaryHeader) == 6,
               "CCSDSPrimaryHeader is not of size 6 as in the spec");
-
-// 0 denotes a data section of a single byte
-static constexpr std::size_t CCSDS_MAX_DATA_LEN = std::pow(2, 16);
 
 struct CCSDSDataField {
   friend CCSDSPacket;
@@ -278,7 +279,7 @@ public:
           throw (std::invalid_argument("Data field must contain at least one byte"));
         }
         dirty_length = true;
-        int size = std::min(s.size(), CCSDS_MAX_DATA_LEN);
+        int size = std::min(s.size(), ccsds::MAX_DATA_LEN);
         data_field.resize(size);
         std::copy_n(s.begin(), size, data_field._data.begin());
       }

@@ -20,7 +20,7 @@ template <typename Get, typename Set> class Proxy {
 
     auto begin() & -> decltype(auto) {
       using std::begin;
-      return begin(this.get());
+      return begin(this->get());
     }
 
     auto begin() && -> decltype(auto) {
@@ -30,7 +30,7 @@ template <typename Get, typename Set> class Proxy {
 
     auto end() & -> decltype(auto) {
       using std::end;
-      return end(this.get());
+      return end(this->get());
     }
 
     auto end() && -> decltype(auto) {

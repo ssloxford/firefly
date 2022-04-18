@@ -20,42 +20,42 @@ int main(int argc, char *argv[]) {
     (
       "n,version-number",
       "Set version number field - <int (0-"
-        + std::to_string((int)pow(2, VERSION_NUMBER_LEN)-1)
+        + std::to_string((int)pow(2, ccsds::VERSION_NUMBER_LEN)-1)
         + ")>",
       cxxopts::value<int>()->default_value("0")
     )
     (
       "t,type-flag",
       "Set packet type flag - \"telemetry\"|\"telecommand\"|<int (0-"
-        + std::to_string((int)pow(2, TYPE_FLAG_LEN)-1)
+        + std::to_string((int)pow(2, ccsds::TYPE_FLAG_LEN)-1)
         + ")>",
       cxxopts::value<std::string>()->default_value("0")
     )
     (
       "f,sec-hdr-flag",
       "Set secondary header flag. 1 indicates the presence of a secondary header, 0 its absence - <int (0-"
-        + std::to_string((int)pow(2, SEC_HDR_FLAG_LEN)-1)
+        + std::to_string((int)pow(2, ccsds::SEC_HDR_FLAG_LEN)-1)
         + ")>",
       cxxopts::value<int>()->default_value("0")
     )
     (
       "a,app-id",
       "Set application process id - \"aqua_modis\"|<int (0-"
-        + std::to_string((int)pow(2, APP_ID_LEN)-1)
+        + std::to_string((int)pow(2, ccsds::APP_ID_LEN)-1)
         + ")>",
       cxxopts::value<std::string>()->default_value("0")
     )
     (
       "s,seq-flags",
       "Set sequence flags, incidating whether the packets' data is a segment of a larger set - \"first\"|\"last\"|\"continuation\"|\"unsegmented\"|<int (0-"
-        + std::to_string((int)pow(2, SEQ_FLAGS_LEN)-1)
+        + std::to_string((int)pow(2, ccsds::SEQ_FLAGS_LEN)-1)
         + ")>",
       cxxopts::value<std::string>()->default_value("0")
     )
     (
       "c,seq-cnt-or-name",
       "Set packet sequence count or packet name - <int (0-"
-        + std::to_string((int)pow(2, SEQ_CNT_OR_NAME_LEN)-1)
+        + std::to_string((int)pow(2, ccsds::SEQ_CNT_OR_NAME_LEN)-1)
         + ")>",
       cxxopts::value<int>()->default_value("0")
     )
@@ -73,8 +73,8 @@ int main(int argc, char *argv[]) {
   // Validate arguments
   bool valid = true;
 
-  if (result["version-number"].as<int>() >= pow(2, VERSION_NUMBER_LEN)) {
-    std::cerr << "Error: version-number must be between 0 and " << pow(2, VERSION_NUMBER_LEN)-1 << std::endl;
+  if (result["version-number"].as<int>() >= pow(2, ccsds::VERSION_NUMBER_LEN)) {
+    std::cerr << "Error: version-number must be between 0 and " << pow(2, ccsds::VERSION_NUMBER_LEN)-1 << std::endl;
     valid = false;
   }
 
@@ -86,13 +86,13 @@ int main(int argc, char *argv[]) {
   } else {
     try {
       type = std::stoi(result["type-flag"].as<std::string>());
-      if (type >= pow(2, TYPE_FLAG_LEN)) {
-        std::cerr << "Error: type must be between 0 and " << pow(2, TYPE_FLAG_LEN)-1 << std::endl;
+      if (type >= pow(2, ccsds::TYPE_FLAG_LEN)) {
+        std::cerr << "Error: type must be between 0 and " << pow(2, ccsds::TYPE_FLAG_LEN)-1 << std::endl;
         valid = false;
       }
     }
     catch(std::invalid_argument) {
-      std::cerr << "Error: type-flag must be either \"telemetry\", \"telecommand\", or <int (0-" << pow(2, TYPE_FLAG_LEN)-1 << ")>" << std::endl;
+      std::cerr << "Error: type-flag must be either \"telemetry\", \"telecommand\", or <int (0-" << pow(2, ccsds::TYPE_FLAG_LEN)-1 << ")>" << std::endl;
       valid = false;
     }
     catch(std::out_of_range) {
@@ -101,8 +101,8 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (result["sec-hdr-flag"].as<int>() >= pow(2, SEC_HDR_FLAG_LEN)) {
-    std::cerr << "Error: sec-hdr-flag must be between 0 and " << pow(2, SEC_HDR_FLAG_LEN)-1 << std::endl;
+  if (result["sec-hdr-flag"].as<int>() >= pow(2, ccsds::SEC_HDR_FLAG_LEN)) {
+    std::cerr << "Error: sec-hdr-flag must be between 0 and " << pow(2, ccsds::SEC_HDR_FLAG_LEN)-1 << std::endl;
     valid = false;
   }
 
@@ -112,8 +112,8 @@ int main(int argc, char *argv[]) {
   } catch (std::out_of_range) {
     try {
       app_id = std::stoi(result["app-id"].as<std::string>());
-      if (app_id >= pow(2, APP_ID_LEN)) {
-        std::cerr << "Error: app-id must be between 0 and " << pow(2, APP_ID_LEN)-1 << std::endl;
+      if (app_id >= pow(2, ccsds::APP_ID_LEN)) {
+        std::cerr << "Error: app-id must be between 0 and " << pow(2, ccsds::APP_ID_LEN)-1 << std::endl;
         valid = false;
       }
     }
@@ -140,13 +140,13 @@ int main(int argc, char *argv[]) {
   } else {
     try {
       seq_flags = std::stoi(result["seq-flags"].as<std::string>());
-      if (seq_flags >= pow(2, TYPE_FLAG_LEN)) {
-        std::cerr << "Error: seq-flags must be between 0 and " << pow(2, TYPE_FLAG_LEN)-1 << std::endl;
+      if (seq_flags >= pow(2, ccsds::TYPE_FLAG_LEN)) {
+        std::cerr << "Error: seq-flags must be between 0 and " << pow(2, ccsds::TYPE_FLAG_LEN)-1 << std::endl;
         valid = false;
       }
     }
     catch(std::invalid_argument) {
-      std::cerr << "Error: seq-flags must be either \"telemetry\", \"telecommand\", or <int (0-" << pow(2, TYPE_FLAG_LEN)-1 << ")>" << std::endl;
+      std::cerr << "Error: seq-flags must be either \"telemetry\", \"telecommand\", or <int (0-" << pow(2, ccsds::TYPE_FLAG_LEN)-1 << ")>" << std::endl;
       valid = false;
     }
     catch(std::out_of_range) {
@@ -155,19 +155,19 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (result["seq-cnt-or-name"].as<int>() >= pow(2, SEQ_CNT_OR_NAME_LEN)) {
-    std::cerr << "Error: seq-cnt-or-name must be between 0 and " << pow(2, SEQ_CNT_OR_NAME_LEN)-1 << std::endl;
+  if (result["seq-cnt-or-name"].as<int>() >= pow(2, ccsds::SEQ_CNT_OR_NAME_LEN)) {
+    std::cerr << "Error: seq-cnt-or-name must be between 0 and " << pow(2, ccsds::SEQ_CNT_OR_NAME_LEN)-1 << std::endl;
     valid = false;
   }
 
 
   auto buffer = std::vector<std::byte> {};
-  buffer.resize(CCSDS_MAX_DATA_LEN);
+  buffer.resize(ccsds::MAX_DATA_LEN);
 
   int n_read = 0;
   char c;
   while (std::cin.get(c)) {
-    if (n_read >= CCSDS_MAX_DATA_LEN) {
+    if (n_read >= ccsds::MAX_DATA_LEN) {
       break;
     }
     buffer[n_read] = std::byte(c);

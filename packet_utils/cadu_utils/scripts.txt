@@ -1,0 +1,1 @@
+printf %5s | tr " " "f" | ccsdspack --type-flag telecommand --sec-hdr-flag 1 --app-id aqua_modis --seq-flags first --seq-cnt-or-name 16003 | cadupack --mode ccsds

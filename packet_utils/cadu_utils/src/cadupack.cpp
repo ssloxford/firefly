@@ -219,11 +219,13 @@ int main(int argc, char *argv[]) {
     // TODO: next_header_pointer -> next_header_offset
 
     while (std::cin >> packet) {
+      /*
       for (auto x: packet) {
         std::cerr << x;
         std::cerr << "\n";
       }
       std::terminate();
+      */
       
       std::cerr << "found packet of size " << packet.size() << std::endl;
       int packet_offset = 0; // The number of bytes of the packet that have been copied in so far

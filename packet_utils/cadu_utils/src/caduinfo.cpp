@@ -13,7 +13,7 @@ std::ostream& operator<< (std::ostream& os, std::byte b) {
   return os;
 }
 
-void print_checksum(std::array<std::byte, 128> checksum, long unsigned int n_bytes = sizeof(checksum)) {
+void print_checksum(std::array<std::byte, 128> checksum, long unsigned int n_bytes) {
   for (int i=0; i<std::min(n_bytes, sizeof(checksum)); i++) {
     std::cout << checksum[i];
   }

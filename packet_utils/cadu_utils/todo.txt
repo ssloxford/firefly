@@ -1,0 +1,3 @@
+Separate into caduutils and ccsdsutils
+Make -O flags in Makefile
+Makefile: make asan mode
