@@ -63,7 +63,6 @@ int main(int argc, char *argv[]) {
 
   if (sign) {
     // Positive sign
-    std::cerr << "positive\n";
     int n = 0;
     CADU cadu;
     while (nonrandomised::operator>>(std::cin, cadu)) {
