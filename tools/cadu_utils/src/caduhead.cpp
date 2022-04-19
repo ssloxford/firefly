@@ -58,7 +58,6 @@ int main(int argc, char *argv[]) {
   }
 
   if (sign) {
-    std::cerr << "positive\n";
     // Positive sign
     int n = 0;
     CADU cadu;
@@ -71,7 +70,6 @@ int main(int argc, char *argv[]) {
       }
     }
   } else {
-    std::cerr << "negative\n";
     // Negative sign
     // Fill all the CADUs into a buffer
     std::vector<CADU> buffer = {};
