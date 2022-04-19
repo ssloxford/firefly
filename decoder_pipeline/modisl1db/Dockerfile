@@ -12,3 +12,4 @@ RUN sed -ie "s/6\.1\.15b/6\.2\.1_obpg/" /root/SPA/modisl1db/algorithm/run/script
 RUN sed -ie 's/<env name="OCSSW_BIN" value="{modis_L1_home}{\/}run{\/}bin"\/>/<env name="OCSSW_BIN" value="{modis_L1_home}{\/}modisl1db{\/}bin"\/>/' /root/SPA/modisl1db/wrapper/l1atob/generic.xml
 
 COPY netrc /root/.netrc
+WORKDIR data/tmp
