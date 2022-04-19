@@ -2,9 +2,14 @@ Separate into caduutils and ccsdsutils
 Make -O flags in Makefile
 Makefile: make asan mode
 caduinfo line wraps wrong if terminal on narrow width when run, then expanded
+print checksums correctly with zeros, so fixed width
+make libccsds more const
+    libcadu as well with << and >>
 
 cadu router
     Allows routing based on the id
     Allows "fill packet" filtering?
 
 caduhead, cadutail
+
+set up clang-tidy, iwyu
