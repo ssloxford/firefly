@@ -17,7 +17,6 @@ void print_checksum(std::array<std::byte, 128> checksum, long unsigned int n_byt
   for (int i=0; i<std::min(n_bytes, sizeof(checksum)); i++) {
     std::cout << checksum[i];
   }
-  std::cout << "\n";
 }
 
 int main(int argc, char *argv[]) {
@@ -30,13 +29,13 @@ int main(int argc, char *argv[]) {
 
   // Show help menu
   if (result.count("help")) {
-    std::cerr << options.help() << std::endl;
+    std::cerr << options.help() << '\n';
     exit(0);
   }
 
   using namespace nonrandomised;
   CADU cadu;
-  std::cerr << "version-number\tscid\tvcid\tvcdu-counter\treplay-flag\tvcdu-spare\tm-pdu-spare\tfirst-header-pointer\tchecksum" << std::endl;
+  std::cerr << "version-number\tscid\tvcid\tvcdu-counter\treplay-flag\tvcdu-spare\tm-pdu-spare\tfirst-header-pointer\tchecksum" << '\n';
   while (std::cin >> cadu) {
     std::cout << cadu->version_number() << "\t\t"
               << cadu->scid() << "\t"
@@ -47,6 +46,6 @@ int main(int argc, char *argv[]) {
               << cadu->m_pdu_spare() << "\t\t"
               << cadu->first_header_pointer() << "\t\t\t";
     print_checksum(cadu->checksum(), 5);
-    std::cout << std::endl;
+    std::cout << '\n';
   }
 }

@@ -1,3 +1,10 @@
 Separate into caduutils and ccsdsutils
 Make -O flags in Makefile
 Makefile: make asan mode
+caduinfo line wraps wrong if terminal on narrow width when run, then expanded
+
+cadu router
+    Allows routing based on the id
+    Allows "fill packet" filtering?
+
+caduhead, cadutail

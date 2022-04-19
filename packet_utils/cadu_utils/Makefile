@@ -1,12 +1,12 @@
-all: caduinfo cadupack cadupack-asan caduunpack cadurandomise ccsdsinfo ccsdspack ccsdsunpack
+all: caduinfo cadupack caduunpack cadurandomise ccsdsinfo ccsdspack ccsdsunpack
 
 caduinfo: src/caduinfo.cpp include/cadu_constants.h
 	g++ --std=c++20 -o bin/caduinfo -Wl,-rpath=/usr/local/lib -I ./include/ -I ../getsetproxy/include/ -I ../libcadu/include/ -g src/caduinfo.cpp -lfec
 	
-#cadupack: src/cadupack.cpp include/cadu_constants.h
-#	g++ --std=c++20 -o bin/cadupack -Wl,-rpath=/usr/local/lib -I ./include/ -I ../getsetproxy/include/ -I ../libcadu/include/ -I ../libccsds/include/ -g src/cadupack.cpp -lfec
-	
 cadupack: src/cadupack.cpp include/cadu_constants.h
+	g++ --std=c++20 -o bin/cadupack -Wl,-rpath=/usr/local/lib -I ./include/ -I ../getsetproxy/include/ -I ../libcadu/include/ -I ../libccsds/include/ -g src/cadupack.cpp -lfec
+	
+cadupack-asan: src/cadupack.cpp include/cadu_constants.h
 	g++ --std=c++20 -o bin/cadupack -fsanitize=address -static-libasan -fno-omit-frame-pointer -O1 -Wl,-rpath=/usr/local/lib -I ./include/ -I ../getsetproxy/include/ -I ../libcadu/include/ -I ../libccsds/include/ -g src/cadupack.cpp -lfec
 	
 caduunpack: src/caduunpack.cpp include/cadu_constants.h

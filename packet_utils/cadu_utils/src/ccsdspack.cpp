@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 
   // Show help menu
   if (result.count("help")) {
-    std::cerr << options.help() << std::endl;
+    std::cerr << options.help() << '\n';
     exit(0);
   }
 
@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
   bool valid = true;
 
   if (result["version-number"].as<int>() >= pow(2, ccsds::VERSION_NUMBER_LEN)) {
-    std::cerr << "Error: version-number must be between 0 and " << pow(2, ccsds::VERSION_NUMBER_LEN)-1 << std::endl;
+    std::cerr << "Error: version-number must be between 0 and " << pow(2, ccsds::VERSION_NUMBER_LEN)-1 << '\n';
     valid = false;
   }
 
@@ -87,22 +87,22 @@ int main(int argc, char *argv[]) {
     try {
       type = std::stoi(result["type-flag"].as<std::string>());
       if (type >= pow(2, ccsds::TYPE_FLAG_LEN)) {
-        std::cerr << "Error: type must be between 0 and " << pow(2, ccsds::TYPE_FLAG_LEN)-1 << std::endl;
+        std::cerr << "Error: type must be between 0 and " << pow(2, ccsds::TYPE_FLAG_LEN)-1 << '\n';
         valid = false;
       }
     }
     catch(std::invalid_argument) {
-      std::cerr << "Error: type-flag must be either \"telemetry\", \"telecommand\", or <int (0-" << pow(2, ccsds::TYPE_FLAG_LEN)-1 << ")>" << std::endl;
+      std::cerr << "Error: type-flag must be either \"telemetry\", \"telecommand\", or <int (0-" << pow(2, ccsds::TYPE_FLAG_LEN)-1 << ")>" << '\n';
       valid = false;
     }
     catch(std::out_of_range) {
-      std::cerr << "Error: type-flag out of range" << std::endl;
+      std::cerr << "Error: type-flag out of range" << '\n';
       valid = false;
     }
   }
 
   if (result["sec-hdr-flag"].as<int>() >= pow(2, ccsds::SEC_HDR_FLAG_LEN)) {
-    std::cerr << "Error: sec-hdr-flag must be between 0 and " << pow(2, ccsds::SEC_HDR_FLAG_LEN)-1 << std::endl;
+    std::cerr << "Error: sec-hdr-flag must be between 0 and " << pow(2, ccsds::SEC_HDR_FLAG_LEN)-1 << '\n';
     valid = false;
   }
 
@@ -113,17 +113,17 @@ int main(int argc, char *argv[]) {
     try {
       app_id = std::stoi(result["app-id"].as<std::string>());
       if (app_id >= pow(2, ccsds::APP_ID_LEN)) {
-        std::cerr << "Error: app-id must be between 0 and " << pow(2, ccsds::APP_ID_LEN)-1 << std::endl;
+        std::cerr << "Error: app-id must be between 0 and " << pow(2, ccsds::APP_ID_LEN)-1 << '\n';
         valid = false;
       }
     }
     catch(std::invalid_argument) {
       // TODO: create this dynamically at compile time
-      std::cerr << "Error: app-id must be either \"aqua_modis\", or an int" << std::endl;
+      std::cerr << "Error: app-id must be either \"aqua_modis\", or an int" << '\n';
       valid = false;
     }
     catch(std::out_of_range) {
-      std::cerr << "Error: app-id out of range" << std::endl;
+      std::cerr << "Error: app-id out of range" << '\n';
       valid = false;
     }
   }
@@ -141,22 +141,22 @@ int main(int argc, char *argv[]) {
     try {
       seq_flags = std::stoi(result["seq-flags"].as<std::string>());
       if (seq_flags >= pow(2, ccsds::TYPE_FLAG_LEN)) {
-        std::cerr << "Error: seq-flags must be between 0 and " << pow(2, ccsds::TYPE_FLAG_LEN)-1 << std::endl;
+        std::cerr << "Error: seq-flags must be between 0 and " << pow(2, ccsds::TYPE_FLAG_LEN)-1 << '\n';
         valid = false;
       }
     }
     catch(std::invalid_argument) {
-      std::cerr << "Error: seq-flags must be either \"telemetry\", \"telecommand\", or <int (0-" << pow(2, ccsds::TYPE_FLAG_LEN)-1 << ")>" << std::endl;
+      std::cerr << "Error: seq-flags must be either \"telemetry\", \"telecommand\", or <int (0-" << pow(2, ccsds::TYPE_FLAG_LEN)-1 << ")>" << '\n';
       valid = false;
     }
     catch(std::out_of_range) {
-      std::cerr << "Error: seq-flags out of range" << std::endl;
+      std::cerr << "Error: seq-flags out of range" << '\n';
       valid = false;
     }
   }
 
   if (result["seq-cnt-or-name"].as<int>() >= pow(2, ccsds::SEQ_CNT_OR_NAME_LEN)) {
-    std::cerr << "Error: seq-cnt-or-name must be between 0 and " << pow(2, ccsds::SEQ_CNT_OR_NAME_LEN)-1 << std::endl;
+    std::cerr << "Error: seq-cnt-or-name must be between 0 and " << pow(2, ccsds::SEQ_CNT_OR_NAME_LEN)-1 << '\n';
     valid = false;
   }
 

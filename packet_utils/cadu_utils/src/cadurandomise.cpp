@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 
   // Show help menu
   if (result.count("help")) {
-    std::cerr << options.help() << std::endl;
+    std::cerr << options.help() << '\n';
     exit(0);
   }
   

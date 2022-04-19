@@ -15,12 +15,12 @@ int main(int argc, char *argv[]) {
 
   // Show help menu
   if (result.count("help")) {
-    std::cerr << options.help() << std::endl;
+    std::cerr << options.help() << '\n';
     exit(0);
   }
 
   CCSDSPacket packet;
-  std::cerr << "version-number\ttype-flag\tsec-hdr-flag\tapp-id\tseq-flags\tseq-cnt-or-name\tdata-len" << std::endl;
+  std::cerr << "version-number\ttype-flag\tsec-hdr-flag\tapp-id\tseq-flags\tseq-cnt-or-name\tdata-len" << '\n';
   while (std::cin >> packet) {
     std::cout << packet.version_number() << "\t\t" \
               << packet.type() << "\t\t" \
@@ -29,6 +29,6 @@ int main(int argc, char *argv[]) {
               << packet.seq_flags() << "\t\t" \
               << packet.seq_cnt_or_name() << "\t\t" \
               << packet.data_len() \
-              << std::endl;
+              << '\n';
   }
 }
