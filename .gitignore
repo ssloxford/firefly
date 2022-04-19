@@ -1,17 +1,15 @@
-byte_aligner/byte_aligner
-byte_aligner/denoiser
-byte_aligner/header_counter
-byte_aligner/checksum_corrector
-cadu_utils/bin/*
-gnuradio/samples/results*
-__pycache__
-**.so
-modisl1db/MODISL1DB_1.9_SPA_1.2.tar.gz
-modisl1db/data/*
-papers/
+tools/cadu_utils/bin/*
+tools/ccsds_utils/bin/*
+tools/byte_aligner/byte_aligner
 
 decoder_pipeline/data/
 decoder_pipeline/modisl1db/src/
 decoder_pipeline/mod14/src/
 decoder_pipeline/bluemarble/src/
 decoder_pipeline/modisl1db/netrc
+
+overshadowing/gnuradio/samples/results*
+
+papers/
+
+**.so
