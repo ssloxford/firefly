@@ -38,7 +38,7 @@ else
 fi
 
 mkdir -p "$DATA_PATH/output/images"
-mkdir -p "$DATA_PATH/workdir"
+mkdir -p "$DATA_PATH/tmp"
 
 # TODO: add optional att/eph files
 
