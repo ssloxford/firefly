@@ -57,8 +57,7 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  using namespace nonrandomised;
-  CADU cadu;
+  nonrandomised::CADU cadu;
 
   if (mode == "raw") {
     // Unpack all the bytes within the CADU

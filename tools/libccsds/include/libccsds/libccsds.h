@@ -29,7 +29,6 @@ namespace ccsds {
 
   // 0 denotes a data section of a single byte
   static constexpr std::size_t MAX_DATA_LEN = 1 << ccsds::DATA_LEN_LEN;
-
 };
 
 #pragma pack(push, 1)
@@ -83,6 +82,11 @@ static_assert(std::is_standard_layout_v<CCSDSPrimaryHeader>,
               "CCSDSPrimaryHeader is not a standard layout type");
 static_assert(sizeof(CCSDSPrimaryHeader) == 6,
               "CCSDSPrimaryHeader is not of size 6 as in the spec");
+
+namespace ccsds {
+  constexpr int MIN_PACKET_LEN = sizeof(CCSDSPrimaryHeader) + 1; // The data zone must contain at least one byte
+  constexpr int MAX_PACKET_LEN = sizeof(CCSDSPrimaryHeader) + (1 << DATA_LEN_LEN) + 1;
+}
 
 struct CCSDSDataField {
   friend CCSDSPacket;
@@ -178,7 +182,7 @@ public:
     CCSDSPacket* parent;
   };
 
-  Iterator begin() { return Iterator(primary_header.begin(), this); }
+  Iterator begin() { recalculate_length(); return Iterator(primary_header.begin(), this); }
   Iterator end() { return Iterator(data_field.end()); }
 
   auto version_number() const & {
@@ -299,17 +303,20 @@ public:
     return sizeof(primary_header) + data_field.size();
   }
 
+  void recalculate_length() {
+    if (dirty_length) {
+      data_len() = data_field.size() - 1;
+      dirty_length = false;
+    }
+  }
+
   friend auto operator<<(std::ostream & output, CCSDSPacket & packet) -> std::ostream &;
   friend auto operator>>(std::istream & input, CCSDSPacket & packet) -> std::istream &;
 };
 
 
 auto operator<<(std::ostream & output, CCSDSPacket & packet) -> std::ostream & {
-  if (packet.dirty_length) {
-    // Set the length in accordance with the data length
-    packet.data_len() = packet.data_field.size() - 1;
-    packet.dirty_length = false;
-  }
+  packet.recalculate_length();
   output.write(reinterpret_cast<char*>(&packet.primary_header), sizeof(CCSDSPrimaryHeader));
   output.write(reinterpret_cast<char*>(packet.data_field._data.data()), packet.data_field.size());
   return output;

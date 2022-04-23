@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "libcadu/libcadu.h"
+using namespace nonrandomised;
 
 int main(int argc, char *argv[]) {
   cxxopts::Options options("caduhead", "Output the first part of a CADU stream from stdin, in whole CADUs, up to a given index");
@@ -58,35 +59,28 @@ int main(int argc, char *argv[]) {
   }
 
   if (sign) {
-    // Positive sign
-    int n = 0;
-    CADU cadu;
-    while (nonrandomised::operator>>(std::cin, cadu)) {
-      if (n < index) {
-        nonrandomised::operator<<(std::cout, cadu);
-        n++;
-      } else {
-        break;
-      }
-    }
+    std::ranges::copy
+      ( std::ranges::subrange
+        ( std::istream_iterator<nonrandomised::CADU>(std::cin)
+        , std::istream_iterator<nonrandomised::CADU>()
+        )
+        | std::ranges::views::take(index)
+      , std::ostream_iterator<nonrandomised::CADU>(std::cout)
+      );
   } else {
-    // Negative sign
+    std::vector<nonrandomised::CADU> buffer;
     // Fill all the CADUs into a buffer
-    std::vector<CADU> buffer = {};
-    while (nonrandomised::operator>>(std::cin, buffer.emplace_back())) {}
-
-    // Calculate the new index
-    auto front_index = buffer.size() - index;
+    std::copy
+      ( std::istream_iterator<nonrandomised::CADU>(std::cin)
+      , std::istream_iterator<nonrandomised::CADU>()
+      , std::back_insert_iterator<std::vector<nonrandomised::CADU>>(buffer)
+      );
 
     // Output from the buffer
-    int n = 0;
-    for (auto c : buffer) {
-      if (n < front_index) {
-        nonrandomised::operator<<(std::cout, c);
-        n++;
-      } else {
-        break;
-      }
-    }
+    std::copy_n
+      ( buffer.begin()
+      , buffer.size() - index
+      , std::ostream_iterator<nonrandomised::CADU>(std::cout)
+      );
   }
 }

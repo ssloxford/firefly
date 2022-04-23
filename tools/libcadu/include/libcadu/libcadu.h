@@ -19,6 +19,10 @@ extern "C" {
 
 #include "getsetproxy/proxy.h"
 
+// TODO: move everything that's not the CADU into the CADU
+
+// TODO: ensure that any output CADUs don't have their first_header_pointer beyond the frame
+//  Maybe emit a warning in this case?
 
 // TODO: implement is_fill test on CADU
 // TODO: Precalculate array of uint8_ts of sync pulse middle sections - 8x3
@@ -105,7 +109,7 @@ struct CVCDU {
   friend class CADU;
 private:
   VC_PDU vc_pdu;
-  std::array<std::byte, 128> _checksum;
+  mutable std::array<std::byte, 128> _checksum;
 
 public:
   CVCDU() = default;
@@ -257,12 +261,12 @@ static_assert(std::is_standard_layout_v<CVCDU>,
 struct CADU;
 
 namespace nonrandomised {
-  auto operator<<(std::ostream & output, CADU & cadu) -> std::ostream &;
+  auto operator<<(std::ostream & output, CADU const & cadu) -> std::ostream &;
   auto operator>>(std::istream & input, CADU & cadu) -> std::istream &;
 }
 
 namespace randomised {
-  auto operator<<(std::ostream & output, CADU & cadu) -> std::ostream &;
+  auto operator<<(std::ostream & output, CADU const & cadu) -> std::ostream &;
   auto operator>>(std::istream & input, CADU & cadu) -> std::istream &;
 }
 
@@ -277,7 +281,7 @@ private:
   };
 
   Impl impl;
-  bool dirty_checksum = true; // Even the empty CADU needs to have its checksum calculated
+  mutable bool dirty_checksum = true; // Even the empty CADU needs to have its checksum calculated
 
   auto randomise() -> void {
     auto data = reinterpret_cast<uint8_t*>(&impl.cvcdu);
@@ -289,7 +293,7 @@ private:
 public:
   // Constructor for everything without sync pulse
   CADU() = default;
-  CADU(const CADU &cadu) : impl{cadu.impl.cvcdu.vc_pdu}, dirty_checksum{true} {}
+  CADU(const CADU &cadu) : impl{cadu.impl.cvcdu.vc_pdu}, dirty_checksum{cadu.dirty_checksum} {}
   CADU(uint8_t const *const input) {std::memcpy(&impl.cvcdu, input, sizeof(CVCDU));}
 
   CADU(VC_PDU const &vc_pdu) : impl{vc_pdu}, dirty_checksum{true} {}
@@ -309,7 +313,7 @@ public:
   }
 
 private:
-  void calculate_checksum(std::array<std::byte, 128>& checksum) {
+  void calculate_checksum(std::array<std::byte, 128>& checksum) const {
     // Deinterleave the blocks to depth 4
     // Described in sec 4.4.1 https://public.ccsds.org/Pubs/131x0b3e1.pdf
     auto data0 = std::array<unsigned char, 223> {};
@@ -318,7 +322,7 @@ private:
     auto data3 = std::array<unsigned char, 223> {};
 
     static_assert(sizeof(impl.cvcdu.vc_pdu) == 4*223, "VC_PDU wrong size");
-    auto buffer = reinterpret_cast<unsigned char*>(&impl.cvcdu.vc_pdu);
+    auto buffer = reinterpret_cast<const unsigned char*>(&impl.cvcdu.vc_pdu);
     for (int i=222; i>-1; i--) {
       data0[i] = buffer[4*i];
       data1[i] = buffer[4*i+1];
@@ -345,7 +349,7 @@ private:
   }
 
 public:
-  void recalculate_checksum() {
+  void recalculate_checksum() const {
     calculate_checksum(impl.cvcdu._checksum);
     dirty_checksum = false;
   }
@@ -363,22 +367,29 @@ public:
     }
   }
 
-  friend auto nonrandomised::operator<<(std::ostream & output, CADU & cadu) -> std::ostream &;
-  friend auto nonrandomised::operator>>(std::istream & input, CADU & cadu) -> std::istream &;
-  friend auto randomised::operator<<(std::ostream & output, CADU & cadu) -> std::ostream &;
-  friend auto randomised::operator>>(std::istream & input, CADU & cadu) -> std::istream &;};
+  friend auto nonrandomised::operator<<(std::ostream & output, ::CADU const & cadu) -> std::ostream &;
+  friend auto nonrandomised::operator>>(std::istream & input, ::CADU & cadu) -> std::istream &;
+  friend auto randomised::operator<<(std::ostream & output, ::CADU const & cadu) -> std::ostream &;
+  friend auto randomised::operator>>(std::istream & input, ::CADU & cadu) -> std::istream &;
+
+};
 
 namespace nonrandomised {
-  auto operator<<(std::ostream & output, CADU & cadu) -> std::ostream & {
+  struct CADU: ::CADU {
+    CADU () = default;
+    CADU (::CADU cadu) : ::CADU{cadu} {};
+  };
+
+  auto operator<<(std::ostream & output, ::CADU const & cadu) -> std::ostream & {
     if (cadu.dirty_checksum) {
       std::cerr << "dirty checksum. recalculating..." << std::endl;
       cadu.recalculate_checksum();
     }
-    output.write(reinterpret_cast<char*>(&cadu.impl), sizeof(cadu.impl));
+    output.write(reinterpret_cast<const char*>(&cadu.impl), sizeof(cadu.impl));
     return output;
   }
 
-  auto operator>>(std::istream & input, CADU & cadu) -> std::istream & {
+  auto operator>>(std::istream & input, ::CADU & cadu) -> std::istream & {
     uint32_t prefix_buffer = 0;
     bool found_header = false;
 
@@ -403,18 +414,32 @@ namespace nonrandomised {
     }
     return input;
   }  
+
 }
 
 namespace randomised {
-  auto operator<<(std::ostream & output, CADU & cadu) -> std::ostream & {
-    auto randomised_cadu = CADU(cadu);
+  struct CADU: ::CADU {
+    CADU () = default;
+    CADU (::CADU cadu) : ::CADU{cadu} {};
+  };
+
+  auto operator<<(std::ostream & output, ::CADU const & cadu) -> std::ostream & {
+    auto randomised_cadu = ::CADU(cadu);
     randomised_cadu.randomise();
     nonrandomised::operator<<(output, randomised_cadu);
     return output;
   }
-  auto operator>>(std::istream & input, CADU & cadu) -> std::istream & {
+
+  auto operator>>(std::istream & input, ::CADU & cadu) -> std::istream & {
     nonrandomised::operator>>(input, cadu);
     cadu.randomise();
     return input;
   }
 }
+
+
+// Add two new types in the (non)randomised namespaces:
+  // CADU_randomised
+  // nonrandomisedCADU
+  // Inherit from the normal CADU, behaving the same except they have only one stream extraction
+  // Add implicit conversion?

@@ -33,8 +33,7 @@ int main(int argc, char *argv[]) {
     exit(0);
   }
 
-  using namespace nonrandomised;
-  CADU cadu;
+  nonrandomised::CADU cadu;
   std::cerr << "version-number\tscid\tvcid\tvcdu-counter\treplay-flag\tvcdu-spare\tm-pdu-spare\tfirst-header-pointer\tchecksum" << '\n';
   while (std::cin >> cadu) {
     std::cout << cadu->version_number() << "\t\t"

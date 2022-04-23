@@ -16,9 +16,10 @@ int main(int argc, char *argv[]) {
     std::cerr << options.help() << '\n';
     exit(0);
   }
-  
-  CADU cadu;
-  while (randomised::operator>>(std::cin, cadu)) {
-    nonrandomised::operator<<(std::cout, cadu);
-  }
+
+  std::copy
+    ( std::istream_iterator<randomised::CADU>(std::cin)
+    , std::istream_iterator<randomised::CADU>()
+    , std::ostream_iterator<nonrandomised::CADU>(std::cout)
+    );
 }

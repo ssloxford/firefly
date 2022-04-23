@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
   options.add_options()
     (
       "m,mode",
-      "Choose between raw byte stream and CCSDS packet mode. raw packs all bytes into a contiguous sequence of CADUs. ccsds packs bytes one packet at a time, and sets the first header pointer accordingly - raw|ccsds",
+      "Choose between raw byte stream and CCSDS packet mode. raw packs all bytes into a contiguous sequence of CADUs. ccsds packs bytes one packet at a time, sets first-header-pointer in each CADU accordingly, and generates fill packets to complete partial CADUs. ccsdspad packs bytes one packet at a time, with one packet per CADU, padded with fill packets - raw|ccsds|ccsdspad",
       cxxopts::value<std::string>()->default_value("raw")
     )
     (
@@ -90,8 +90,8 @@ int main(int argc, char *argv[]) {
   bool valid = true;
 
   auto mode = result["mode"].as<std::string>();
-  if (mode != "raw" && mode != "ccsds") {
-    std::cerr << "Error: mode must be either \"raw\", or \"ccsds\"" << '\n';
+  if (mode != "raw" && mode != "ccsds" && mode != "ccsdspad") {
+    std::cerr << "Error: mode must be either \"raw\", \"ccsds\", or \"ccsdspad\"" << '\n';
     valid = false;
   }
 
@@ -178,14 +178,10 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  // Turning on randomisation is out of scope
-  // Users should use the `cadurandomise` program in their pipeline instead
-  using namespace nonrandomised;
-
   auto buffer = std::remove_cvref_t<decltype(std::declval<CADU>()->data())>();
   auto vcdu_counter = result["vcdu-counter"].as<int>();
 
-  CADU cadu;
+  nonrandomised::CADU cadu;
   cadu.get_mutable().version_number() = result["version-number"].as<int>();
   cadu.get_mutable().scid() = scid;
   cadu.get_mutable().vcid() = vcid;
@@ -263,20 +259,98 @@ int main(int argc, char *argv[]) {
     }
 
     if (next_byte_offset > 0) {
-      // The final CADU is partially filled
-      // Buffer with zeros
-      std::fill(buffer.begin() + next_byte_offset, buffer.end(), std::byte{0});
+      // The final CADU is only partially filled, add a fill packet
+      // TODO: work out whether this packet needs to be within the bounds of the spacecraft's min and max
 
-      // If the first_header_pointer is the next_byte_offset, we were expecting another
-      // packet and didn't get one.  There is no first header
-      if (cadu->first_header_pointer() == next_byte_offset) {
-        cadu.get_mutable().first_header_pointer() = std::pow(2, cadu::FIRST_HEADER_POINTER_LEN)-1;
+      // Construct a packet will all the magic values that mark it as a fill packet
+      // I believe this is an ICD_Space_Ground_Aqua document thing, rather than a CCSDS thing
+      CCSDSPacket fill_packet;
+      fill_packet.version_number() = 0;
+      fill_packet.type() = 0;
+      fill_packet.sec_hdr_flag() = 0;
+      fill_packet.app_id() = (1 << ccsds::APP_ID_LEN) - 1;
+      fill_packet.seq_flags() = (1 << ccsds::SEQ_FLAGS_LEN) - 1;
+      fill_packet.seq_cnt_or_name() = 0;
+
+      std::cerr << "working on final cadu\n";
+      if (cadu::DATA_LEN - next_byte_offset >= ccsds::MIN_PACKET_LEN) {
+        std::cerr << "fill packet fits\n";
+        // There's sufficient space in the CADU for a fill packet
+        // Construct it and copy into the packet
+        std::vector<std::byte> packet_buffer(cadu::DATA_LEN - next_byte_offset - sizeof(CCSDSPrimaryHeader), std::byte(0x00));
+        fill_packet.data() = packet_buffer;
+        //buffer.begin() + next_byte_offset << 
+        std::copy(fill_packet.begin(), fill_packet.end(), buffer.begin() + next_byte_offset);
+
+      } else {
+        // There's insufficient space in the CADU to store a fill packet
+        // Construct an extra-long one and copy the first part into the packet
+        std::vector<std::byte> packet_buffer(cadu::DATA_LEN*2 - next_byte_offset - sizeof(CCSDSPrimaryHeader), std::byte(0x00));
+        fill_packet.data() = packet_buffer;
+        std::copy(
+          fill_packet.begin(),
+          fill_packet.begin() + (cadu::DATA_LEN - next_byte_offset),
+          buffer.begin() + next_byte_offset);
+
+        // Output the cadu
+        cadu.get_mutable().data() = buffer;
+        std::cout << cadu;
+
+        // Construct the second CADU
+        cadu.get_mutable().first_header_pointer() = (1 << cadu::FIRST_HEADER_POINTER_LEN) - 1;
+        cadu.get_mutable().vcdu_counter() = (cadu->vcdu_counter() + 1) % (1 << cadu::VCDU_COUNTER_LEN);
+        std::copy(
+          fill_packet.begin() + (cadu::DATA_LEN - next_byte_offset),
+          fill_packet.end(),
+          buffer.begin());
       }
 
       // Output the cadu
       cadu.get_mutable().data() = buffer;
       std::cout << cadu;
-      // std::cerr << "outputting partial cadu" << '\n';
+    }
+  } else if (mode == "ccsdspad") {
+    CCSDSPacket packet;
+    int next_byte_offset = result["first-header-pointer"].as<int>();
+
+    cadu.get_mutable().first_header_pointer() = next_byte_offset;
+
+    while (std::cin >> packet) {
+      // Check that there's enough length in the CADU to fit the packet and a fill packet if required
+      if (cadu::DATA_LEN - next_byte_offset != packet.size()
+         && cadu::DATA_LEN - next_byte_offset < packet.size() + ccsds::MIN_PACKET_LEN) {
+        std::cerr << "Packet size too large to be padded into a frame. Skipping...\n";
+      } else {
+        std::copy(
+          packet.begin(),
+          packet.end(),
+          buffer.begin() + next_byte_offset);
+
+        // Construct the fill packet if required
+        if (cadu::DATA_LEN - next_byte_offset != packet.size()) {
+          CCSDSPacket fill_packet;
+          fill_packet.version_number() = 0;
+          fill_packet.type() = 0;
+          fill_packet.sec_hdr_flag() = 0;
+          fill_packet.app_id() = (1 << ccsds::APP_ID_LEN) - 1;
+          fill_packet.seq_flags() = (1 << ccsds::SEQ_FLAGS_LEN) - 1;
+          fill_packet.seq_cnt_or_name() = 0;
+          std::vector<std::byte> packet_buffer(cadu::DATA_LEN - next_byte_offset - packet.size() - sizeof(CCSDSPrimaryHeader), std::byte(0x00));
+          fill_packet.data() = packet_buffer;
+
+          std::copy(
+            fill_packet.begin(),
+            fill_packet.end(),
+            buffer.begin() + packet.size());
+        }
+
+        // Output the cadu
+        cadu.get_mutable().data() = buffer;
+        std::cout << cadu;
+
+        // Construct the next CADU
+        cadu.get_mutable().vcdu_counter() = (cadu->vcdu_counter() + 1) % (1 << cadu::VCDU_COUNTER_LEN);
+      }
     }
   } else {
     throw std::invalid_argument("Error: invalid mode: " + mode);
