@@ -7,6 +7,8 @@
 #include "cadu_constants.h"
 #include "libccsds/libccsds.h"
 
+// TODO: work out why decoding a --mode ccsds with RT-STPS causes issues every 442 packets
+
 std::ostream& operator<< (std::ostream& os, std::byte b) {
   return os << std::bitset<8>(std::to_integer<int>(b));
 }

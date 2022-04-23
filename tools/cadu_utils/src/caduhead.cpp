@@ -5,6 +5,24 @@
 #include "libcadu/libcadu.h"
 using namespace nonrandomised;
 
+template <typename It>
+class subrange {
+private:
+  It begin_iter;
+  It end_iter;
+
+public:
+  subrange (It begin, It end): begin_iter{begin}, end_iter{end} {};
+
+  auto begin() {
+    return begin_iter;
+  }
+
+  auto end() {
+    return end_iter;
+  }
+};
+
 int main(int argc, char *argv[]) {
   cxxopts::Options options("caduhead", "Output the first part of a CADU stream from stdin, in whole CADUs, up to a given index");
   options.add_options()
@@ -59,6 +77,27 @@ int main(int argc, char *argv[]) {
   }
 
   if (sign) {
+    // TODO: this exhibits UB once we get to the end of the buffer!
+    std::copy_n
+      ( std::istream_iterator<nonrandomised::CADU>(std::cin)
+      , index
+      , std::ostream_iterator<nonrandomised::CADU>(std::cout)
+      );
+
+    /*
+    std::ranges::copy
+      ( std::ranges::views::take
+        ( subrange<std::istream_iterator<nonrandomised::CADU>>
+          ( std::istream_iterator<nonrandomised::CADU>(std::cin)
+          , std::istream_iterator<nonrandomised::CADU>()
+          )
+        , index
+        )
+      , std::ostream_iterator<nonrandomised::CADU>(std::cout)
+      );
+    */
+
+    /*
     std::ranges::copy
       ( std::ranges::subrange
         ( std::istream_iterator<nonrandomised::CADU>(std::cin)
@@ -67,6 +106,8 @@ int main(int argc, char *argv[]) {
         | std::ranges::views::take(index)
       , std::ostream_iterator<nonrandomised::CADU>(std::cout)
       );
+    */
+
   } else {
     std::vector<nonrandomised::CADU> buffer;
     // Fill all the CADUs into a buffer

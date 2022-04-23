@@ -349,6 +349,11 @@ private:
   }
 
 public:
+  // TODO: place a lock on dirty_checksum and the checksum itself, as this isn't thread safe
+  // const methods are assumed thread safe, which this isn't, because the checksum and dirty
+  // bit are both mutable
+  // This method is only const because the stream insertion operator needed to be
+  // in order to use it 
   void recalculate_checksum() const {
     calculate_checksum(impl.cvcdu._checksum);
     dirty_checksum = false;
