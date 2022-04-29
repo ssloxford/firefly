@@ -109,7 +109,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [736, 180.0]
+    coordinate: [736, 180]
     rotation: 0
     state: true
 - name: blocks_multiply_const_vxx_1

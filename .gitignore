@@ -13,3 +13,6 @@ overshadowing/gnuradio/samples/results*
 papers/
 
 **.so
+gnuradio/samples/results*
+__pycache__
+.DS_Store
