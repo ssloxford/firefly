@@ -1,0 +1,131 @@
+\documentclass[sigconf,anonymous,review]{acmart}
+%\documentclass[sigconf]{acmart}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{svg}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+}
+
+\setcopyright{acmcopyright}
+\copyrightyear{2022}
+\acmYear{2022}
+\acmDOI{10.1145/xxxxxxx.xxxxxxx}
+
+\acmConference[WiSec '22]{WiSec '22: 15th ACM Conference on Security and Privacy in Wireless and Mobile Networks}{May 16--May 19, 2022}{San Antonio, Texas, USA}
+\acmBooktitle{WiSec '22: 15th ACM Conference on Security and Privacy in Wireless and Mobile Networks, May 16--May 19, 2022, San Antonio, Texas, USA}
+\acmPrice{15.00}
+\acmISBN{978-1-4503-XXXX-X/21/06}
+
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\redcomment}[1]{\textcolor{red}{(#1)}}
+
+\title{Firefly: Exploiting Implicit Trust in Satellite Image Downlink Processing Systems}
+
+\begin{document}
+
+\author{Edd Salkield}
+\affiliation{%
+  \institution{University of Oxford}
+  \city{Oxford}
+  \country{UK}
+}
+\email{edd.salkield@cs.ox.ac.uk}
+
+\author{Joshua Smailes}
+\affiliation{%
+  \institution{University of Oxford}
+  \city{Oxford}
+  \country{UK}
+}
+\email{joshua.smailes@cs.ox.ac.uk}
+
+\author{Richard Baker}
+\affiliation{%
+  \institution{University of Oxford}
+  \city{Oxford}
+  \country{UK}
+}
+\email{richard.baker@cs.ox.ac.uk}
+
+\author{Martin Strohmeier}
+\affiliation{%
+    \institution{Cyber-Defence Campus, armasuisse Science + Technology}
+    \city{Zurich}
+    \country{Switzerland}
+}
+\email{martin.strohmeier@armasuisse.ch}
+
+\author{Ivan Martinovic}
+\affiliation{%
+  \institution{University of Oxford}
+  \city{Oxford}
+  \country{UK}
+}
+\email{ivan.martinovic@cs.ox.ac.uk}
+
+\input{abstract.tex}
+
+\begin{CCSXML}
+  <ccs2012>
+  <concept>
+  <concept_id>10002978.10003014.10003017</concept_id>
+  <concept_desc>Security and privacy~Mobile and wireless security</concept_desc>
+  <concept_significance>500</concept_significance>
+  </concept>
+  <concept>
+  <concept_id>10010583.10010588.10011669</concept_id>
+  <concept_desc>Hardware~Wireless devices</concept_desc>
+  <concept_significance>500</concept_significance>
+  </concept>
+  <concept>
+  <concept_id>10010520.10010553.10003238</concept_id>
+  <concept_desc>Computer systems organization~Sensor networks</concept_desc>
+  <concept_significance>300</concept_significance>
+  </concept>
+  </ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Security and privacy~Mobile and wireless security}
+\ccsdesc[500]{Hardware~Wireless devices}
+\ccsdesc[300]{Computer systems organization~Sensor networks}
+
+\keywords{satellites, nasa, signal injection, overshadowing, arbitrary code execution}
+
+\maketitle
+
+\input{motivation.tex}
+\input{background.tex}
+\input{threat_model.tex}
+\input{attack.tex}
+\input{evaluation.tex}
+\input{countermeasures.tex}
+\input{conclusion.tex}
+
+% Finish checklist:
+% * you can make sure they're non-breaking by using ~ (e.g. end of sentence~\cite{thing}.
+% * Update keywords
+% * Update CCS concepts
+% * Make formatting consistent across whole paper (e.g. italics)
+% * Rewrite abstract
+% * Rewrite background
+% * Write attack
+% * Write conclusion
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{refs}
+\end{document}

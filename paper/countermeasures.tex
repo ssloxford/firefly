@@ -1,0 +1,27 @@
+\section{Countermeasures}
+
+Fundamentally, the attacks described in this paper arise from a lack of caution towards input data -- it is assumed that all incident signals on the receiver are legitimate, well-intentioned, and safe to process.
+Under these assumptions, it makes sense to run all received signals through a processing pipeline which does not handle input data with utmost caution.
+However, we have shown in this paper that such assumptions do not hold and a sufficiently motivated attacker with access to common radio hardware can inject crafted signals to cause unwanted behaviour on the target system, compromising data and potentially leading to real-world harms.
+\textbf{TODO make sure real-world harms are talked about earlier on}
+
+It is therefore of great importance that input data is handled carefully, and the systems processing such data are protected against known attacks.
+There are a few potential methods to achieve these goals:
+
+\subsection{Encryption, Signatures}
+
+One of the most straightforward solutions to suggest would be to simply encrypt the downlinked signals using a key known only to the operators.
+While this may seem simple, there are a number of reasons not to take this approach: although it may seem that it would only require a simple software update, the hardware on these satellites is highly specialised and it may be a challenge to insert encryption into the radio downlink pipeline.
+Satellite hardware is also computationally limited due to the requirement of high levels of radiation shielding and error correction, so it may not be feasible to perform the computation required for encryption onboard.
+
+Even if these problems can be solved, encrypting signals from the EOS fleet would be detrimental to a large number of businesses and research institutions which have set up their own ground stations to receive downlinked signals.
+These parties would no longer be able to receive signals, rendering their often expensive ground stations worthless. \textbf{TODO: We can't claim this, since signatures are a cryptographic primitive that keeps data publicly available}
+This problem could be sidestepped by instead signing the data using a cryptographic key, but this would still likely require significant changes to the signal processing pipelines in use by these organisations.
+
+\subsection{Placeholder}
+\textbf{TODO think of title here}
+
+A more straightforward approach is for the receiving ground stations to simply treat downlinked data as untrustworthy, and build software and hardware stacks accordingly.
+Such behaviour includes keeping all software and libraries used in data processing fully up-to-date in order to reduce the threat of known vulnerabilities, as well as making sure input data is properly sanitised before passing into other tools/libraries or running shell commands derived from the input.
+
+This is helped by making sure processing software is not bloated and does not pull in excessive dependencies, and that the code written is well-documented and easy to understand, maintain, and update.

@@ -1,0 +1,27 @@
+\section{Threat Model}
+
+The goal of the adversary is to cause disruption to the EOS image processing pipeline by emitting conterfeit signals in the vicinity of the receiver.
+This disruption can take a number of forms:
+\begin{itemize}
+    \item Inject false data to mislead people -- for example, to disrupt automated systems for forest fire and other anomaly detection,
+    \item Mask important data to deny people information -- for instance, to hide approaching natural disasters,
+    \item Prevent new data from being processed and saved by the receiver,
+    \item Destroy or alter recent or historical data,
+    \item Hide malicious payloads in a long-term storage database, to be triggered by a later processing step.
+\end{itemize}
+%Depending on the scenario, this disruption could take the form of denial of service to the software or hardware components, modification of recently received or historical image data, or destruction of old data.
+
+We assume the attacker has access to radio equipment such as software-defined radios, amplifiers, and antennas, in order to emit signals in the X-band frequency range used by the EOS downlink.
+\textbf{TODO confirm and/or cite}
+This equipment is commercially available off-the-shelf so the budget for our attacker is quite low.
+\textbf{TODO rewrite, maybe state budget explicitly}
+
+We also assume the attacker is able to maintain a presence in the vicinity of the receiver, in order to receive downlinked broadcasts for approximate time synchronisation \textbf{TODO decide if we still want this} and broadcast their own signals.
+
+%The goal of the adversary is to stealthily spoof the image information decoded by a single receiver station by emitting a counterfeit signal in the vicinity of the receiver.  Depending on the scenario, the attacker may want to inject similar-looking images with slight modifications to disrupt automated systems for forest fire and other anomaly detection.  In other cases, the attacker may wish to inject adversarial examples or degrade image quality to harm the research efforts of those using data derived from this source.
+
+%We assume that the attacker has access to off-the-shelf equipment, such as software-defined radios, amplifiers, and antennas.  We also assume that the attacker is able to maintain presence in the vicinity of the images they want to spoof, enabling them to receive the direct broadcast signal for that area [TODO: include roughly how precisely they need to be in the location].  They must also have a presence near the targeted receiver station, and be able to transmit the information they decode between the locations, using systems such as a wired, mobile, or even satellite internet connection.
+
+%We assume that the receiver station has strong waveform and timing analysis on its input signals, utilising state-of-the-art spoofing detection mechanisms.  Although currently few receiver stations perform this analysis, suspicions about the origin of the data may still lead to retrospective analysis.  The attacker must therefore remain stealthy, and manipulate the signal only in ways that still resemble other legitimate signals.
+
+%Finally, the attacker is limited by the physical properties of the radio signal: they are unable to perform the required signal cancellation simply through analogue means, due to the highly limited distance constrains that this requires.  Instead, the attacker must seek to cancel the signal from a distance, requiring that they first receive and process the direct broadcast signal.

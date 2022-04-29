@@ -1,0 +1,40 @@
+\section{Motivation}
+
+% https://directreadout.sci.gsfc.nasa.gov/?id=MODIS&date=2021-Nov-16
+
+In recent decades, satellite imaging of the Earth's surface has become increasingly important within research and safety-critical contexts alike. 
+Equipped with optical sensors that can detect a spectrum wider than visible light alone, satellites within NASA's \textit{Earth Observing Systems} (EOS) fleet have found broad usage within areas such as atmospheric observation, wildfire detection, and deforestation monitoring.
+Automated data processing techniques are widely used to provide live data streams for incident response; ensuring data integrity at the radio downlink is therefore of high importance.
+
+Although spoofing attacks have been addressed in recent satellite deployments through the introduction of cryptography, the long lifespans, high associated costs, and backwards compatibility requirements of existing satellite systems have resulted in a resistance towards retrofitting cryptography into these systems.
+An additional desire for open data has motivated certain scientific satellite operators, including the EOS fleet operators, to make their data available through public unencrypted broadcast.
+Accordingly, several prominent data processing software systems have been developed, which are run at ground stations across the world to receive and decode the transmitted signals, producing indispensable data for near real-time and retrospective Earth monitoring applications.
+These processing algorithms are distributed in various ways, with the most popular distribution mechanism being the \textit{International Planetary Observation Processing Package} (IPOPP).
+
+Despite the unauthenticated nature of this data, the processing software found in IPOPP are not built with safety or security in mind -- all received signals are passed through a complex software pipeline designed to decode, process, and store the data to make it useful for later work.
+Should an attacker successfully inject their own signal it would be processed by this same system and pass through a wide range of software components, each with their own unique attack surface.
+
+Therefore, through carefully crafting input data, an attacker can target the services which are responsible for decoding each part of the protocol.
+For example, the near real-time forest fire alerting services can be targeted through injecting arbitrary image data, causing ficticious alerts or masking legitimate ones.
+Malicious packets can also be constructed at the protocol level, which lead to denial of service and arbitrary code execution when processed.
+The attack data would be stored in various medium- to long-term storage public storage systems and potentially reprocessed at a later time.
+
+Fixing these security issues is nontrivial thanks to the complex nature of these systems, with even small changes requiring a deep understanding of the entire system and potentially changes across multiple components.
+The attacker has multiple avenues through which to inject data, including through overshadowing the radio signal at receiver stations, and through posting malicious data on the satellite data mailing lists.
+The system is also brittle, with small changes to one part having the potential to introduce vulnerabilities in other areas; the relationships between different components can be unclear, so it is difficult to see these issues before they occur.
+It is difficult to fully know the extent to which the system is vulnerable thanks to its large collection of potentially out-of-date software components and large codebase, making a full audit of vulnerabilities challenging.
+
+\subsection{Contributions}
+
+In this paper we argue that satellite data processing systems cannot assume that the input data is benign, and showcase the real world dangers associated with this assumption in currently deployed systems.
+
+We firstly demonstrate that, through overshadowing the wireless channel with carefully constructed packet data, an attacker can inject arbitrary bytes into targeted processing stages within a decoding pipeline.
+We 
+
+We demonstrate the feasibility of this approach against NASA's flagship Earth Observing System decoding pipeline, targeting both their near real-time processing systems and medium- to long-term storage archives, opening up end user machines to similar attacks.
+Through these techniques, we achieve both denial of service in the near real-time context, and arbitrary code execution on end user machines during dataset reanalysis.
+
+We go on to measure the feasibility of these attacks in a real-world setting, firstly demonstrating how an attacker can abuse the implicit trust in the public mailing lists to get malicious data into the archives.
+We then determine the feasibility of injecting attack data as an overshadowed radio signal at receiver stations, taking into account the particular difficulties associated with the physical layer encoding phase shift keying.
+
+Finally, we discuss detection mechanisms, mitigations, and the architectural principles required to make satellite decoding systems robust against this sort of attack, considering particular issues surrounding legacy software systems.

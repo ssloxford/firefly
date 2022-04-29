@@ -1,0 +1,2 @@
+Define EOS better
+Figures called "Figure" but referenced as "Fig."

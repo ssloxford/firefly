@@ -1,0 +1,89 @@
+\section{Arbitrary Image Injection}
+
+\subsection{Attack description}
+
+
+Unfortunately the \textit{IPOPP} framework for processing EOS data is open to a variety of attacks through signal injection.
+In each case, the attacker leverages different parts of the protocol to redirect the control flow of the program, either causing a denial of service, the leaking of sensitive data, or even arbitrary code execution.
+
+Through the injection of standards-compliant frames, complete with synchronisation headers and checksums, the attacker can convince prior processing stages to decode and demultiplex an arbitrary byte sequence, delivering it as input to \textit{MODISL1DB\_SPA}.
+
+The input to this algorithm is so-called \textit{Level 0} data, which is the body of a data frame with all communications artefacts, including synchronisation headers and checksums, removed.
+Through the creation of a custom data frame, the attacker can encapsulate an arbitarary byte sequence which, when overshadowed over the existing signal, will result in the delivery of arbitrary bytes as the input to \textit{MODISL1DB\_SPA}.
+
+We proceed to analyse several classes of attack made possible through this route, and enabled by insecure data handling practises.
+
+
+\section{Exploiting downlink processing systems}
+
+\subsubsection{Communications interruption}
+
+Downlink satellite communications often take the form of a frame structure, with an easily detectable synchronisation header delimiting them.
+An attacker can interrupt the communication through overshadowing a malicious header, causing the state machine to stop decoding the packet and instead resynchronise in the wrong place.
+
+In our analysis, this attack has been shown to be highly effective in preventing
+
+% TODO: insert screenshots side by side of the same signal with overshadowed frame headers
+
+We have analysed the effect of this approach through decoding it through \textit{RT-STPS}.
+As \textbf{figure X} shows, this approach is highly effective in denying service.
+However, simple signal-to-noise ratio analysis is sufficient to detect that this attack is taking place.
+
+A more stealthy approach can be taken, building upon recent work by Moser et.\ al.  in digital signal cancellation.
+Their work has shown that, given bit-perfect knowledge of parts of the signal and the ability to synchronise with it,
+phase cancelling from arbitrary distances is possible.
+Since the frame header is of a known structure and appears at fixed intervals, this approach would enable the cancellation of the header to below the noise threshold on the receiver, from arbitrary distances.
+This approach isn't detectable through signal-to-noise analysis.
+
+\subsubsection{Unprocessable malformed packets}
+
+The software makes assumptions about the internal structure of the packets, which only hold for benign packets.
+With the ability to inject arbitrary data, the attacker can craft packets to exploit oversights in the exception handling code for data parsing, and cause the program to crash.
+Since the program processes packets in sets, a single malformed packet is sufficient to prevent the processing of the entire set.
+
+Since the packet data is stored as a dataset for future processing, this attack also lets the attacker poison the dataset to make reprocessing of the entire set significantly harder.
+
+
+\subsubsection{Latent arbitrary code execution}
+
+In addition to near real-time data processing at the downlinks, past data is often reprocessed to take advantage of new processing alorithms, or to explore new results.
+To support these use cases, the processing algorithms within MODISL1DB\_SPA are also available as command line tools, with adjustable configurations.
+
+When run in SPA mode, the configuration used is always the same, which has resulted in a "golden path" through the execution of the program which is relatively secure.
+However, by changing the initial configuration, a user could accidentally put the program into a mode which unsafely handles the input data.
+
+Therefore, an attacker can poison the official datasets through the injection of packets, which cause no unsafe behaviour on first processing, but leverage vulnerabilities for arbitrary code execution when reprocessed under a different configuration.
+These vulnerabilities have the potential to lie dormant in the official data sources as currently distributed by LAADS DAC, among other Direct Readout stations.
+
+% TODO: go on to demonstrate the attack
+
+\subsubsection{Reading unallocated memory}
+
+Due to the design of the hardware on board the satellite, legitimate communications from the onboard instruments are guaranteed to hold to certain assumptions: for example, the packets are always of the same length, and the internal pointers between the packets are always aligned.
+
+However, in this situation it becomes easy to let implicit assumptions about the structure of the data manifest themselves in the data processing.
+Code for handling these exceptional cases is often less rigorously tested, because it generally doesn't occur in benign example cases.
+
+However, by providing shorter packets than expected, with larger pointers than expected, we demonstrate how the attacker can take advantage of certain system components written in C to read off the end of the buffer into unallocated memory.
+We demonstrate an execution pathway that would result in the resulting data being stored and uploaded to the puclic data archives, theoretically allowing the attacker to leak sensitive information from other processes within the memory of the computer.
+
+
+\subsubsection{Exploiting bundled dependencies}
+
+In order to make software distribution easier, and to create easily deployable systems that mostly "just work" when extracted into a certain location, the IPOPP algorithms generally come with many bundled dependencies in the source archive.
+These files are compiled programs and libraries for the handling of input data, that are intended to work on specific architectures.
+
+However, the practice of bundling libraries with software has long been considered bad from a security perspective, especially since the widespread use of package managers to resolve and install dependencies.
+Doing so permits a similar ease of installation, but allows each library and program to be traced back to its dependency, independently updated, and uninstalled when no longer required.
+
+Without a system for managing these dependencies, the system becomes incredibly brittle and hard to change; therefore, there are many dependencies currently present and depended upon that haven't been updated in nearly a decade.
+Several of these dependencies have patchable security vulnerabilities for arbitrary code execution, that an attacker could take advantage of.
+
+There are also a large number of dependencies that aren't used for any purpose and are just left around for legacy reasons.
+Besides potentially being a risk for privilege escalation, the sheer number of redundant dependencies muddies the water and makes it difficult to discern which depencies need updating as a matter of urgency.
+
+% \begin{itemize}
+%     \item Strict separation of data handling code from core program control flow
+%     \item Secure distribution and patching of dependencies
+%     \item Robustness against configuration changes
+% \end{itemize}
