@@ -9,4 +9,5 @@
 #    done
 #done
 
-seq -w -100 0.1 -0.1 | parallel './qpsk_overshadowing.py --num-packets 1024 --delay 56 --attacker-gain-db {} --out-file overshadow_output/out{}'
+#seq -w -100 0.1 -0.1 | parallel "echo {} $1 $2"
+seq -w -100 0.1 -0.1 | parallel "./qpsk_overshadowing.py --num-packets 1024 --delay 56 --attacker-gain-db {} --in-file /data/samples/ATTACK_PADDED.raw --channel-noise $1 --processing-noise $2 --out-file overshadow_output/out-$1-$2-{}"
