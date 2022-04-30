@@ -11,12 +11,14 @@ This disruption can take a number of forms:
 \end{itemize}
 %Depending on the scenario, this disruption could take the form of denial of service to the software or hardware components, modification of recently received or historical image data, or destruction of old data.
 
-We assume the attacker has access to radio equipment such as software-defined radios, amplifiers, and antennas, in order to emit signals in the X-band frequency range used by the EOS downlink.
-\textbf{TODO confirm and/or cite}
-This equipment is commercially available off-the-shelf so the budget for our attacker is quite low.
-\textbf{TODO rewrite, maybe state budget explicitly}
+We assume the attacker has access to commercially available off-the-shelf radio equipment such as Software Defined Radios (SDRs), aplifiers, and antennas, in order to emit signals in the X-band frequency range used by the EOS downlink.
+We also assume the attacker is able to maintain a presence in the vicinity of the receiver, in order to inject signals of a sufficient strength that they will be picked up by the receiver.
+Crucially, we do not necessarily assume the attacker can emit signals within the beam of the receiving ground station, instead relying on the signal being sufficiently strong that the ground station picks it up regardless of dish orientation.
 
-We also assume the attacker is able to maintain a presence in the vicinity of the receiver, in order to receive downlinked broadcasts for approximate time synchronisation \textbf{TODO decide if we still want this} and broadcast their own signals.
+In order to define realistic price constraints, we consider off-the-shelf radio equipment intended to be used in cubesats.
+One cubesat manufacturer, EnduroSat, offers a system capable of encoding and transmitting signals in the X-band for €22,800 and a compatible antenna for €6,400 \textbf{TODO cite}.
+This system has an integrated encoder and is thus not capable of transmitting attacker-crafted sequences of symbols, but it provides us with an understanding of how much similar equipment would cost.
+These prices place the attacks within the budget range of a motivated hobbyist, opening the EOS systems up to attacks by a wide range of parties.
 
 %The goal of the adversary is to stealthily spoof the image information decoded by a single receiver station by emitting a counterfeit signal in the vicinity of the receiver.  Depending on the scenario, the attacker may want to inject similar-looking images with slight modifications to disrupt automated systems for forest fire and other anomaly detection.  In other cases, the attacker may wish to inject adversarial examples or degrade image quality to harm the research efforts of those using data derived from this source.
 
