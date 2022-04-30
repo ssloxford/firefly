@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
     try {
       type = std::stoi(result["type-flag"].as<std::string>());
       if (type >= pow(2, ccsds::TYPE_FLAG_LEN)) {
-        std::cerr << "Error: type must be between 0 and " << pow(2, ccsds::TYPE_FLAG_LEN)-1 << '\n';
+        std::cerr << "Error: type-flag must be between 0 and " << pow(2, ccsds::TYPE_FLAG_LEN)-1 << '\n';
         valid = false;
       }
     }

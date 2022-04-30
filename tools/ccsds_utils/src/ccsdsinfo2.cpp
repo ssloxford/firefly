@@ -52,56 +52,33 @@ int main(int argc, char *argv[]) {
                 << packet.seq_flags() << "\t\t" \
                 << packet.seq_cnt_or_name() << "\t\t" \
                 << packet.data_len() \
-                << std::endl;
+                << '\n';
     }
 
   } else if (mode == "modis") {
     CCSDSPacket<giis::SecondaryHeader, giis::DataField> packet;
-    std::cerr << "version-number\ttype-flag\tsec-hdr-flag\tapp-id\tseq-flags\tseq-cnt-or-name\tdata-len\tmodis-checksum\tmodis-checksum-valid" << '\n';
+    std::cerr << "version-number\ttype-flag\tsec-hdr-flag\tapp-id\tseq-flags\tseq-cnt-or-name\tdata-len" << '\n';
     bool done = false;
     while (!done) {
       try {
-        if (! (std::cin >> packet)) {
+        if (! std::cin >> packet) {
           done = true;
           continue;
         }
       } catch (const std::invalid_argument& e) {
-        if (result.count("verbose")) {
-          std::cerr << e.what() << '\n';
+        if (result.count("verbose") {
+          std::cerr << e.what();
         }
         continue;
       }
-
-      /*
-      std::cerr << "word 0: " << packet.data_field.data_word(0) << '\n';
-      std::cerr << "setting word 0...\n";
-      packet.data_field.data_word(0) = INT_MAX;
-      std::cerr << "word 0: " << packet.data_field.data_word(0) << '\n';
-
-      std::cerr << "word 1: " << packet.data_field.data_word(1) << '\n';
-      std::cerr << "setting word 1...\n";
-      packet.data_field.data_word(1) = 0;
-      std::cerr << "word 1: " << packet.data_field.data_word(1) << '\n';
-
-
-      std::cerr << "checksum before: " << packet.data_field.checksum() << '\n';
-      std::cerr << "checksum valid: " << packet.data_field.validate_checksum() << '\n';
-      std::cerr << "recalculating checksum...\n";
-      packet.data_field.recalculate_checksum();
-      std::cerr << "calculated checksum: " << packet.data_field.checksum() << '\n';
-      std::cerr << "checksum valid: " << packet.data_field.validate_checksum() << '\n';
-      */
-
       std::cout << packet.version_number() << "\t\t" \
                 << packet.type() << "\t\t" \
                 << packet.sec_hdr_flag() << "\t\t" \
                 << packet.app_id() << "\t" \
                 << packet.seq_flags() << "\t\t" \
                 << packet.seq_cnt_or_name() << "\t\t" \
-                << packet.data_len() << "\t\t" \
-                << packet.data_field.checksum() << "\t\t" \
-                << packet.data_field.validate_checksum() \
-                << std::endl;
+                << packet.data_len() \
+                << '\n';
     }
   }
 }
