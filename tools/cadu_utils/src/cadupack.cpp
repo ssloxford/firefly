@@ -180,18 +180,18 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  auto buffer = std::remove_cvref_t<decltype(std::declval<CADU>()->data())>();
+  auto buffer = std::remove_cvref_t<decltype(std::declval<CADU>().data())>();
   auto vcdu_counter = result["vcdu-counter"].as<int>();
 
-  nonrandomised::CADU cadu;
-  cadu.get_mutable().version_number() = result["version-number"].as<int>();
-  cadu.get_mutable().scid() = scid;
-  cadu.get_mutable().vcid() = vcid;
-  cadu.get_mutable().vcdu_counter() = vcdu_counter;
-  cadu.get_mutable().replay_flag() = result["replay-flag"].as<int>();
-  cadu.get_mutable().vcdu_spare() = result["vcdu-spare"].as<int>();
-  cadu.get_mutable().m_pdu_spare() = result["m-pdu-spare"].as<int>();
-  cadu.get_mutable().first_header_pointer() = result["first-header-pointer"].as<int>();
+  nonrandomised::_CADU cadu;
+  cadu.version_number() = result["version-number"].as<int>();
+  cadu.scid() = scid;
+  cadu.vcid() = vcid;
+  cadu.vcdu_counter() = vcdu_counter;
+  cadu.replay_flag() = result["replay-flag"].as<int>();
+  cadu.vcdu_spare() = result["vcdu-spare"].as<int>();
+  cadu.m_pdu_spare() = result["m-pdu-spare"].as<int>();
+  cadu.first_header_pointer() = result["first-header-pointer"].as<int>();
 
   if (mode == "raw") {
     while (std::cin.read(reinterpret_cast<char*>(buffer.data()), cadu::DATA_LEN) || std::cin.gcount() > 0) {
@@ -200,7 +200,7 @@ int main(int argc, char *argv[]) {
         std::fill(buffer.begin() + std::cin.gcount(), buffer.end(), std::byte{0});
       }
 
-      cadu.get_mutable().data() = buffer;
+      cadu.data() = buffer;
       std::cout << cadu;
 
       ++vcdu_counter; // TODO: roll over correctly
@@ -209,7 +209,7 @@ int main(int argc, char *argv[]) {
     CCSDSPacket packet;
     int next_byte_offset = result["first-header-pointer"].as<int>();
 
-    cadu.get_mutable().first_header_pointer() = next_byte_offset;
+    cadu.first_header_pointer() = next_byte_offset;
 
     while (std::cin >> packet) {
       // std::cerr << "found packet of size " << packet.size() << '\n';
@@ -230,31 +230,39 @@ int main(int argc, char *argv[]) {
           if (cadu::DATA_LEN - next_byte_offset > 0) {
             // There is still space in the CADU
 
+            // TODO: why doesn't copy_n work?
+            /*
             std::copy_n(
               packet.begin() + packet_offset,
               cadu::DATA_LEN - next_byte_offset,
+              buffer.begin() + next_byte_offset);
+            */
+
+            std::copy(
+              packet.begin() + packet_offset,
+              packet.begin() + packet_offset + (cadu::DATA_LEN - next_byte_offset),
               buffer.begin() + next_byte_offset);
 
             packet_offset += cadu::DATA_LEN - next_byte_offset;
           }
 
           // The CADU is now entirely full - output it
-          cadu.get_mutable().data() = buffer;
+          cadu.data() = buffer;
           std::cout << cadu;
           // std::cerr << "outputting full cadu" << '\n';
 
           // Create a "new" cadu
           next_byte_offset = 0;
-          cadu.get_mutable().vcdu_counter() = (cadu->vcdu_counter() + 1) % (1 << cadu::VCDU_COUNTER_LEN);
+          cadu.vcdu_counter() = (cadu.vcdu_counter() + 1) % (1 << cadu::VCDU_COUNTER_LEN);
           if (packet.size() - packet_offset > cadu::DATA_LEN) {
             // The packet is going to fill up the entire next CADU as well
             // so there will be no first header
-            cadu.get_mutable().first_header_pointer() = std::pow(2, cadu::FIRST_HEADER_POINTER_LEN)-1;
+            cadu.first_header_pointer() = std::pow(2, cadu::FIRST_HEADER_POINTER_LEN)-1;
           } else {
             // The packet will be contained in the next CADU
             // so the next header will be in the next CADU
             // TODO: this may not be true for the final CADU
-            cadu.get_mutable().first_header_pointer() = packet.size() - packet_offset;
+            cadu.first_header_pointer() = packet.size() - packet_offset;
           }
         }
       }
@@ -295,12 +303,12 @@ int main(int argc, char *argv[]) {
           buffer.begin() + next_byte_offset);
 
         // Output the cadu
-        cadu.get_mutable().data() = buffer;
+        cadu.data() = buffer;
         std::cout << cadu;
 
         // Construct the second CADU
-        cadu.get_mutable().first_header_pointer() = (1 << cadu::FIRST_HEADER_POINTER_LEN) - 1;
-        cadu.get_mutable().vcdu_counter() = (cadu->vcdu_counter() + 1) % (1 << cadu::VCDU_COUNTER_LEN);
+        cadu.first_header_pointer() = (1 << cadu::FIRST_HEADER_POINTER_LEN) - 1;
+        cadu.vcdu_counter() = (cadu.vcdu_counter() + 1) % (1 << cadu::VCDU_COUNTER_LEN);
         std::copy(
           fill_packet.begin() + (cadu::DATA_LEN - next_byte_offset),
           fill_packet.end(),
@@ -308,14 +316,14 @@ int main(int argc, char *argv[]) {
       }
 
       // Output the cadu
-      cadu.get_mutable().data() = buffer;
+      cadu.data() = buffer;
       std::cout << cadu;
     }
   } else if (mode == "ccsdspad") {
     CCSDSPacket packet;
     int next_byte_offset = result["first-header-pointer"].as<int>();
 
-    cadu.get_mutable().first_header_pointer() = next_byte_offset;
+    cadu.first_header_pointer() = next_byte_offset;
 
     while (std::cin >> packet) {
       // Check that there's enough length in the CADU to fit the packet and a fill packet if required
@@ -347,11 +355,11 @@ int main(int argc, char *argv[]) {
         }
 
         // Output the cadu
-        cadu.get_mutable().data() = buffer;
+        cadu.data() = buffer;
         std::cout << cadu;
 
         // Construct the next CADU
-        cadu.get_mutable().vcdu_counter() = (cadu->vcdu_counter() + 1) % (1 << cadu::VCDU_COUNTER_LEN);
+        cadu.vcdu_counter() = (cadu.vcdu_counter() + 1) % (1 << cadu::VCDU_COUNTER_LEN);
       }
     }
   } else {

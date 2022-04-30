@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "libcadu/libcadu.h"
-using namespace nonrandomised;
 
 template <typename It>
 class subrange {
@@ -79,9 +78,9 @@ int main(int argc, char *argv[]) {
   if (sign) {
     // TODO: this exhibits UB once we get to the end of the buffer!
     std::copy_n
-      ( std::istream_iterator<nonrandomised::CADU>(std::cin)
+      ( std::istream_iterator<nonrandomised::_CADU>(std::cin)
       , index
-      , std::ostream_iterator<nonrandomised::CADU>(std::cout)
+      , std::ostream_iterator<nonrandomised::_CADU>(std::cout)
       );
 
     /*
@@ -109,19 +108,19 @@ int main(int argc, char *argv[]) {
     */
 
   } else {
-    std::vector<nonrandomised::CADU> buffer;
+    std::vector<nonrandomised::_CADU> buffer;
     // Fill all the CADUs into a buffer
     std::copy
-      ( std::istream_iterator<nonrandomised::CADU>(std::cin)
-      , std::istream_iterator<nonrandomised::CADU>()
-      , std::back_insert_iterator<std::vector<nonrandomised::CADU>>(buffer)
+      ( std::istream_iterator<nonrandomised::_CADU>(std::cin)
+      , std::istream_iterator<nonrandomised::_CADU>()
+      , std::back_insert_iterator<std::vector<nonrandomised::_CADU>>(buffer)
       );
 
     // Output from the buffer
     std::copy_n
       ( buffer.begin()
       , buffer.size() - index
-      , std::ostream_iterator<nonrandomised::CADU>(std::cout)
+      , std::ostream_iterator<nonrandomised::_CADU>(std::cout)
       );
   }
 }

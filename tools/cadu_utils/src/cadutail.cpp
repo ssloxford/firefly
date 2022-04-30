@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
   if (sign) {
     // Positive sign
     int n = 0;
-    nonrandomised::CADU cadu;
+    nonrandomised::_CADU cadu;
     while (std::cin >> cadu) {
       if (n < index) {
         n++;

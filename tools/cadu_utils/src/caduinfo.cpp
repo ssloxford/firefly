@@ -33,18 +33,18 @@ int main(int argc, char *argv[]) {
     exit(0);
   }
 
-  nonrandomised::CADU cadu;
+  nonrandomised::_CADU cadu;
   std::cerr << "version-number\tscid\tvcid\tvcdu-counter\treplay-flag\tvcdu-spare\tm-pdu-spare\tfirst-header-pointer\tchecksum" << '\n';
   while (std::cin >> cadu) {
-    std::cout << cadu->version_number() << "\t\t"
-              << cadu->scid() << "\t"
-              << cadu->vcid() << "\t"
-              << cadu->vcdu_counter() << "\t\t"
-              << cadu->replay_flag() << "\t\t"
-              << cadu->vcdu_spare() << "\t\t"
-              << cadu->m_pdu_spare() << "\t\t"
-              << cadu->first_header_pointer() << "\t\t\t";
-    print_checksum(cadu->checksum(), 5);
+    std::cout << cadu.version_number() << "\t\t"
+              << cadu.scid() << "\t"
+              << cadu.vcid() << "\t"
+              << cadu.vcdu_counter() << "\t\t"
+              << cadu.replay_flag() << "\t\t"
+              << cadu.vcdu_spare() << "\t\t"
+              << cadu.m_pdu_spare() << "\t\t"
+              << cadu.first_header_pointer() << "\t\t\t";
+    print_checksum(cadu.checksum(), 5);
     std::cout << '\n';
   }
 }

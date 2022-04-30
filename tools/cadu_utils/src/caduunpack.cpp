@@ -16,9 +16,9 @@ void report_discarded_bytes(const int discarded_cadus, const int discarded_bytes
 
   if (discarded_bytes > 0) {
     if (discarded_cadus == 0) {
-      std::cerr << "First CADU contained " << discarded_bytes << "bytes before first-header-pointer which were discarded" << '\n';
+      std::cerr << "First CADU contained " << discarded_bytes << " bytes before first-header-pointer which were discarded" << '\n';
     } else {
-      std::cerr << "The subsequent CADU contained " << discarded_bytes << "bytes before first-header-pointer which were discarded" << '\n';
+      std::cerr << "The subsequent CADU contained " << discarded_bytes << " bytes before first-header-pointer which were discarded" << '\n';
 
     }
   }
@@ -57,12 +57,12 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  nonrandomised::CADU cadu;
+  nonrandomised::_CADU cadu;
 
   if (mode == "raw") {
     // Unpack all the bytes within the CADU
     while (std::cin >> cadu) {
-      for (auto&& it : cadu->data()) {
+      for (auto&& it : cadu.data()) {
         std::cout << static_cast<const uint8_t>(it);
       }
     }
@@ -76,23 +76,23 @@ int main(int argc, char *argv[]) {
       // TODO: count fill packets
       // TODO: count packets without data
 
-      if (first_cadu && cadu->first_header_pointer() != 0) {
+      if (first_cadu && cadu.first_header_pointer() != 0) {
         // No valid bytes have been decoded yet
-        if (cadu->first_header_pointer() == std::pow(2, cadu::FIRST_HEADER_POINTER_LEN)-1) {
+        if (cadu.first_header_pointer() == std::pow(2, cadu::FIRST_HEADER_POINTER_LEN)-1) {
           // This CADU contains no header. Skip
           discarded_cadus++;
         }
         else {
           // This CADU contains bytes before the first header
           // Report any discarded bytes
-          discarded_bytes = cadu->first_header_pointer();
+          discarded_bytes = cadu.first_header_pointer();
           if (!discarded_bytes_reported) {
             report_discarded_bytes(discarded_cadus, discarded_bytes);
             discarded_bytes_reported = true;
           }
 
           // Output the remaining bytes
-          for (auto&& it : cadu->data_header_aligned()) {
+          for (auto&& it : cadu.data_header_aligned()) {
             std::cout << static_cast<const uint8_t>(it);
           }
           first_cadu = false;
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
           discarded_bytes_reported = true;
         }
 
-        for (auto&& it : cadu->data()) {
+        for (auto&& it : cadu.data()) {
           std::cout << static_cast<const uint8_t>(it);
         }
         first_cadu = false;
@@ -121,4 +121,3 @@ int main(int argc, char *argv[]) {
     throw std::invalid_argument("Error: invalid mode: " + mode);
   }
 }
-

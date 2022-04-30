@@ -6,7 +6,7 @@ caduinfo: src/caduinfo.cpp include/cadu_constants.h
 	g++ --std=c++20 -o bin/caduinfo -Wl,-rpath=/usr/local/lib -I ./include/ -I ../getsetproxy/include/ -I ../libcadu/include/ -g src/caduinfo.cpp -lfec
 
 cadupack: src/cadupack.cpp include/cadu_constants.h
-	g++ --std=c++20 -o bin/cadupack -Wl,-rpath=/usr/local/lib -I ./include/ -I ../getsetproxy/include/ -I ../libcadu/include/ -I ../libccsds/include/ -g src/cadupack.cpp -lfec
+	g++ --std=c++20 -o bin/cadupack -Wl,-rpath=/usr/local/lib -I ./include/ -I ../getsetproxy/include/ -I ../libcadu/include/ -I ../libccsds/include/ -I ../seqiter/include/ -g src/cadupack.cpp -lfec
 
 caduunpack: src/caduunpack.cpp include/cadu_constants.h
 	g++ --std=c++20 -o bin/caduunpack -Wl,-rpath=/usr/local/lib -I ./include/ -I ../getsetproxy/include/ -I ../libcadu/include/ -g src/caduunpack.cpp -lfec
