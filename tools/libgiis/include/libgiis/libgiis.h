@@ -94,12 +94,17 @@ namespace _libgiis_impl {
    public:
      Iterator(int index, _libgiis_impl::bitlen_int_array<N, wordlen> *parent) : index{index}, parent{parent} {}
 
-     auto operator*() -> int const { return parent->at(index); }
+     auto operator*() const -> int const { return parent->at(index); }
 
      Iterator& operator++() { index++; return *this; }
      Iterator operator++(int) { Iterator tmp = *this; ++(*this); return tmp; }
 
-     Iterator& operator+(int x) { index += x; return *this; }
+     Iterator operator+(int x) {
+       Iterator tmp = *this;
+       for (int i=0; i<x; i++)
+         tmp++;
+       return tmp;
+     }
 
      friend auto operator== (const Iterator& a, const Iterator& b) { return a.index == b.index; }
      // TODO: is this required, or can it be deduced by the compiler?
