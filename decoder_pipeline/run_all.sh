@@ -17,7 +17,8 @@ if [ "$#" -eq 0 ]; then
     exit 1
 fi
 
-DATA_PATH="$1"
+DATA_PATH="$(realpath $1)"
+echo "DATA_PATH: $DATA_PATH"
 
 PDSs=$(ls "$DATA_PATH"/input | grep -e "MYD00" -e "MOD00")
 leapsec=$(ls "$DATA_PATH"/input | grep "leapsec")
