@@ -126,6 +126,15 @@ public:
 };
 
 struct NullSecondaryHeader {
+  NullSecondaryHeader() = default;
+  NullSecondaryHeader(const char* data, std::size_t len) {
+    if (len != size()) {
+      std::cerr << "size: " << len << '\n';
+      std::cerr << "correct size: " << size() << '\n';
+      throw std::invalid_argument("NullSecondaryHeader - invalid size");
+    }
+  }
+  
   auto begin() -> std::byte* const { return nullptr; }
   auto end() -> std::byte* const { return nullptr; }
 
@@ -402,12 +411,15 @@ auto operator>>(std::istream & input, CCSDSPacket<SecondaryHeader, DataField> & 
 
   int sec_hdr_size = 0;
   if (packet.sec_hdr_flag()) {
-    auto secondary_header = SecondaryHeader();
-    sec_hdr_size = secondary_header.size();
-    std::array<char, secondary_header.size()> sec_header = {};
-    if (! input.read(sec_header.data(), secondary_header.size())) {
+    // TODO: remove this horrible hack to get the header size
+    auto size = SecondaryHeader();
+    sec_hdr_size = size.size();
+
+    std::array<char, size.size()> sec_header = {};
+    if (! input.read(sec_header.data(), size.size())) {
       return input;
     }
+    auto secondary_header = SecondaryHeader(sec_header.data(), sec_hdr_size);
     packet.secondary_header = secondary_header;
 
     // TODO: do something like this copy_n instead: it'll be nicer
@@ -421,7 +433,6 @@ auto operator>>(std::istream & input, CCSDSPacket<SecondaryHeader, DataField> & 
   }
 
   auto data_len = packet.data_len() - sec_hdr_size + 1;   // Length 0 is used to mean a single byte
-  std::cerr << "creating data_len " << data_len << '\n';
   std::vector<char> data;
   data.resize(data_len);
   if (! input.read(&data[0], data_len)) {

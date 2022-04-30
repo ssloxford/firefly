@@ -7,6 +7,8 @@
 
 #include "getsetproxy/proxy.h"
 
+// TODO: work out which bits are giis-specific, modis-specific, modis-aqua-specific, and shared with girs
+
 namespace _libgiis_impl {
   // Implements an int array of word size wordlen (which currently must be 12)
   template <std::size_t N, std::size_t wordlen = 12>
@@ -97,6 +99,8 @@ namespace _libgiis_impl {
      auto operator*() const -> int const { return parent->at(index); }
 
      Iterator& operator++() { index++; return *this; }
+
+     // TODO: should operator++(int) be const?
      Iterator operator++(int) { Iterator tmp = *this; ++(*this); return tmp; }
 
      Iterator operator+(int x) {
@@ -142,6 +146,7 @@ namespace giis {
   private:
     #pragma pack(push, 1)
     struct Impl {
+      friend SecondaryHeader;
     private:
       std::array<std::byte, giis::TIME_TAG_LEN/8> _time_tag = {};
       uint8_t _mir_side : giis::MIR_SIDE_LEN = 0;
@@ -160,11 +165,74 @@ namespace giis {
     Impl header;
 
   public:
+    SecondaryHeader() = default;
+    SecondaryHeader(const char* data, std::size_t len) {
+      // std::cerr << "### invoking constructor" << '\n';
+      if (len != sizeof(Impl)) {
+        std::cerr << "size: " << len << '\n';
+        std::cerr << "correct size: " << sizeof(Impl) << '\n';
+        throw std::invalid_argument(
+          "giis::SecondaryHeader - invalid size"
+          //"giis::DataField requires data of size "s + std::to_string(giis::DATA_FIELD_DAY_ENGINEERING_LEN) + " or "s + std::to_string(DATA_FIELD_NIGHT_LEN)
+        );
+      }
+      // Copy in the first fields
+      // std::cerr << "copying in " << len << '\n';
+
+      std::memcpy(&header, data, len);
+    }
+    
     auto begin() { return reinterpret_cast<std::byte*>(&header); }
     auto end() { return reinterpret_cast<std::byte*>(&header) + sizeof(Impl); }
 
     auto begin() const { return reinterpret_cast<std::byte const * const>(&header); }
     auto end() const { return reinterpret_cast<std::byte const * const>(&header) + sizeof(Impl); }
+
+    // TODO: getters and setters for time_tag
+
+    auto mir_side() const & {
+      return static_cast<int>(header._mir_side);
+    }
+
+    auto mir_side() & {
+      return Proxy{
+        [this]() -> decltype(auto) { return std::as_const(*this).mir_side(); },
+        [this](int x) { header._mir_side = x; }
+      };
+    }
+
+    auto scan_count() const & {
+      return static_cast<int>(header._scan_count);
+    }
+
+    auto scan_count() & {
+      return Proxy{
+        [this]() -> decltype(auto) { return std::as_const(*this).scan_count(); },
+        [this](int x) { header._scan_count = x; }
+      };
+    }
+
+    auto pkt_type() const & {
+      return static_cast<int>(header._pkt_type);
+    }
+
+    auto pkt_type() & {
+      return Proxy{
+        [this]() -> decltype(auto) { return std::as_const(*this).pkt_type(); },
+        [this](int x) { header._pkt_type = x; }
+      };
+    }
+
+    auto quick_look() const & {
+      return static_cast<int>(header._quick_look);
+    }
+
+    auto quick_look() & {
+      return Proxy{
+        [this]() -> decltype(auto) { return std::as_const(*this).quick_look(); },
+        [this](int x) { header._quick_look = x; }
+      };
+    }
 
     constexpr auto size() const -> std::size_t {
       return sizeof(Impl);
@@ -173,7 +241,6 @@ namespace giis {
 
   class DataField {
   private:
-
     #pragma pack(push, 1)
     template <int data_field_bit_len>
     struct Impl {

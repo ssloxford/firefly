@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
   } else if (mode == "modis") {
     CCSDSPacket<giis::SecondaryHeader, giis::DataField> packet;
-    std::cerr << "version-number\ttype-flag\tsec-hdr-flag\tapp-id\tseq-flags\tseq-cnt-or-name\tdata-len\tmodis-checksum\tmodis-checksum-valid" << '\n';
+    std::cerr << "version-number\ttype-flag\tsec-hdr-flag\tapp-id\tseq-flags\tseq-cnt-or-name\tdata-len\tmir-side\tscan-count\tpkt-type\tquick-look\tmodis-checksum\tmodis-checksum-valid" << '\n';
     bool done = false;
     while (!done) {
       try {
@@ -92,6 +92,8 @@ int main(int argc, char *argv[]) {
       std::cerr << "checksum valid: " << packet.data_field.validate_checksum() << '\n';
       */
 
+      // TODO: add remaining MODIS fields
+
       std::cout << packet.version_number() << "\t\t" \
                 << packet.type() << "\t\t" \
                 << packet.sec_hdr_flag() << "\t\t" \
@@ -99,6 +101,10 @@ int main(int argc, char *argv[]) {
                 << packet.seq_flags() << "\t\t" \
                 << packet.seq_cnt_or_name() << "\t\t" \
                 << packet.data_len() << "\t\t" \
+                << packet.secondary_header.mir_side() << "\t\t" \
+                << packet.secondary_header.scan_count() << "\t\t" \
+                << packet.secondary_header.pkt_type() << "\t\t" \
+                << packet.secondary_header.quick_look() << "\t\t" \
                 << packet.data_field.checksum() << "\t\t" \
                 << packet.data_field.validate_checksum() \
                 << std::endl;
