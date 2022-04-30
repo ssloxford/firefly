@@ -81,7 +81,7 @@ const uint8_t randomise_table[] = {
 
 #pragma pack(push, 1)
 struct VC_PDU {
-  friend class CVCDU;
+  friend class CADU;
 private:
   uint16_t _scid_h : cadu::SCID_LEN - 2 = 0;
   uint16_t _version_number : cadu::VERSION_NUMBER_LEN = 0;
@@ -114,141 +114,6 @@ private:
 public:
   CVCDU() = default;
   CVCDU(VC_PDU const &vc_pdu) : vc_pdu{vc_pdu} {}
-
-  auto version_number() const & {
-    return static_cast<int>(vc_pdu._version_number);
-  }
-
-  auto version_number() & {
-    return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).version_number(); },
-      [this](int x) { vc_pdu._version_number = x; }
-    };
-  }
-
-  auto scid() const & {
-    return static_cast<int>(vc_pdu._scid_h << 2 | vc_pdu._scid_l);
-  }
-
-  auto scid() & {
-    return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).scid(); },
-      [this](int x) { vc_pdu._scid_h = (x >> 2) & 0xff; vc_pdu._scid_l = x & 0x03; }
-    };
-  }
-
-  auto vcid() const & {
-    return static_cast<int>(vc_pdu._vcid);
-  }
-
-  auto vcid() & {
-    return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).vcid(); },
-      [this](int x) { vc_pdu._vcid = x; }
-    };
-  }
-
-  auto vcdu_counter() const & {
-    return static_cast<int>(vc_pdu._vcdu_counter_h << 16 | vc_pdu._vcdu_counter_m << 8 | vc_pdu._vcdu_counter_l);
-  }
-
-  auto vcdu_counter() & {
-    return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).vcdu_counter(); },
-      [this](int x) {
-        vc_pdu._vcdu_counter_h = (x >> 16) & 0xff;
-        vc_pdu._vcdu_counter_m = (x >> 8) & 0xff;
-        vc_pdu._vcdu_counter_l = x & 0xff;
-      }
-    };
-  }
-
-  auto replay_flag() const & {
-    return static_cast<int>(vc_pdu._replay_flag);
-  }
-
-  auto replay_flag() & {
-    return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).replay_flag(); },
-      [this](int x) { vc_pdu._replay_flag = x; }
-    };
-  }
-
-  auto vcdu_spare() const & {
-    return static_cast<int>(vc_pdu._vcdu_spare);
-  }
-
-  auto vcdu_spare() & {
-    return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).vcdu_spare(); },
-      [this](int x) { vc_pdu._vcdu_spare = x; }
-    };
-  }
-
-  auto m_pdu_spare() const & {
-    return static_cast<int>(vc_pdu._m_pdu_spare);
-  }
-
-  auto m_pdu_spare() & {
-    return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).m_pdu_spare(); },
-      [this](int x) { vc_pdu._m_pdu_spare = x; }
-    };
-  }
-
-  auto first_header_pointer() const & {
-    return static_cast<int>(vc_pdu._first_header_pointer_h << 8 | vc_pdu._first_header_pointer_l);
-  }
-
-  auto first_header_pointer() & {
-    return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).first_header_pointer(); },
-      [this](int x) { vc_pdu._first_header_pointer_h = x >> 8; vc_pdu._first_header_pointer_l= x & 0xff; }
-    };
-  }
-
-  auto data() const & -> auto const & {
-    return vc_pdu._data;
-  }
-
-  auto data() & {
-    return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).data(); },
-      [this](std::span<std::byte, cadu::DATA_LEN> s) { 
-        std::copy(s.begin(), s.end(), vc_pdu._data.begin());
-      }
-    };
-  }
-
-  // TODO: check whether this needs to be a ref
-  auto data_header_aligned() const & -> auto const {
-    return std::views::counted(data().begin() + first_header_pointer(), cadu::DATA_LEN - (first_header_pointer()));
-  }
-
-  auto data_header_aligned() & {
-    return Proxy {
-      [this]() -> decltype(auto) { return std::as_const(*this).data_header_aligned(); },
-      // TODO: replace with std::span?
-      [this](std::span<std::byte> s) {
-        std::copy_n(
-          s.begin(),
-          std::min(static_cast<int>(s.size()), cadu::DATA_LEN - first_header_pointer()),
-          vc_pdu._data.begin() + first_header_pointer()
-        );
-      }
-    };
-  }
-
-  auto checksum() const & -> auto const & {
-    return _checksum;
-  }
-
-  auto checksum() & {
-    return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).checksum(); },
-      [this](std::array<std::byte, 128> x) { _checksum = x; } // Consider dirty checksum?
-    };
-  }
 };
 #pragma pack(pop)
 static_assert(sizeof(CVCDU) == 1020,
@@ -298,20 +163,6 @@ public:
 
   CADU(VC_PDU const &vc_pdu) : impl{vc_pdu}, dirty_checksum{true} {}
 
-  // Reinitialise the CADU
-  auto reinitialise(char const *const input) {
-    std::memcpy(&impl.cvcdu, input, sizeof(CVCDU));
-  }
-
-  auto operator*() const -> VC_PDU const & { return impl.cvcdu.vc_pdu; }
-
-  auto operator->() const -> CVCDU const * { return &impl.cvcdu; }
-
-  auto get_mutable() -> CVCDU & {
-    dirty_checksum = true;
-    return impl.cvcdu;
-  }
-
 private:
   void calculate_checksum(std::array<std::byte, 128>& checksum) const {
     // Deinterleave the blocks to depth 4
@@ -349,6 +200,165 @@ private:
   }
 
 public:
+  auto version_number() const & {
+    return static_cast<int>(impl.cvcdu.vc_pdu._version_number);
+  }
+
+  auto version_number() & {
+    return Proxy{
+      [this]() -> decltype(auto) { return std::as_const(*this).version_number(); },
+      [this](int x) {
+        impl.cvcdu.vc_pdu._version_number = x;
+        dirty_checksum = true;
+      }
+    };
+  }
+
+  auto scid() const & {
+    return static_cast<int>(impl.cvcdu.vc_pdu._scid_h << 2 | impl.cvcdu.vc_pdu._scid_l);
+  }
+
+  auto scid() & {
+    return Proxy{
+      [this]() -> decltype(auto) { return std::as_const(*this).scid(); },
+      [this](int x) {
+        impl.cvcdu.vc_pdu._scid_h = (x >> 2) & 0xff;
+        impl.cvcdu.vc_pdu._scid_l = x & 0x03;
+        dirty_checksum = true;
+      }
+    };
+  }
+
+  auto vcid() const & {
+    return static_cast<int>(impl.cvcdu.vc_pdu._vcid);
+  }
+
+  auto vcid() & {
+    return Proxy{
+      [this]() -> decltype(auto) { return std::as_const(*this).vcid(); },
+      [this](int x) {
+        impl.cvcdu.vc_pdu._vcid = x;
+        dirty_checksum = true;
+      }
+    };
+  }
+
+  auto vcdu_counter() const & {
+    return static_cast<int>(impl.cvcdu.vc_pdu._vcdu_counter_h << 16 | impl.cvcdu.vc_pdu._vcdu_counter_m << 8 | impl.cvcdu.vc_pdu._vcdu_counter_l);
+  }
+
+  auto vcdu_counter() & {
+    return Proxy{
+      [this]() -> decltype(auto) { return std::as_const(*this).vcdu_counter(); },
+      [this](int x) {
+        impl.cvcdu.vc_pdu._vcdu_counter_h = (x >> 16) & 0xff;
+        impl.cvcdu.vc_pdu._vcdu_counter_m = (x >> 8) & 0xff;
+        impl.cvcdu.vc_pdu._vcdu_counter_l = x & 0xff;
+        dirty_checksum = true;
+      }
+    };
+  }
+
+  auto replay_flag() const & {
+    return static_cast<int>(impl.cvcdu.vc_pdu._replay_flag);
+  }
+
+  auto replay_flag() & {
+    return Proxy{
+      [this]() -> decltype(auto) { return std::as_const(*this).replay_flag(); },
+      [this](int x) {
+        impl.cvcdu.vc_pdu._replay_flag = x;
+        dirty_checksum = true;
+      }
+    };
+  }
+
+  auto vcdu_spare() const & {
+    return static_cast<int>(impl.cvcdu.vc_pdu._vcdu_spare);
+  }
+
+  auto vcdu_spare() & {
+    return Proxy{
+      [this]() -> decltype(auto) { return std::as_const(*this).vcdu_spare(); },
+      [this](int x) {
+        impl.cvcdu.vc_pdu._vcdu_spare = x;
+        dirty_checksum = true;
+      }
+    };
+  }
+
+  auto m_pdu_spare() const & {
+    return static_cast<int>(impl.cvcdu.vc_pdu._m_pdu_spare);
+  }
+
+  auto m_pdu_spare() & {
+    return Proxy{
+      [this]() -> decltype(auto) { return std::as_const(*this).m_pdu_spare(); },
+      [this](int x) {
+        impl.cvcdu.vc_pdu._m_pdu_spare = x;
+        dirty_checksum = true;
+      }
+    };
+  }
+
+  auto first_header_pointer() const & {
+    return static_cast<int>(impl.cvcdu.vc_pdu._first_header_pointer_h << 8 | impl.cvcdu.vc_pdu._first_header_pointer_l);
+  }
+
+  auto first_header_pointer() & {
+    return Proxy{
+      [this]() -> decltype(auto) { return std::as_const(*this).first_header_pointer(); },
+      [this](int x) {
+        impl.cvcdu.vc_pdu._first_header_pointer_h = x >> 8; impl.cvcdu.vc_pdu._first_header_pointer_l= x & 0xff;
+        dirty_checksum = true;
+      }
+    };
+  }
+
+  auto data() const & -> auto const & {
+    return impl.cvcdu.vc_pdu._data;
+  }
+
+  auto data() & {
+    return Proxy{
+      [this]() -> decltype(auto) { return std::as_const(*this).data(); },
+      [this](std::span<std::byte, cadu::DATA_LEN> s) { 
+        std::copy(s.begin(), s.end(), impl.cvcdu.vc_pdu._data.begin());
+        dirty_checksum = true;
+      }
+    };
+  }
+
+  auto data_header_aligned() const & -> auto const {
+    return std::views::counted(data().begin() + first_header_pointer(), cadu::DATA_LEN - (first_header_pointer()));
+  }
+
+  auto data_header_aligned() & {
+    return Proxy {
+      [this]() -> decltype(auto) { return std::as_const(*this).data_header_aligned(); },
+      // TODO: replace with std::span?
+      [this](std::span<std::byte> s) {
+        std::copy_n(
+          s.begin(),
+          std::min(static_cast<int>(s.size()), cadu::DATA_LEN - first_header_pointer()),
+          impl.cvcdu.vc_pdu._data.begin() + first_header_pointer()
+        );
+        dirty_checksum = true;
+      }
+    };
+  }
+
+  auto checksum() const & -> auto const & {
+    return impl.cvcdu._checksum;
+  }
+
+  auto checksum() & {
+    return Proxy{
+      [this]() -> decltype(auto) { return std::as_const(*this).checksum(); },
+      [this](std::array<std::byte, 128> x) { impl.cvcdu._checksum = x; }
+    };
+  }
+
   // TODO: place a lock on dirty_checksum and the checksum itself, as this isn't thread safe
   // const methods are assumed thread safe, which this isn't, because the checksum and dirty
   // bit are both mutable
@@ -380,9 +390,9 @@ public:
 };
 
 namespace nonrandomised {
-  struct CADU: ::CADU {
-    CADU () = default;
-    CADU (::CADU cadu) : ::CADU{cadu} {};
+  struct _CADU: ::CADU {
+    _CADU () = default;
+    _CADU (::CADU cadu) : ::CADU{cadu} {};
   };
 
   auto operator<<(std::ostream & output, ::CADU const & cadu) -> std::ostream & {
@@ -415,17 +425,16 @@ namespace nonrandomised {
       // TODO: bytes on the stack instead
       auto bytes = std::make_unique_for_overwrite<char[]>(sizeof(CVCDU)/sizeof(char));
       input.read(bytes.get(), sizeof(CVCDU));
-      cadu.reinitialise(bytes.get());
+      std::memcpy(&cadu.impl.cvcdu, bytes.get(), sizeof(CVCDU));
     }
     return input;
   }  
-
 }
 
 namespace randomised {
-  struct CADU: ::CADU {
-    CADU () = default;
-    CADU (::CADU cadu) : ::CADU{cadu} {};
+  struct _CADU: ::CADU {
+    _CADU () = default;
+    _CADU (::CADU cadu) : ::CADU{cadu} {};
   };
 
   auto operator<<(std::ostream & output, ::CADU const & cadu) -> std::ostream & {
