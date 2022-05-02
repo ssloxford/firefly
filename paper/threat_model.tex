@@ -1,4 +1,4 @@
-\section{Threat Model}
+\section{Threat Model}\label{sec:threat-model}
 
 The goal of the adversary is to cause disruption to the EOS image processing pipeline by emitting conterfeit signals in the vicinity of the receiver.
 This disruption can take a number of forms:
@@ -16,7 +16,7 @@ We also assume the attacker is able to maintain a presence in the vicinity of th
 Crucially, we do not necessarily assume the attacker can emit signals within the beam of the receiving ground station, instead relying on the signal being sufficiently strong that the ground station picks it up regardless of dish orientation.
 
 In order to define realistic price constraints, we consider off-the-shelf radio equipment intended to be used in cubesats.
-One cubesat manufacturer, EnduroSat, offers a system capable of encoding and transmitting signals in the X-band for €22,800 and a compatible antenna for €6,400 \textbf{TODO cite}.
+One cubesat manufacturer, EnduroSat, offers a system capable of encoding and transmitting signals in the X-band for €22,800 and a compatible antenna for €6,400~\cite{endurosat:xbandtransmitter,endurosat:xbandantenna}.
 This system has an integrated encoder and is thus not capable of transmitting attacker-crafted sequences of symbols, but it provides us with an understanding of how much similar equipment would cost.
 These prices place the attacks within the budget range of a motivated hobbyist, opening the EOS systems up to attacks by a wide range of parties.
 
