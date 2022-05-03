@@ -1,6 +1,45 @@
-\section{Background}
+\section{Background}\label{sec:background}
 
 \textit{We begin by demonstrating at a high level how satellite data is processed, and the downstream systems that use the data (e.g. FIRMS for forest fire detection)}
+
+\begin{table*}
+    \begin{tabular}{llll}
+        \toprule
+                     &       & \multicolumn{2}{c}{Satellites} \\
+        \cmidrule(lr){3-4}
+        Organization & Usage & Provider & Nature \\
+        \midrule
+        Planet Labs & Agriculture & Planet Labs & Self-operated \\
+                    & Drought response & & \\
+                    & Defense \& intelligence & & \\
+                    & Energy \& infrastructure & & \\
+                    & Forestry \& land use & & \\
+        Global Forest Watch & Forest monitoring, carbon use, deforestation & Planet Labs & Private \\
+        California Forest Observatory & Monitoring forest fires in California & Planet Labs & Private \\
+        ESRI, Impact Observatory, Microsoft & Land-use and land-cover maps & ESA (Sentinel-2) & Open access \\
+        Salo Sciences & Conservation, climate monitoring & Planet Labs & Private \\
+        Meta & Population density maps & DigitalGlobe & Private \\
+        Cloud to Street & Flood tracking (disasters and insurance) & NASA (Terra/Aqua) & Open access \\
+        NCX Basemap & \textbf{TODO} & NASA & Open access \\
+        Upstream Tech HydroForecast & \textbf{TODO} & NASA (Terra/Aqua) & Open access \\
+        NASA FIRMS & Fire detection and management & NASA (EOS) & Self-operated \\
+        \bottomrule
+    \end{tabular}
+    \caption{Information on a number of satellite-derived datasets, including the satellite providers used to source the data.}
+    \label{tab:satellite-derived-datasets}
+\end{table*}
+
+Satellite data has become crucial to a wide range of both public and private organizations.
+It is now possible to access high-resolution images of the Earth, updating every day, in addition to infrared and other sensor readings.
+Beyond access to the raw data we have also seen a growing market for \textit{satellite-derived datasets}: data which has been produced through modification or analysis to make it more immediately useful for a range of use cases.
+Table~\ref{tab:satellite-derived-datasets} summarises a number of currently available satellite-derived datasets.
+\textbf{TODO consider separating producers/consumers of satellite-derived datasets, distinguish dataset availability and source data availability}
+
+The source of the base satellite dataset varies based on the organization and use case.
+Some businesses operate the satellite network alongside processing the dataset, granting fine-grained control at the cost of having to launch and operate their own satellites.
+For many organizations operating a satellite network is an unnecessary expense; many opt to instead acquire data from other satellite operators.
+This data can either be purchased from a private satellite operator such as Planet Labs, or received from a broadcast by a public-facing satellite such as one from NASA's fleet of Earth Observing System (EOS) satellites.
+Signals from these satellites can be received by anyone with a compatible ground station \textbf{TODO cite}, providing an immensely useful service to both private and public organizations.
 
 
 \subsection{Earth Observing Fleet System Description}

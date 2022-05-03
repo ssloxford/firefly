@@ -20,6 +20,23 @@ One cubesat manufacturer, EnduroSat, offers a system capable of encoding and tra
 This system has an integrated encoder and is thus not capable of transmitting attacker-crafted sequences of symbols, but it provides us with an understanding of how much similar equipment would cost.
 These prices place the attacks within the budget range of a motivated hobbyist, opening the EOS systems up to attacks by a wide range of parties.
 
+We also need to take into account other mechanisms by which the attacker could carry out the intended goals, beyond the scope of the physical layer.
+The mailing list for NASA's Direct Readout Laboratory (DRL) provides an attractive entry point -- when a downlink transmission is missed by NASA's ground stations or by another organization, it is routine to use the mailing list to ask someone to send over their own copy of the data~\textbf{TODO cite}.
+Our attacker can take advantage of the trust inherent to this system's operation and send over malicious frames, which will be processed without question and entered into the DRL's database.
+Of course, it is more difficult to carry out this attack at a specific time due to the ``request/response'' nature of the exchange, but it is still possible to meddle with archived data or attack the processing systems via this method.
+
+Finally, we must consider the sphere of influence of any attacks on the processing systems.
+When NASA receives and processes a transmission from a satellite in the EOS fleet, the resulting data is used in a wide range of applications.
+We focus on forest fire detection in this paper, but the attacks we describe can easily be adapted to affect other systems connected to the same data streams.
+In Section~\ref{sec:background} we review services provided by relying on satellite-derived data; all the services relying on EOS data to provide their services are vulnerable to attacks.
+
+The same is true of any other organisation which processes EOS data, although usually to a lesser extent.
+If instead of NASA the attacker targets this organisation's ground station and attached processing system, anything relying on the output data is once again vulnerable.
+The distributed nature of ground stations serves to make attacks a little more difficult, but it is still the case that attacking a single ground station affects all datasets derived from data received by that ground station.
+
+Fundamentally, the issue stems from implicit trust of the data source, allowing vulnerabilities to one service to affect any other services further down the processing chain.
+\textbf{TODO finish, possibly move further on in the paper}
+
 %The goal of the adversary is to stealthily spoof the image information decoded by a single receiver station by emitting a counterfeit signal in the vicinity of the receiver.  Depending on the scenario, the attacker may want to inject similar-looking images with slight modifications to disrupt automated systems for forest fire and other anomaly detection.  In other cases, the attacker may wish to inject adversarial examples or degrade image quality to harm the research efforts of those using data derived from this source.
 
 %We assume that the attacker has access to off-the-shelf equipment, such as software-defined radios, amplifiers, and antennas.  We also assume that the attacker is able to maintain presence in the vicinity of the images they want to spoof, enabling them to receive the direct broadcast signal for that area [TODO: include roughly how precisely they need to be in the location].  They must also have a presence near the targeted receiver station, and be able to transmit the information they decode between the locations, using systems such as a wired, mobile, or even satellite internet connection.

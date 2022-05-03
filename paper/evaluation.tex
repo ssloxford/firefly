@@ -7,7 +7,14 @@
 \subsection{Security audit}
 \textit{Table demonstrating which currently-active CVEs are present in the software. A discussion of legacy software and its relation to security}
 
-\subsection{Physical-Layer Vaidation}
+\subsection{Physical-Layer Validation}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{diagrams/overshadowing_demo.pdf}
+    \caption{Representation of a signal injection attack through overshadowing.}
+    \label{fig:overshadowing_demo}
+\end{figure}
 
 \begin{figure}
     \centering
@@ -20,7 +27,8 @@ In order to demonstrate the feasibility of signal injection attacks on EOS downl
 We use ``GNU Radio'' to construct a pipeline which simulates a legitimate downlink signal broadcast from the Terra satellite and demodulated by a standard QPSK \textbf{TODO make sure explained} demodulator.
 We also simulate an attacker-injected signal added to the legitimate signal and demodulated by the same process.
 By varying the gain on the injected signal and measuring the Bit Error Rate (BER) of the decoded bytes, we can assess the transmission power required for the attack to succeed.
-An overview of the experimental configuration is shown in Figure~\ref{fig:overshadowing_pipeline}; the source code is also available alongside our other artifacts (\textbf{TODO}).
+The concept of signal overshadowing is illustrated in Figure~\ref{fig:overshadowing_demo}, and an overview of the experimental configuration is shown in Figure~\ref{fig:overshadowing_pipeline}.
+The source code is also available alongside our other artifacts (\textbf{TODO}).
 
 In order to carry out these simulations with a reasonable degree of confidence that they accurately represent the real world, we establish simulation parameters based on known characteristics of the EOS radio systems.
 We use the link budget established in~\cite{quinnNew2003} to establish the EIRP \textbf{TODO make sure explained} and free-space path loss of the radio signals transmitted by the Aqua and Terra satellites, as well as the antenna gain for signals within the beam of the receiver, and losses within the signal processing pipeline.
@@ -71,7 +79,7 @@ We take the EIRP and subtract FSPL (computed from distance using Equation~\ref{e
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{diagrams/distance_eirp_heatmap_95.pdf}
-    \caption{The accuracy of the injected signal as the attacker varies EIRP and distance from the receiver. The values above which the bit error rate drops below $5$\% are indicated using a line.}
+    \caption{The accuracy of the injected signal as the attacker varies EIRP and distance from the receiver. The values beyond which the bit error rate drops below $5$\% are indicated using a line.}
     \label{fig:distance_eirp}
 \end{figure}
 
@@ -83,10 +91,3 @@ With access to a more powerful amplifier, the feasible attack range can be exten
 We conclude from these results that there is moderate cause for concern regarding overshadowing attacks on NASA ground stations -- a motivated hobbyist with a relatively small budget can carry out attacks from a moderate distance, and attackers with greater means can do so from even further away.
 Furthermore, it is difficult to prevent overshadowing attacks without some method of validating the authenticity of the received signal, and locating the attacker requires a specialized setup to triangulate the signal's origin.
 This has implications beyond the attacks described in this paper, demonstrating that all downlink processing systems should be regarded as untrusted unless the data link is authenticated in some way.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\columnwidth]{diagrams/overshadowing_demo.pdf}
-    \caption{Representation of a signal injection attack through overshadowing.}
-    \label{fig:overshadowing_demo}
-\end{figure}
