@@ -1,5 +1,7 @@
 tools/cadu_utils/bin/*
 tools/cadu_utils/working/*
+tools/modis_utils/bin/*
+tools/modis_utils/working/*
 tools/ccsds_utils/bin/*
 tools/ccsds_utils/working/*
 tools/seqiter/bin/*
