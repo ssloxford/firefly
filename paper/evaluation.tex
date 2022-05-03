@@ -31,8 +31,9 @@ The concept of signal overshadowing is illustrated in Figure~\ref{fig:overshadow
 The source code is also available alongside our other artifacts (\textbf{TODO}).
 
 In order to carry out these simulations with a reasonable degree of confidence that they accurately represent the real world, we establish simulation parameters based on known characteristics of the EOS radio systems.
-We use the link budget established in~\cite{quinnNew2003} to establish the EIRP \textbf{TODO make sure explained} and free-space path loss of the radio signals transmitted by the Aqua and Terra satellites, as well as the antenna gain for signals within the beam of the receiver, and losses within the signal processing pipeline.
-On the attacker's side, we use the following standard formula for computing free-space path loss:
+We use the link budget established in~\cite{quinnNew2003} to establish the Effective Isotropic Radiated Power (EIRP) and free-space path loss of the radio signals transmitted by the Aqua and Terra satellites, as well as the antenna gain for signals within the beam of the receiver, and losses within the signal processing pipeline.
+We also look at the specification for a commercial EOS ground station to understand how the hardware compares to NASA's ground stations~\cite{dartcomsystemsltdXBand2021}.
+On the attacker's side, we use the following standard formula for computing Free-Space Path Loss (FSPL):
 \begin{align}
     \text{FSPL}_{\text{dB}} = 20\log_{10}(d) + 20\log_{10}(f) - 147.55, \label{eq:fspl}
 \end{align}
