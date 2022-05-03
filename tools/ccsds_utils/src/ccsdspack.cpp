@@ -162,19 +162,15 @@ int main(int argc, char *argv[]) {
 
 
   auto buffer = std::vector<std::byte> {};
-  buffer.resize(ccsds::MAX_DATA_LEN);
+  buffer.reserve(ccsds::MAX_DATA_LEN);
 
-  int n_read = 0;
   char c;
   while (std::cin.get(c)) {
-    if (n_read >= ccsds::MAX_DATA_LEN) {
+    if (buffer.size() == ccsds::MAX_DATA_LEN) {
       break;
     }
-    buffer[n_read] = std::byte(c);
-    ++n_read;
+    buffer.push_back(std::byte(c));
   }
-
-  buffer.resize(n_read);
 
   CCSDSPacket packet;
   packet.data() = buffer;
@@ -183,6 +179,7 @@ int main(int argc, char *argv[]) {
   packet.sec_hdr_flag() = result["sec-hdr-flag"].as<int>();
   packet.app_id() = app_id;
   packet.seq_flags() = seq_flags;
+  // TODO: remove hardcoded params
   packet.seq_cnt_or_name() = 16003;
   std::cout << packet;
 }

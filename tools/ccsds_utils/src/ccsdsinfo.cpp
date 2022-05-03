@@ -94,6 +94,8 @@ int main(int argc, char *argv[]) {
 
       // TODO: add remaining MODIS fields
 
+      // packet.data_field.calculate_checksum();
+
       std::cout << packet.version_number() << "\t\t" \
                 << packet.type() << "\t\t" \
                 << packet.sec_hdr_flag() << "\t\t" \
@@ -105,8 +107,8 @@ int main(int argc, char *argv[]) {
                 << packet.secondary_header.scan_count() << "\t\t" \
                 << packet.secondary_header.pkt_type() << "\t\t" \
                 << packet.secondary_header.quick_look() << "\t\t" \
-                << packet.data_field.checksum() << "\t\t" \
-                << packet.data_field.validate_checksum() \
+                << packet.data_field.checksum() << ':' << packet.data_field.calculate_checksum() << "\t\t" \
+                << packet.data_field.data_word(0) << "," << packet.data_field.data_word(1) \
                 << std::endl;
     }
   }
