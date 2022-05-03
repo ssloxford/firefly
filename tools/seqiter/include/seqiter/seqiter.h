@@ -9,6 +9,8 @@ struct it_pair {
   It _begin;
   It _end;
 
+  it_pair() = default;
+
   it_pair(It _begin, It _end)
       : _begin{std::move(_begin)}, _end{std::move(_end)} {}
 
@@ -35,6 +37,7 @@ auto recursive_arrow(auto &&x) {
 
 template <typename Reference, typename... It>
 struct sequential_iterators_t {
+
  private:
   using ranges_t = std::tuple<it_pair<It>...>;
 
@@ -44,7 +47,7 @@ struct sequential_iterators_t {
   template <typename Ret, typename F>
   static auto visit(sequential_iterators_t const &self, F &&f) -> Ret {
     static constexpr auto fs =
-        []<std::size_t... Indices>(std::index_sequence<Indices...>) {
+        []<std::size_t ...Indices>(std::index_sequence<Indices...>) {
       return std::array<auto(*)(F &&, ranges_t const &)->Ret, sizeof...(It)>{
           [](F &&f, ranges_t const &ranges) -> Ret {
             return std::forward<F>(f)(std::get<Indices>(ranges));
@@ -57,7 +60,7 @@ struct sequential_iterators_t {
   template <typename Ret, typename F>
   static auto visit(sequential_iterators_t &self, F &&f) -> Ret {
     static constexpr auto fs =
-        []<std::size_t... Indices>(std::index_sequence<Indices...>) {
+        []<std::size_t ...Indices>(std::index_sequence<Indices...>) {
       return std::array<auto(*)(F &&, ranges_t &)->Ret, sizeof...(It)>{
           [](F &&f, ranges_t &ranges) -> Ret {
             return std::forward<F>(f)(std::get<Indices>(ranges));
@@ -71,12 +74,16 @@ struct sequential_iterators_t {
       : ranges{std::move(ranges)}, index{index} {}
 
  public:
+  using iterator_category = std::forward_iterator_tag;
   using reference = Reference;
   using value_type = std::remove_cvref_t<reference>;
   using pointer = value_type *;  // TODO maybe this should be more general
+  using difference_type = std::ptrdiff_t;
 
   static_assert((std::is_same_v<value_type, typename std::iterator_traits<It>::value_type> && ...),
                 "Iterators do not all return correct value_type");
+
+  sequential_iterators_t() = default;
 
   sequential_iterators_t(it_pair<It>... ranges)
       : ranges{std::move(ranges)...} {}
@@ -155,7 +162,6 @@ struct sequential_iterators_t {
   auto begin() -> sequential_iterators_t { return *this; }
 
   auto end() const -> sequential_iterators_t { return {ranges, sizeof...(It)}; }
-
   auto end() -> sequential_iterators_t { return {ranges, sizeof...(It)}; }
 };
 
@@ -164,3 +170,4 @@ template <typename Reference, typename... It>
 auto sequential_iterators(it_pair<It>... ranges) {
   return sequential_iterators_t<Reference, It...>{std::move(ranges)...};
 }
+

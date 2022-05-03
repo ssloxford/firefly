@@ -2,6 +2,7 @@ tools/cadu_utils/bin/*
 tools/cadu_utils/working/*
 tools/ccsds_utils/bin/*
 tools/ccsds_utils/working/*
+tools/seqiter/bin/*
 tools/byte_aligner/byte_aligner
 
 decoder_pipeline/data/
