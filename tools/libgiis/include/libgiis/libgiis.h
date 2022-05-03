@@ -5,6 +5,9 @@
 #include <optional>
 #include <string>
 
+// Testing
+#include <signal.h>
+
 #include "getsetproxy/proxy.h"
 
 // TODO: work out which bits are giis-specific, modis-specific, modis-aqua-specific, and shared with girs
@@ -27,7 +30,7 @@ namespace _libgiis_impl {
     }
 
     // TODO: what does this first ref mean?
-    auto at(std::size_t pos) const & -> int {
+    auto operator[](std::size_t pos) const -> int {
       // We assume that a byte is CHAR_BIT bits
       if (pos >= size()) {
         throw std::invalid_argument(
@@ -40,12 +43,19 @@ namespace _libgiis_impl {
 
       if (offset <= 4) {
         // word split across two bytes
-        return
-          ((std::to_integer<int>(data.at(index)) & ((1 << (CHAR_BIT-offset))-1)) << wordlen-(CHAR_BIT-offset))
+        //std::cerr << "word split across two: " << index << "," << offset << "\n";
+        //std::cerr << "index: " << index << '\n';
+        //std::cerr << std::to_integer<int>(data.at(index)) << ":" << std::to_integer<int>(data.at(index+1)) << "\n";
+        auto x = 
+          ((std::to_integer<int>(data.at(index)) & ((1 << (CHAR_BIT-offset))-1)) << (wordlen-(CHAR_BIT-offset)))
           | (std::to_integer<int>(data.at(index+1)) >> CHAR_BIT-(wordlen-(CHAR_BIT-offset)));
+
+        //std::cerr << "output: " << x << '\n';
+        return x;
 
       } else {
         // word split across three bytes
+        //std::cerr << "### WARNING split across three impossible\n";
         return
           (std::to_integer<int>(data[index]) & ((1 << (CHAR_BIT-offset))-1) << wordlen-(CHAR_BIT-offset))
           | std::to_integer<int>(data[index+1]) << 4-(CHAR_BIT-offset)
@@ -53,9 +63,9 @@ namespace _libgiis_impl {
       }
     }
 
-    auto at(std::size_t pos) & {
+    auto operator[](std::size_t pos) {
       return Proxy{
-        [this,pos]() -> decltype(auto) { return std::as_const(*this).at(pos); },
+        [this,pos]() -> decltype(auto) { return std::as_const(*this)[pos]; },
         // TODO: investigate why this is not mutated
         [this,pos](int const value) mutable {
           // We assume that a byte is CHAR_BIT bits
@@ -68,8 +78,8 @@ namespace _libgiis_impl {
           const auto [index, offset] = std::div(pos*wordlen, CHAR_BIT);
 
           // Set the low bits at the index
-          data[index] &= std::byte(~((1 << (CHAR_BIT-offset))-1));
-          data[index] |= std::byte((value >> wordlen-(CHAR_BIT-offset) & ((1 << (CHAR_BIT-offset))-1)));
+          data[index] &= std::byte(~0 << (CHAR_BIT-offset));
+          data[index] |= std::byte((value >> wordlen-(CHAR_BIT-offset)) & ((1 << (CHAR_BIT-offset))-1));
 
           if (offset <= 4) {
             // checksum split across two bytes, so set the entire first byte
@@ -87,20 +97,18 @@ namespace _libgiis_impl {
 
  private:
    struct Iterator {
-    using iterator_category = std::forward_iterator_tag;
-
    private:
      int index = 0;
      _libgiis_impl::bitlen_int_array<N, wordlen> *parent;
 
    public:
+     Iterator() = default;
      Iterator(int index, _libgiis_impl::bitlen_int_array<N, wordlen> *parent) : index{index}, parent{parent} {}
 
-     auto operator*() const -> int const { return parent->at(index); }
+     auto operator*() const -> int { return (*parent)[index]; }
 
      Iterator& operator++() { index++; return *this; }
 
-     // TODO: should operator++(int) be const?
      Iterator operator++(int) { Iterator tmp = *this; ++(*this); return tmp; }
 
      Iterator operator+(int x) {
@@ -110,10 +118,13 @@ namespace _libgiis_impl {
        return tmp;
      }
 
-     friend auto operator== (const Iterator& a, const Iterator& b) { return a.index == b.index; }
-     // TODO: is this required, or can it be deduced by the compiler?
-     friend auto operator!= (const Iterator& a, const Iterator& b) { return a.index != b.index; }
+     friend auto operator== (const Iterator& a, const Iterator& b) -> bool = default;
 
+     using value_type = int;
+     using difference_type = std::ptrdiff_t;
+     using pointer = void;
+     using reference = int;
+     using iterator_category = std::forward_iterator_tag;
    };
 
   public:
@@ -139,7 +150,7 @@ namespace giis {
   constexpr int SCI_STATE_LEN = 1;
   constexpr int SCI_ABNORM_LEN = 1;
   constexpr int DATA_FIELD_DAY_ENGINEERING_LEN = 4980;
-  constexpr int DATA_FIELD_NIGHT_LEN = 2052;
+  constexpr int DATA_FIELD_NIGHT_LEN = 2052; // This may be off-by-one as night packet contains a fill 12-bit word
   constexpr int CHECKSUM_LEN = 12;
 
   struct SecondaryHeader {
@@ -268,12 +279,13 @@ namespace giis {
     std::optional<std::variant<
       Impl<giis::DATA_FIELD_DAY_ENGINEERING_LEN>,
       Impl<giis::DATA_FIELD_NIGHT_LEN>
-      >> data_field = std::nullopt; // TODO: ensure this isn't default constructed
+      >> data_field = std::nullopt; // TODO: use std::monostate variant
     mutable bool dirty_checksum = true;
 
   public:
     DataField() = default;
-    DataField(const char* data, std::size_t len) {
+
+    DataField(std::size_t len) {
       if (len == sizeof(Impl<giis::DATA_FIELD_DAY_ENGINEERING_LEN>)) {
         data_field = Impl<giis::DATA_FIELD_DAY_ENGINEERING_LEN>();
       } else if (len == sizeof(Impl<giis::DATA_FIELD_NIGHT_LEN>)) {
@@ -286,19 +298,41 @@ namespace giis {
           //"giis::DataField requires data of size "s + std::to_string(giis::DATA_FIELD_DAY_ENGINEERING_LEN) + " or "s + std::to_string(DATA_FIELD_NIGHT_LEN)
         );
       }
+    }
+
+    DataField(const char* data, std::size_t len) : DataField{len} {
       // Copy in the first fields
       std::memcpy(&data_field.value(), data, len);
     }
 
+    friend auto operator>>(std::istream & is, DataField & data_field) -> std::istream & {
+      // std::cerr << "Reading data field size: " << data_field.size() << '\n';
+      is.read(reinterpret_cast<char*>(&data_field.data_field.value()), data_field.size());
+      // std::cerr << "Read data field size: " << is.gcount() << '\n';
+      return is;
+    }
+
     auto resize(std::size_t len) {
-      throw std::invalid_argument("giis::DataField cannot be resized");
+      //throw std::invalid_argument("giis::DataField cannot be resized");
     }
 
     auto begin() { 
       recalculate_checksum();
-      return reinterpret_cast<std::byte*>(&data_field);
+      return std::visit(
+        [](auto & v) -> std::byte* {
+          return reinterpret_cast<std::byte*>(&v);
+        },
+        data_field.value()
+      );
     }
-    auto end() { return reinterpret_cast<std::byte*>(&data_field) + sizeof(data_field); }
+    auto end() { 
+      return std::visit(
+        [](auto & v) -> std::byte* {
+          return reinterpret_cast<std::byte*>(&v) + sizeof(v);
+        },
+        data_field.value()
+      );
+    }
 
     // TODO: fix const-ness in recalculate_checksum with mutable data fields
     /*
@@ -316,12 +350,12 @@ namespace giis {
 
 
     auto set_data_word(const int index, const int offset, const int value) {
-      std::cerr << "setting data word " << index << "," << offset << "\n";
+      // std::cerr << "setting data word " << index << "," << offset << "\n";
 
     }
 
   public:
-    auto data_word(int pos) const & -> int {
+    auto data_word(int const pos) const & -> int const {
       const auto checksummed_data_size = std::visit(
         [](auto const & v) -> int {
           return static_cast<int>(v.checksummed_data.size());
@@ -335,11 +369,11 @@ namespace giis {
       }
 
       return std::visit(
-        [pos](auto const & v) -> int { return v.checksummed_data.at(pos); },
+        [pos](auto const & v) -> int { return v.checksummed_data[pos]; },
         data_field.value());
     }
 
-    auto data_word(int pos) & {
+    auto data_word(int const pos) & {
       return Proxy{
         [this,pos]() -> decltype(auto) { return std::as_const(*this).data_word(pos); },
         [this,pos](int value) { 
@@ -358,16 +392,51 @@ namespace giis {
           dirty_checksum = true;
 
           std::visit(
-            [pos,value](auto & v) { v.checksummed_data.at(pos) = value; },
+            [pos,value](auto & v) { v.checksummed_data[pos] = value; },
             data_field.value());
         }
       };
     }
-   
+
+  private:
+    auto data_word_offset(int const ifov, int const band, int const det, int const sample, bool const high) const -> int const {
+      // spec: MODIS_UG.pdf p183-
+      // TODO: bounds checking
+      // TODO: ensure that only the second packet in the group can accees high ifovs, same with lows
+
+      int ifov_offset = ((ifov-1) % 5)*83;  // 83 is number of samples per ifov column
+      int band_offset = 0;
+      if (band == 1 || band == 2) {
+        band_offset = (band-1)*16 + (sample-1)*4;
+      } else if (band >= 3 && band <= 7) {
+        band_offset = 32 + (band-3)*4 + (sample-1)*2;
+      } else if (band >= 8 && band <= 12) {
+        band_offset = 52 + (band-8);
+      } else if (band == 13 || band == 14) {
+        band_offset = 57 + (band-13)*2;
+        if (high)
+          band_offset++;
+      } else if (band >= 15 && band <= 36) {
+        band_offset = 61 + (band-15);
+      }
+
+      // std::cerr << "calculated offset: " << ifov_offset + band_offset << '\n';
+      return ifov_offset + band_offset;
+    }
+
+  public:
+    auto data_word(int const ifov, int const band, int const det=1, int const sample=1, bool const high=false) const & -> int {
+      return data_word(data_word_offset(ifov, band, det, sample, high));
+    }
+
+    auto data_word(int const ifov, int const band, int const det=1, int const sample=1, bool const high=false) & {
+      return data_word(data_word_offset(ifov, band, det, sample, high));
+    }
+
     auto checksum() const & {
       return std::visit(
         [](auto const & v) -> int {
-          return v.checksummed_data.at(v.checksummed_data.size()-1);
+          return v.checksummed_data[v.checksummed_data.size() - 1];
         },
         data_field.value());
     }
@@ -386,7 +455,7 @@ namespace giis {
         [this]() -> decltype(auto) { return std::as_const(*this).checksum(); },
         [this](int value) {
           std::visit(
-            [value](auto & v) { v.checksummed_data.at(v.checksummed_data.size()-1) = value; },
+            [value](auto & v) { v.checksummed_data[v.checksummed_data.size() - 1] = value; },
             data_field.value());
 
           dirty_checksum = false;
@@ -397,15 +466,17 @@ namespace giis {
   public:
     // TODO: make private
     auto calculate_checksum() const -> int const {
+      // This implements "formatter """exclusive xor""" " from the spec MODIS_UG.pdf
+      // Derived from ocssw-src/src/pdsmerge/pdsinfo.c
       return std::visit(
         [](auto const & v) -> int {
-          return std::accumulate(
+          auto checksum = std::reduce(
             v.checksummed_data.begin(),
-            v.checksummed_data.begin() + (v.checksummed_data.size() - 1),
-            0,
-            // WHY is there no std::logical_xor ???
-            [](int a, int b) { return a^b; }
+            v.checksummed_data.begin() + (v.checksummed_data.size() - 1)
           );
+          checksum >>= 4;
+          checksum &= 0xFFF;
+          return checksum;
         },
         data_field.value()
       );
@@ -413,10 +484,8 @@ namespace giis {
 
   public:
     void recalculate_checksum() {
-      // TODO: can I make this an lvalue reference some other way?
-      auto c = checksum();
-      c = calculate_checksum();
-      dirty_checksum = false;
+      // TODO: fix
+      checksum() = calculate_checksum();
     }
 
     auto validate_checksum() const -> bool const {
@@ -432,6 +501,15 @@ namespace giis {
         },
         data_field.value()
       ) == 0;
+    }
+
+    auto size() const -> int const {
+      return std::visit(
+        [](auto const & v) -> int {
+          return sizeof(v);
+        },
+        data_field.value()
+      );
     }
   };
 }

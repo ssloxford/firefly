@@ -4,38 +4,39 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <stdexcept>
-#include <span>
 #include <memory>
-#include <optional>
+#include <ranges>
+#include <span>
+#include <stdexcept>
 #include <utility>
-#include <vector>
 #include <variant>
+#include <vector>
 
-#include "seqiter/seqiter.h"
 #include "getsetproxy/proxy.h"
+#include "seqiter/seqiter.h"
 
 // https://public.ccsds.org/Pubs/133x0b2e1.pdf
 
-template <typename SecondaryHeader, typename DataField>
-struct CCSDSPacket;
+template <typename SecondaryHeader, typename DataField> struct CCSDSPacket;
 
 namespace ccsds {
-  constexpr int VERSION_NUMBER_LEN = 3;
-  constexpr int TYPE_FLAG_LEN = 1;
-  constexpr int SEC_HDR_FLAG_LEN = 1;
-  constexpr int APP_ID_LEN = 11;
-  constexpr int SEQ_FLAGS_LEN = 2;
-  constexpr int SEQ_CNT_OR_NAME_LEN = 14;
-  constexpr int DATA_LEN_LEN = 16;
+constexpr int VERSION_NUMBER_LEN = 3;
+constexpr int TYPE_FLAG_LEN = 1;
+constexpr int SEC_HDR_FLAG_LEN = 1;
+constexpr int APP_ID_LEN = 11;
+constexpr int SEQ_FLAGS_LEN = 2;
+constexpr int SEQ_CNT_OR_NAME_LEN = 14;
+constexpr int DATA_LEN_LEN = 16;
 
-  // 0 denotes a data section of a single byte
-  static constexpr std::size_t MAX_DATA_LEN = 1 << ccsds::DATA_LEN_LEN;
-};
+// 0 denotes a data section of a single byte
+static constexpr std::size_t MAX_DATA_LEN = 1 << ccsds::DATA_LEN_LEN;
+}; // namespace ccsds
 
 #pragma pack(push, 1)
-struct CCSDSPrimaryHeader{
-  template<typename SecondaryHeader, typename DataField> friend class CCSDSPacket;
+struct CCSDSPrimaryHeader {
+  template <typename SecondaryHeader, typename DataField>
+  friend class CCSDSPacket;
+
 private:
   uint16_t _app_id_h : ccsds::APP_ID_LEN - 8 = 0;
   uint16_t _sec_hdr_flag : ccsds::SEC_HDR_FLAG_LEN = 0;
@@ -51,33 +52,51 @@ private:
 public:
   struct Iterator {
     using iterator_category = std::forward_iterator_tag;
-    using difference_type   = std::ptrdiff_t;
-    using value_type        = std::byte;
-    using pointer           = value_type*;
-    using reference         = value_type&;
+    using difference_type = std::ptrdiff_t;
+    using value_type = std::byte;
+    using pointer = value_type *;
+    using reference = value_type &;
 
+    Iterator() = default;
     Iterator(pointer ptr) : m_ptr(ptr) {}
 
     reference operator*() const { return *m_ptr; }
     pointer operator->() { return m_ptr; }
 
     // Prefix increment
-    Iterator& operator++() { m_ptr++; return *this; }  
+    Iterator &operator++() {
+      m_ptr++;
+      return *this;
+    }
 
     // Postfix increment
-    Iterator operator++(int) { Iterator tmp = *this; ++(*this); return tmp; }
+    Iterator operator++(int) {
+      Iterator tmp = *this;
+      ++(*this);
+      return tmp;
+    }
 
-    Iterator& operator+(int x) { m_ptr += x; return *this; }
+    Iterator &operator+(int x) {
+      m_ptr += x;
+      return *this;
+    }
 
-    friend bool operator== (const Iterator& a, const Iterator& b) { return a.m_ptr == b.m_ptr; };
-    friend bool operator!= (const Iterator& a, const Iterator& b) { return a.m_ptr != b.m_ptr; };
+    friend bool operator==(const Iterator &a, const Iterator &b) {
+      return a.m_ptr == b.m_ptr;
+    };
+    friend bool operator!=(const Iterator &a, const Iterator &b) {
+      return a.m_ptr != b.m_ptr;
+    };
+
   private:
     pointer m_ptr;
-
   };
 
-  Iterator begin() { return Iterator(reinterpret_cast<std::byte*>(this)); }
-  Iterator end() { return Iterator(reinterpret_cast<std::byte*>(this) + sizeof(CCSDSPrimaryHeader)); }
+  Iterator begin() { return Iterator(reinterpret_cast<std::byte *>(this)); }
+  Iterator end() {
+    return Iterator(reinterpret_cast<std::byte *>(this) +
+                    sizeof(CCSDSPrimaryHeader));
+  }
 };
 #pragma pack(pop)
 static_assert(std::is_trivially_copyable_v<CCSDSPrimaryHeader>,
@@ -88,36 +107,36 @@ static_assert(sizeof(CCSDSPrimaryHeader) == 6,
               "CCSDSPrimaryHeader is not of size 6 as in the spec");
 
 namespace ccsds {
-  constexpr int MIN_PACKET_LEN = sizeof(CCSDSPrimaryHeader) + 1; // The data zone must contain at least one byte
-  constexpr int MAX_PACKET_LEN = sizeof(CCSDSPrimaryHeader) + (1 << DATA_LEN_LEN) + 1;
-}
+constexpr int MIN_PACKET_LEN =
+    sizeof(CCSDSPrimaryHeader) +
+    1; // The data zone must contain at least one byte
+constexpr int MAX_PACKET_LEN =
+    sizeof(CCSDSPrimaryHeader) + (1 << DATA_LEN_LEN) + 1;
+} // namespace ccsds
 
 // The default data field, consisting just of a single vector
 struct CCSDSDataField {
-  template<typename T, typename U> friend class CCSDSPacket; // TODO: required? shouldn't be
+  template <typename T, typename U>
+  friend class CCSDSPacket; // TODO: required? shouldn't be
 
 private:
   std::vector<std::byte> _data = std::vector<std::byte>(0);
 
-  auto size() const -> std::size_t {
-    return _data.size();
-  }
+  auto size() const -> std::size_t { return _data.size(); }
 
 public:
   CCSDSDataField() = default;
 
   // Maybe take a vector instead?
   // It's okay to fail if you're passed something that's the wrong sized
-  CCSDSDataField(const char* data, std::size_t len) {
+  CCSDSDataField(const char *data, std::size_t len) {
     _data.resize(len);
     std::memcpy(_data.data(), data, len);
   }
 
   // It's okay to fail if you're a fixed length field
-  auto resize(std::size_t len) {
-    _data.resize(len);
-  }
-  
+  auto resize(std::size_t len) { _data.resize(len); }
+
   auto begin() { return _data.begin(); }
   auto end() { return _data.end(); }
 
@@ -127,27 +146,26 @@ public:
 
 struct NullSecondaryHeader {
   NullSecondaryHeader() = default;
-  NullSecondaryHeader(const char* data, std::size_t len) {
+  NullSecondaryHeader(const char *data, std::size_t len) {
     if (len != size()) {
       std::cerr << "size: " << len << '\n';
       std::cerr << "correct size: " << size() << '\n';
       throw std::invalid_argument("NullSecondaryHeader - invalid size");
     }
   }
-  
-  auto begin() -> std::byte* const { return nullptr; }
-  auto end() -> std::byte* const { return nullptr; }
 
-  auto begin() const -> std::byte* const { return nullptr; }
-  auto end() const -> std::byte* const { return nullptr; }
+public:
+  auto begin() -> std::byte *const { return nullptr; }
+  auto end() -> std::byte *const { return nullptr; }
 
-  constexpr auto size() const -> std::size_t {
-    return 0;
-  }
+  auto begin() const -> std::byte *const { return nullptr; }
+  auto end() const -> std::byte *const { return nullptr; }
+
+  constexpr auto size() const -> std::size_t { return 0; }
 };
 
-
-template <typename SecondaryHeader = NullSecondaryHeader, typename DataField = CCSDSDataField>
+template <typename SecondaryHeader = NullSecondaryHeader,
+          typename DataField = CCSDSDataField>
 struct CCSDSPacket {
 private:
   CCSDSPrimaryHeader primary_header;
@@ -162,19 +180,33 @@ private:
 public:
   auto begin() {
     recalculate_length();
-    return sequential_iterators<std::byte &>(
-      it_pair{primary_header},
-      it_pair{secondary_header},
-      it_pair{data_field}
-    ).begin();
+    if (sec_hdr_flag()) {
+      return sequential_iterators<std::byte &>(it_pair{primary_header},
+                                               it_pair{secondary_header},
+                                               it_pair{data_field})
+          .begin();
+    } else {
+      return sequential_iterators<std::byte &>(
+                 it_pair{primary_header},
+                 it_pair{secondary_header.begin(), secondary_header.begin()},
+                 it_pair{data_field})
+          .begin();
+    }
   }
 
   auto end() {
-    return sequential_iterators<std::byte &>(
-      it_pair{primary_header},
-      it_pair{secondary_header},
-      it_pair{data_field}
-    ).end();
+    if (sec_hdr_flag()) {
+      return sequential_iterators<std::byte &>(it_pair{primary_header},
+                                               it_pair{secondary_header},
+                                               it_pair{data_field})
+          .end();
+    } else {
+      return sequential_iterators<std::byte &>(
+                 it_pair{primary_header},
+                 it_pair{secondary_header.begin(), secondary_header.begin()},
+                 it_pair{data_field})
+          .end();
+    }
   }
 
   /*
@@ -203,21 +235,18 @@ public:
   }
 
   auto version_number() & {
-    return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).version_number(); },
-      [this](int x) { primary_header._version_number = x; }
-    };
+    return Proxy{[this]() -> decltype(auto) {
+                   return std::as_const(*this).version_number();
+                 },
+                 [this](int x) { primary_header._version_number = x; }};
   }
 
-  auto type() const & {
-    return static_cast<int>(primary_header._type);
-  }
+  auto type() const & { return static_cast<int>(primary_header._type); }
 
   auto type() & {
     return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).type(); },
-      [this](int x) { primary_header._type = x; }
-    };
+        [this]() -> decltype(auto) { return std::as_const(*this).type(); },
+        [this](int x) { primary_header._type = x; }};
   }
 
   auto sec_hdr_flag() const & {
@@ -225,21 +254,24 @@ public:
   }
 
   auto sec_hdr_flag() & {
-    return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).sec_hdr_flag(); },
-      [this](int x) { primary_header._sec_hdr_flag = x; }
-    };
+    return Proxy{[this]() -> decltype(auto) {
+                   return std::as_const(*this).sec_hdr_flag();
+                 },
+                 [this](int x) { primary_header._sec_hdr_flag = x; }};
   }
 
   auto app_id() const & {
-    return static_cast<int>(primary_header._app_id_h << 8 | primary_header._app_id_l);
+    return static_cast<int>(primary_header._app_id_h << 8 |
+                            primary_header._app_id_l);
   }
 
   auto app_id() & {
     return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).app_id(); },
-      [this](int x) { primary_header._app_id_h = (x >> 8) & 0x03; primary_header._app_id_l = x & 0xff; }
-    };
+        [this]() -> decltype(auto) { return std::as_const(*this).app_id(); },
+        [this](int x) {
+          primary_header._app_id_h = (x >> 8) & 0x03;
+          primary_header._app_id_l = x & 0xff;
+        }};
   }
 
   auto seq_flags() const & {
@@ -248,71 +280,76 @@ public:
 
   auto seq_flags() & {
     return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).seq_flags(); },
-      [this](int x) { primary_header._seq_flags = x; }
-    };
+        [this]() -> decltype(auto) { return std::as_const(*this).seq_flags(); },
+        [this](int x) { primary_header._seq_flags = x; }};
   }
 
   auto seq_cnt_or_name() const & {
-    return static_cast<int>(primary_header._seq_cnt_or_name_h << 8 | primary_header._seq_cnt_or_name_l);
+    return static_cast<int>(primary_header._seq_cnt_or_name_h << 8 |
+                            primary_header._seq_cnt_or_name_l);
   }
 
   auto seq_cnt_or_name() & {
-    return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).seq_cnt_or_name(); },
-      [this](int x) {
-        primary_header._seq_cnt_or_name_h = (x >> 8) & 0x3f;
-        primary_header._seq_cnt_or_name_l = x  & 0xff;
-      }
-    };
+    return Proxy{[this]() -> decltype(auto) {
+                   return std::as_const(*this).seq_cnt_or_name();
+                 },
+                 [this](int x) {
+                   primary_header._seq_cnt_or_name_h = (x >> 8) & 0x3f;
+                   primary_header._seq_cnt_or_name_l = x & 0xff;
+                 }};
   }
 
   auto data_len() const & {
-    return static_cast<int>(primary_header._data_len_h << 8 | primary_header._data_len_l);
+    return static_cast<int>(primary_header._data_len_h << 8 |
+                            primary_header._data_len_l);
   }
 
   auto data_len() & {
     return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).data_len(); },
-      [this](std::size_t len) {
-        // TODO: this needs to be changed in light of the new data length etc.
-        // Fixed length secondary headers need to be accounted for
-        data_field.resize(len+1);
-        dirty_length = false;
-        primary_header._data_len_h = (len >> 8) & 0xff;
-        primary_header._data_len_l = (len) & 0xff;
-      }
-    };
+        [this]() -> decltype(auto) { return std::as_const(*this).data_len(); },
+        [this](std::size_t len) {
+          // TODO: this needs to be changed in light of the new data length etc.
+          // Fixed length secondary headers need to be accounted for
+          data_field.resize(len + 1);
+          dirty_length = false;
+          primary_header._data_len_h = (len >> 8) & 0xff;
+          primary_header._data_len_l = (len)&0xff;
+        }};
   }
 
-  auto data() const & -> auto const & {
-    return data_field._data;
-  }
+  auto data() const & -> auto const & { return data_field._data; }
 
   auto data() & {
     return Proxy{
-      [this]() -> decltype(auto) { return std::as_const(*this).data(); },
-      [this](std::span<std::byte> s) { 
-        // Data section must contain at least a single octet
-        if (s.size() == 0) {
-          throw (std::invalid_argument("Data field must contain at least one byte"));
-        }
-        dirty_length = true;
-        int size = std::min(s.size(), ccsds::MAX_DATA_LEN);
-        data_field.resize(size);
-        std::copy_n(s.begin(), size, data_field._data.begin());
-      }
-    };
+        [this]() -> decltype(auto) { return std::as_const(*this).data(); },
+        [this](std::span<std::byte> s) {
+          // Data section must contain at least a single octet
+          if (s.size() == 0) {
+            throw(std::invalid_argument(
+                "Data field must contain at least one byte"));
+          }
+          dirty_length = true;
+          int size = std::min(s.size(), ccsds::MAX_DATA_LEN);
+          data_field.resize(size);
+          std::copy_n(s.begin(), size, data_field._data.begin());
+        }};
   }
 
   CCSDSPacket() = default;
   CCSDSPacket(uint8_t const *const input) {
     // Memcpy the fixed length header
     std::memcpy(&primary_header, input, sizeof(CCSDSPrimaryHeader));
-    auto len = data_len() + 1;   // Length 0 is used to mean a single byte
-    data_field.resize(len);
-    // TODO: copy in secondary header?
-    std::memcpy(&data_field._data, &(input[sizeof(CCSDSPrimaryHeader)]), len);
+
+    secondary_header = SecondaryHeader(input + sizeof(CCSDSPrimaryHeader),
+                                       secondary_header.size());
+
+    // TODO: remove this horrible hack to get the header size
+    auto size = SecondaryHeader();
+    int sec_hdr_size = size.size();
+
+    data_field = DataField(input + sizeof(CCSDSPrimaryHeader) + sec_hdr_size,
+                           data_len() - sec_hdr_size +
+                               1); // Length 0 is used to mean a single byte
   }
 
   auto size() -> std::size_t {
@@ -321,20 +358,30 @@ public:
 
   void recalculate_length() {
     if (dirty_length) {
+      std::cerr << "recalculating length: " << data_field.size() << ","
+                << secondary_header.size() << '\n';
       data_len() = data_field.size() + secondary_header.size() - 1;
       dirty_length = false;
     }
   }
 
   template <typename S, typename D>
-  friend auto operator<<(std::ostream & output, CCSDSPacket<S, D> & packet) -> std::ostream &;
+  friend auto operator<<(std::ostream &output, CCSDSPacket<S, D> &packet)
+      -> std::ostream &;
   template <typename S, typename D>
-  friend auto operator>>(std::istream & input, CCSDSPacket<S, D> & packet) -> std::istream &;
+  friend auto operator>>(std::istream &input, CCSDSPacket<S, D> &packet)
+      -> std::istream &;
 };
 
+static_assert(std::copyable<decltype(CCSDSPacket{}.end())>);
+static_assert(std::default_initializable<decltype(CCSDSPacket{}.end())>);
+static_assert(std::semiregular<decltype(CCSDSPacket{}.end())>);
+static_assert(std::sentinel_for<decltype(CCSDSPacket{}.end()),
+                                decltype(CCSDSPacket{}.begin())>);
+
+// TODO: ask why this isn't working
 // An iterator over the items of It, static_cast to type to
-template <typename It, typename to>
-class static_cast_iterator {
+template <typename It, typename to> class static_cast_iterator {
   using iterator_category = std::forward_iterator_tag;
 
 private:
@@ -343,16 +390,17 @@ private:
 public:
   static_cast_iterator(It it) : it{it} {}
 
-  auto operator*() {
+  auto operator*() { return static_cast<to>(*it); }
+
+  static_cast_iterator &operator++() {
+    it++;
     return *this;
   }
-
-  static_cast_iterator& operator=(auto const & value) {
-    it = static_cast<to>(value);
+  static_cast_iterator operator++(int) const {
+    static_cast_iterator tmp = *this;
+    ++(*this);
+    return tmp;
   }
-
-  static_cast_iterator& operator++() { it++; return *this; }
-  static_cast_iterator operator++(int) const { static_cast_iterator tmp = *this; ++(*this); return tmp; }
 
   static_cast_iterator operator+(int x) {
     static_cast_iterator tmp = *this;
@@ -360,87 +408,95 @@ public:
     return tmp;
   }
 
-
-  /*
-  friend auto operator== (const static_cast_iterator& a, const static_cast_iterator& b) {
+  friend auto operator==(const static_cast_iterator &a,
+                         const static_cast_iterator &b) {
     return a.it == b.it;
   }
 
-  friend auto operator!= (const static_cast_iterator& a, const static_cast_iterator& b) {
+  friend auto operator!=(const static_cast_iterator &a,
+                         const static_cast_iterator &b) {
     return a.it != b.it;
   }
-  */
 };
 
 template <typename SecondaryHeader, typename DataField>
-auto operator<<(std::ostream & output, CCSDSPacket<SecondaryHeader, DataField> & packet) -> std::ostream & {
-  // TODO: this is now broken
-  packet.recalculate_length();
-
-  output.write(reinterpret_cast<char*>(&packet.primary_header), sizeof(CCSDSPrimaryHeader));
-
-  for (std::byte b : packet.secondary_header) {
-    char c = static_cast<char>(b);
-    output.write(&c, 1);
-  }
-
-  // TODO: finish static_cast iterator
-  /*
-  if (packet.sec_hdr_flag()) {
-    std::ranges::copy(
-      packet.secondary_header,
-      static_cast_iterator<std::ostream_iterator<char>, char>(std::ostream_iterator<char>(output)));
-  }
-  */
-
-  for (std::byte b : packet.data_field) {
-    char c = static_cast<char>(b);
-    output.write(&c, 1);
-  }
+auto operator<<(std::ostream &output,
+                CCSDSPacket<SecondaryHeader, DataField> &packet)
+    -> std::ostream & {
+  std::ranges::copy(std::ranges::views::transform(
+                        packet, [](auto x) { return static_cast<char>(x); }),
+                    std::ostreambuf_iterator<char>{output});
 
   return output;
 }
 
-template <typename SecondaryHeader, typename DataField>
-auto operator>>(std::istream & input, CCSDSPacket<SecondaryHeader, DataField> & packet) -> std::istream & {
-  std::array<char, sizeof(CCSDSPrimaryHeader)> header = {};
-  if (! input.read(header.data(), sizeof(CCSDSPrimaryHeader))) {
-    return input;
+template <typename It, typename F> class map_iterator {
+private:
+  It it;
+  F f;
+
+public:
+  map_iterator(It it, F f) : it{std::move(it)}, f{std::move(f)} {}
+
+  auto operator*() { return f(*it); }
+  void operator->() = delete;
+
+  auto operator++() -> map_iterator & {
+    ++it;
+    return *this;
   }
-  std::memcpy(&packet.primary_header, header.data(), sizeof(CCSDSPrimaryHeader));
+  auto operator++(int) -> map_iterator { return {it++, f}; }
 
-  int sec_hdr_size = 0;
-  if (packet.sec_hdr_flag()) {
-    // TODO: remove this horrible hack to get the header size
-    auto size = SecondaryHeader();
-    sec_hdr_size = size.size();
+  friend auto operator==(map_iterator const &, map_iterator const &)
+      -> bool = default;
 
-    std::array<char, size.size()> sec_header = {};
-    if (! input.read(sec_header.data(), size.size())) {
+  using difference_type = std::ptrdiff_t;
+  using value_type = decltype(*std::declval<map_iterator>());
+  using pointer = void;
+  using reference = void;
+  using iterator_category = std::forward_iterator_tag;
+};
+
+// TODO: write copy_n_or_until_end
+
+template <typename SecondaryHeader, typename DataField>
+auto operator>>(std::istream &input,
+                CCSDSPacket<SecondaryHeader, DataField> &packet)
+    -> std::istream & {
+  if (input.good()) {
+    std::copy_n(map_iterator{std::istreambuf_iterator<char>{input},
+                             [](auto x) { return static_cast<std::byte>(x); }},
+                sizeof(packet.primary_header), packet.primary_header.begin());
+    // std::cerr << "prev data_len(): " << packet.data_len() << '\n';
+
+    // TODO: write a lazily evaluating sequential_iterator to work around the fact
+    // that istreambuf_iterator only peeks to get the data
+    char c;
+    if (! input.get(c)) {
       return input;
     }
-    auto secondary_header = SecondaryHeader(sec_header.data(), sec_hdr_size);
-    packet.secondary_header = secondary_header;
 
-    // TODO: do something like this copy_n instead: it'll be nicer
-    /*
-    auto secondary_header = SecondaryHeader();
-    std::copy_n(
-      std::istreambuf_iterator(input),
-      secondary_header.size(),
-      secondary_header.begin());
-    */
+    auto sec_hdr_size =
+        packet.sec_hdr_flag() ? packet.secondary_header.size() : 0;
+    std::copy_n(map_iterator{std::istreambuf_iterator<char>{input},
+                             [](auto x) { return static_cast<std::byte>(x); }},
+                sec_hdr_size, packet.secondary_header.begin());
+    if (packet.sec_hdr_flag()) {
+      // std::cerr << "first byte of sec_hdr: " << static_cast<int>(*packet.secondary_header.begin()) << '\n';
+    }
+
+    // TODO: fix this like above
+    if (! input.get(c)) {
+      return input;
+    }
+    
+    auto data_len = packet.data_len() - sec_hdr_size +
+                    1; // Length 0 is used to mean a single byte
+    //std::cerr << "Inputting packet.  data_len: " << data_len << '\n';
+    // std::cerr << "data_len(): " << packet.data_len() << '\n';
+    packet.data_field = DataField{data_len};
+    input >> packet.data_field;
   }
-
-  auto data_len = packet.data_len() - sec_hdr_size + 1;   // Length 0 is used to mean a single byte
-  std::vector<char> data;
-  data.resize(data_len);
-  if (! input.read(&data[0], data_len)) {
-    return input;
-  }
-
-  auto data_field = DataField(data.data(), data_len);
-  packet.data_field = data_field;
 
   return input;
 }
