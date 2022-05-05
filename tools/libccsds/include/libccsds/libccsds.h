@@ -134,6 +134,10 @@ public:
     std::memcpy(_data.data(), data, len);
   }
 
+  CCSDSDataField(std::size_t len) {
+    _data.resize(len);
+  }
+
   // It's okay to fail if you're a fixed length field
   auto resize(std::size_t len) { _data.resize(len); }
 
@@ -142,6 +146,14 @@ public:
 
   auto begin() const { return _data.begin(); }
   auto end() const { return _data.end(); }
+
+  friend auto operator>>(std::istream & is, CCSDSDataField & data_field) -> std::istream & {
+    // std::cerr << "Reading data field size: " << data_field.size() << '\n';
+    is.read(reinterpret_cast<char*>(data_field._data.data()), data_field.size());
+    // std::cerr << "Read data field size: " << is.gcount() << '\n';
+    return is;
+  }
+
 };
 
 struct NullSecondaryHeader {
@@ -482,7 +494,6 @@ auto operator>>(std::istream &input,
                              [](auto x) { return static_cast<std::byte>(x); }},
                 sec_hdr_size, packet.secondary_header.begin());
     if (packet.sec_hdr_flag()) {
-      // std::cerr << "first byte of sec_hdr: " << static_cast<int>(*packet.secondary_header.begin()) << '\n';
     }
 
     // TODO: fix this like above
