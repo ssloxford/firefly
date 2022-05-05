@@ -484,8 +484,8 @@ namespace giis {
 
   public:
     void recalculate_checksum() {
-      // TODO: fix
       checksum() = calculate_checksum();
+      dirty_checksum = false;
     }
 
     auto validate_checksum() const -> bool const {
