@@ -27,6 +27,9 @@ DATA_PATH="$(realpath $1)"
 echo "DATA_PATH: $DATA_PATH"
 echo "CONTAINER_RUNTIME: $CONTAINER_RUNTIME"
 
+if [ -d "$DATA_PATH"/output ]; then
+	echo "Must move $DATA_PATH/output before running the script"
+fi
 
 set +e
 PDSs=$(ls "$DATA_PATH"/input | grep -e "MYD00" -e "MOD00")
