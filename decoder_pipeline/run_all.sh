@@ -92,7 +92,7 @@ for pds in $PDSs; do
 	echo ""
     echo "### Running modisl1db l1a-geo initial processing"
 
-	$CONTAINER_RUNTIME run -v "$DATA_PATH":/root/data --rm -it --entrypoint \
+	$CONTAINER_RUNTIME run -v "$DATA_PATH":/root/data --rm --entrypoint \
     	/root/SPA/modisl1db/algorithm/DRLshellscripts/run_modis-l1a-geo.sh \
 		modisl1db \
 			pds "/root/data/input/$pds" \
@@ -105,7 +105,7 @@ for pds in $PDSs; do
 	echo ""
     echo "### Running modisl1db l1atob geolocation"
  
-    $CONTAINER_RUNTIME run -v "$DATA_PATH":/root/data --rm -it --entrypoint \
+    $CONTAINER_RUNTIME run -v "$DATA_PATH":/root/data --rm --entrypoint \
         /root/SPA/modisl1db/wrapper/l1atob/run \
 		modisl1db \
             modis.mxd01 "$mxd01" \
@@ -120,7 +120,7 @@ for pds in $PDSs; do
 	echo ""
     echo "### Running mod14 fire detection"
 
-    $CONTAINER_RUNTIME run -v "$DATA_PATH":/root/data --rm -it --entrypoint \
+    $CONTAINER_RUNTIME run -v "$DATA_PATH":/root/data --rm --entrypoint \
         /root/SPA/mod14/wrapper/mod14/run \
 		mod14 \
             modis.mxd021km "$mxd021km" \
@@ -135,7 +135,7 @@ echo ""
 echo "Running bluemarble image generation"
 
 # TODO: add other parameters to enable mosiacing
-$CONTAINER_RUNTIME run -v "$DATA_PATH":/root/data --rm -it --entrypoint \
+$CONTAINER_RUNTIME run -v "$DATA_PATH":/root/data --rm --entrypoint \
     /root/SPA/BlueMarble/algorithm/DRL_scripts/modis_truecolor.sh \
     bluemarble \
         modisl1b1km /root/data/output/"$prefix""021KM*" \
@@ -157,7 +157,7 @@ for l1b1 in "$DATA_PATH"/output/"${prefix}"021KM*; do
     echo ""
     echo "Running bluemarble fire overlay"
 
-    $CONTAINER_RUNTIME run -v "$DATA_PATH":/root/data --rm -it --entrypoint \
+    $CONTAINER_RUNTIME run -v "$DATA_PATH":/root/data --rm --entrypoint \
         /root/SPA/BlueMarble/algorithm/DRL_scripts/overlay_fires.sh \
         bluemarble \
             fireloc "/root/data/output/${prefix}14.$suffix.txt" \
