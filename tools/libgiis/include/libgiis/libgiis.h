@@ -257,12 +257,12 @@ namespace giis {
     struct Impl {
       friend DataField;
     private:
-      uint8_t _src_ident_l = 0;
-      uint16_t _fpa_aem_config_l : 4 = 0;
-      uint16_t _src_ident_h : giis::SRC_INDENT_LEN - 8 = 0;
+      uint8_t _src_ident_h = 0;
+      uint16_t _fpa_aem_config_h : 4 = 0;
+      uint16_t _src_ident_l : giis::SRC_INDENT_LEN - 8 = 0;
       uint16_t _sci_abnorm : giis::SCI_ABNORM_LEN = 0;
       uint16_t _sci_state : giis::SCI_STATE_LEN = 0;
-      uint16_t _fpa_aem_config_h : giis::FPA_AEM_CONFIG_LEN - 4 = 0;
+      uint16_t _fpa_aem_config_l : giis::FPA_AEM_CONFIG_LEN - 4 = 0;
       mutable _libgiis_impl::bitlen_int_array<(data_field_bit_len + giis::CHECKSUM_LEN)/12> checksummed_data = {};
       static_assert((data_field_bit_len + giis::CHECKSUM_LEN) % 8 == 0,
                     "giis::DataField::Impl must have checksummed_data be an integer number of bytes");
@@ -345,16 +345,65 @@ namespace giis {
     // TODO: define methods for getting and setting the other fields with proxy
     */
 
-  private:
-    // Extract the 12 bit data word from checksummed_data at byte index, offset offset
-
-
-    auto set_data_word(const int index, const int offset, const int value) {
-      // std::cerr << "setting data word " << index << "," << offset << "\n";
-
+  public:
+    // TODO: define nice interface with std::variant
+    // TODO: do this nicely with an enum
+    auto src_ident_type() const & {
+      return std::visit(
+        [](auto const & v) -> int {
+          return static_cast<int>(v._src_ident_h >> 7);
+        },
+        data_field.value()
+      );
     }
 
-  public:
+    auto src_ident_type() & {
+      return Proxy {
+        [this]() -> decltype(auto) { return std::as_const(*this).src_ident_type(); },
+        [this](int x) {
+          std::visit(
+            [x](auto & v) {
+              v._src_ident_h &= (1 << 7)-1;
+              v._src_ident_h |= (x&1) << 7;
+            },
+            data_field.value()
+          );
+        }
+      };
+    }
+
+    auto frame_data_count() const & {
+      return std::visit(
+        [](auto const & v) -> int {
+          return static_cast<int>(
+            ((v._src_ident_h << 4) | v._src_ident_l) & ((1 << 11) -1)
+          );
+        },
+        data_field.value()
+      );
+    }
+
+    // TODO: implement frame_data_count setter
+
+    /*
+    auto frame_data_count() & {
+      return Proxy {
+        [this]() -> decltype(auto) { return std::as_const(*this).src_ident_type(); },
+        [this](int x) {
+          std::visit(
+            [x](auto & v) {
+
+              v._src_ident_h &= (1 << 7)-1;
+              v._src_ident_h |= (x&1) << 7;
+            },
+            data_field.value()
+          );
+        }
+      };
+    }
+    */
+
+    
     auto data_word(int const pos) const & -> int const {
       const auto checksummed_data_size = std::visit(
         [](auto const & v) -> int {
@@ -463,8 +512,7 @@ namespace giis {
       };
     }
 
-  public:
-    // TODO: make private
+  private:
     auto calculate_checksum() const -> int const {
       // This implements "formatter """exclusive xor""" " from the spec MODIS_UG.pdf
       // Derived from ocssw-src/src/pdsmerge/pdsinfo.c
