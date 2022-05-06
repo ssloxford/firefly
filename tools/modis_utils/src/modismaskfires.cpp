@@ -23,10 +23,12 @@ int main(int argc, char *argv[]) {
 
   CCSDSPacket<giis::SecondaryHeader, giis::DataField> packet;
   while (std::cin >> packet) {
-    for (int ifov=1; ifov<=5; ifov++) {
-      // Mask out the infrared channels
-      packet.data_field.data_word(ifov, 21) = 0;
-      packet.data_field.data_word(ifov, 22) = 0;
+    // Only set earth data IR fields to zero
+    if (packet.data_field.src_ident_type() == 0 && packet.data_field.frame_data_count() != 0) {
+      for (int ifov=1; ifov<=5; ifov++) {
+        packet.data_field.data_word(ifov, 21) = 0;
+        packet.data_field.data_word(ifov, 22) = 0;
+      }
     }
 
     // TODO: when the segfaulting bug on operator >> is fixed, remove the flush
