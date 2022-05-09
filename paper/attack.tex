@@ -16,25 +16,6 @@ We proceed to analyse several classes of attack made possible through this route
 
 \section{Exploiting downlink processing systems}
 
-\subsubsection{Communications interruption}
-
-Downlink satellite communications often take the form of a frame structure, with an easily detectable synchronisation header delimiting them.
-An attacker can interrupt the communication through overshadowing a malicious header, causing the state machine to stop decoding the packet and instead resynchronise in the wrong place.
-
-In our analysis, this attack has been shown to be highly effective in preventing
-
-% TODO: insert screenshots side by side of the same signal with overshadowed frame headers
-
-We have analysed the effect of this approach through decoding it through \textit{RT-STPS}.
-As \textbf{figure X} shows, this approach is highly effective in denying service.
-However, simple signal-to-noise ratio analysis is sufficient to detect that this attack is taking place.
-
-A more stealthy approach can be taken, building upon recent work by Moser et.\ al.  in digital signal cancellation.
-Their work has shown that, given bit-perfect knowledge of parts of the signal and the ability to synchronise with it,
-phase cancelling from arbitrary distances is possible.
-Since the frame header is of a known structure and appears at fixed intervals, this approach would enable the cancellation of the header to below the noise threshold on the receiver, from arbitrary distances.
-This approach isn't detectable through signal-to-noise analysis.
-
 \subsubsection{Unprocessable malformed packets}
 
 The software makes assumptions about the internal structure of the packets, which only hold for benign packets.
