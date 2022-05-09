@@ -20,21 +20,20 @@ For example, the near real-time forest fire alerting services can be targeted th
 Malicious packets can also be constructed at the protocol level, which lead to denial of service and arbitrary code execution when processed.
 The attack data would be stored in various medium- to long-term storage public storage systems and potentially reprocessed at a later time.
 
-Fixing these security issues is nontrivial thanks to innate constraints of the satellite hardware, and the complexity of its surrounding software ecoystem.
+Fixing these security issues is nontrivial due to innate constraints of the satellite hardware, and the complexity of its surrounding software ecoystem.
 The attacker has multiple avenues through which to inject data, including through overshadowing the radio signal at receiver stations, and through posting malicious data on the satellite data mailing lists.
-It is difficult to fully know the extent to which the system is vulnerable, thanks in part to its distribution mechanism, bundling large collections of potentially out-of-date software components with active CVEs, making a full audit challenging.
+It is difficult to fully know the extent to which the system is vulnerable, thanks in part to its distribution mechanism in which large collections of potentially out-of-date software components with active CVEs are bundled.
 
 However, even though achieving theoretical guarantees of data authenticity is impossible without cryptographic primitives, the addition of simple countermeasures and renewed software engineering practises would serve to significantly increase the difficulty of achieving these attacks in a practical setting.
-Firefly therefore validates existing work into satellite radio authenticity focussing on timing, waveform, and protocol-level analysis.
 
 \subsection{Contributions}
 
-In this paper we demonstrate that satellite data processing systems cannot assume that the input data is benign, and showcase the real world dangers associated with this assumption in currently deployed systems.
+In this paper we demonstrate that satellite data processing systems cannot assume that the input data is benign, showcasing the real world dangers associated with this assumption in currently deployed systems.
 
-We demonstrate that, through overshadowing the wireless channel with carefully constructed packet data, an attacker can inject arbitrary bytes into targeted processing stages within a decoding pipeline.
+In Section~\ref{sec:attack}, we demonstrate that through overshadowing the wireless channel with carefully constructed packet data, an attacker can inject arbitrary bytes into targeted processing stages within a decoding pipeline.
 This injection provides a gateway to more sophisticated attacks against the specific software implementation of the decoding system.
 
-Against NASA's EOS flagship IPOPP, we achieve granular manipulation of the decoded images, denial of service in the near real-time context, and arbitrary code execution on end-user machines during dataset reanalysis.
+Using NASA's flagship IPOPP software distribution as a case study, we achieve granular manipulation of the decoded images, denial of service in the near real-time context, and arbitrary code execution on end-user machines during dataset reanalysis.
 Both near real-time processing systems and medium- to long-term storage archives are targeted by the malicious payloads, opening up both central systems and end user machines to attack.
 
 % Engineering problems?
@@ -45,5 +44,5 @@ We discuss countermeasures in Section~\ref{sec:countermeasures}, considering how
 We show how even simple countermeasures based on timing, waveform, and protocol-level analysis can significantly increase the difficulty of achieving these attacks in a practical context.
 Through generalising our approach, we propose scalable countermeasures to permit gradual adoption according to an organisation's tolerance for risk.
 
-Finally, we discuss how practical outworkings of these new risks should affect the security posture within organisations, encompassing a discussion of untrusted user-submitted data and software architecture.
+Finally in Section~\ref{sec:discussion}, we discuss how the practical outworkings of these new risks should affect the security posture within organisations, encompassing a discussion of untrusted user-submitted data and software architecture.
 We pay attention to the software architectural principles required to make satellite decoding systems robust against this sort of attack, considering particular issues surrounding legacy software systems.
