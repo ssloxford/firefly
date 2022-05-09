@@ -9,6 +9,36 @@
 
 \subsection{Physical-Layer Validation}
 
+\begin{figure*}
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{diagrams/injection/original.jpg}
+        \caption{Original image with some fires.}
+        \label{fig:injection-orig}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{diagrams/injection/masked_0.jpg}
+        \caption{Legitimate fires masked out.}
+        \label{fig:injection-masked}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{diagrams/injection/random_combined_diagonal.jpg}
+        \caption{Fires randomly injected uniformly across the map. Density and intensity of the fires increases from top to bottom.}
+        \label{fig:injection-random}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{diagrams/injection/pixels_800_140.jpg}
+        \caption{Fires injected at attacker-specified locations.\newline}
+        \label{fig:injection-logo}
+    \end{subfigure}
+    \caption{An overview of the possible ways an attacker can manipulate the output of the forest fire detection algorithm by overshadowing the downlinked data.}
+    \label{fig:injection}
+\end{figure*}
+
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{diagrams/overshadowing_demo.pdf}
