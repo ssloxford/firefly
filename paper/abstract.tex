@@ -20,21 +20,11 @@ By disrupting the terrestrial systems responsible for processing satellite image
 Thanks to the assumption that downlinked data is benign at multiple stages of processing, an attacker can inject carefully crafted data to target specific components; the result of this is that a security flaw at any stage of processing can open up the entire system to attack.
 If the same data is saved and later reprocessed, an even larger number of systems may be vulnerable.
 
-In this paper, we demonstrate that even the most prominent satellite image data processing systems, such as NASA's flagship IPOPP, are vulnerable to a wide range of attacks due to implicitly trusting their input data.
-We show that access to off-the-shelf radio hardware or simple social engineering techniques is sufficient to cause arbitrary image injection, denial of service, and remote code execution on the processing systems themselves.
+In this paper, we demonstrate that even the most prominent satellite image data processing systems, using NASA's Earth observing fleet as a case study, are vulnerable to a wide range of attacks due to implicitly trusting their input data.
+We show that access to off-the-shelf radio hardware or simple social engineering techniques are sufficient to cause arbitrary image injection, denial of service, and remote code execution on the processing systems themselves.
 We classify the effects on downstream processing systems such as forest fire and storm detection.
 We demonstrate the real-world feasibility of these attacks using a series of simulations measuring the effectiveness of signal injection through overshadowing.
 We conclude with a discussion of the attitudes surrounding legacy software and software development for security, and a proposed series of changes to prevent similar attacks from becoming possible in the future.
-
-
-
-%Furthermore, these attacks persist across public long-term storage databases, affecting machines responsible for manually reprocessing data at a later date.
-%We have been working with NASA's \textit{Direct Readout Laboratory} to patch and mitigate these vulnerabilities during the course of this research, and have responsibly disclosed all of our findings to them.
-
-
-%Through analysing the downstream systems that rely upon this data, we categorise the potential harms that attackers can inflict, including a case study in which we fool the forest fire detection algorithms which feed the alert systems of over 90 national firefighting departments.
-%Furthermore, we demonstrate that the attacks against the processing computers themselves can be caused remotely by simple social manipulation techniques, and persist across public long-term storage databases, affecting machines responsible for manually reprocessing data at a later date.
-
 
 % Interesting questions
 % In this ML paper, how good would their mechanism be at detecting our attack?:
@@ -45,8 +35,5 @@ We conclude with a discussion of the attitudes surrounding legacy software and s
 
 % assessing the timing based on the orbital parameters [https://dl.acm.org/doi/pdf/10.1145/3448300.3469132]
 % fingerprinting the waveform [https://arxiv.org/pdf/2010.05470.pdf].
-
-% Finding the location of each image
-% https://modis.gsfc.nasa.gov/data/atbd/atbd_mod28_v3.pdf
 
 \end{abstract}
