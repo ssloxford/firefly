@@ -1,5 +1,7 @@
-\documentclass[sigconf,anonymous,review]{acmart}
-%\documentclass[sigconf]{acmart}
+\documentclass[conference]{IEEEtran}
+
+\pagestyle{plain}
+
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{xcolor}
@@ -9,10 +11,10 @@
 \usepackage{amsmath}
 \usepackage{algpseudocode}
 \usepackage{listings}
-\usepackage{caption}
 \usepackage{subcaption}
-\usepackage[T1]{fontenc}
-\usepackage{lmodern} % TODO: work out why this doesn't compile without this https://tex.stackexchange.com/questions/10706/pdftex-error-font-expansion-auto-expansion-is-only-possible-with-scalable
+\usepackage{comment}
+%\usepackage[T1]{fontenc}
+%\usepackage{lmodern} % TODO: work out why this doesn't compile without this https://tex.stackexchange.com/questions/10706/pdftex-error-font-expansion-auto-expansion-is-only-possible-with-scalable
 \lstset{
   basicstyle=\ttfamily,
   columns=fullflexible,
@@ -21,92 +23,51 @@
   tabsize=4,
 }
 
-\setcopyright{acmcopyright}
-\copyrightyear{2022}
-\acmYear{2022}
-\acmDOI{10.1145/xxxxxxx.xxxxxxx}
-
-\acmConference[WiSec '22]{WiSec '22: 15th ACM Conference on Security and Privacy in Wireless and Mobile Networks}{May 16--May 19, 2022}{San Antonio, Texas, USA}
-\acmBooktitle{WiSec '22: 15th ACM Conference on Security and Privacy in Wireless and Mobile Networks, May 16--May 19, 2022, San Antonio, Texas, USA}
-\acmPrice{15.00}
-\acmISBN{978-1-4503-XXXX-X/21/06}
-
 \newcommand{\red}[1]{\textcolor{red}{#1}}
 \newcommand{\redcomment}[1]{\textcolor{red}{(#1)}}
 
-\title{Firefly: Exploiting Implicit Trust in Satellite Image Downlink Processing Systems}
-
 \begin{document}
 
-\author{Edd Salkield}
-\affiliation{%
-  \institution{University of Oxford}
-  \city{Oxford}
-  \country{UK}
+\title{Firefly: Exploiting Implicit Trust in Satellite Image Downlink Processing Systems}
+
+\author{Anonymous Authors}
+
+\begin{comment}
+\author{\IEEEauthorblockN{Edd Salkield}
+\IEEEauthorblockA{University of Oxford\\
+edd.salkield@cs.ox.ac.uk}
+\and
+\IEEEauthorblockN{Joshua Smailes}
+\IEEEauthorblockA{University of Oxford\\
+joshua.smailes@cs.ox.ac.uk}
+\and
+\IEEEauthorblockN{Richard Baker}
+\IEEEauthorblockA{University of Oxford\\
+richard.baker@cs.ox.ac.uk}
+\and
+\IEEEauthorblockN{Martin Strohmeier}
+\IEEEauthorblockA{Cyber-Defence Campus, armasuisse Science + Technology\\
+martin.strohmeier@armasuisse.ch}
+\and
+\IEEEauthorblockN{Ivan Martinovic}
+\IEEEauthorblockA{University of Oxford\\
+ivan.martinovic@cs.ox.ac.uk}}
+\end{comment}
+
+\IEEEoverridecommandlockouts
+\makeatletter\def\@IEEEpubidpullup{6.5\baselineskip}\makeatother
+\IEEEpubid{\parbox{\columnwidth}{
+    Network and Distributed System Security (NDSS) Symposium 2023\\
+    28 February - 4 March 2023, San Diego, CA, USA\\
+    ISBN 1-891562-83-5\\
+    https://dx.doi.org/10.14722/ndss.2023.23xxx\\
+    www.ndss-symposium.org
 }
-\email{edd.salkield@cs.ox.ac.uk}
-
-\author{Joshua Smailes}
-\affiliation{%
-  \institution{University of Oxford}
-  \city{Oxford}
-  \country{UK}
-}
-\email{joshua.smailes@cs.ox.ac.uk}
-
-\author{Richard Baker}
-\affiliation{%
-  \institution{University of Oxford}
-  \city{Oxford}
-  \country{UK}
-}
-\email{richard.baker@cs.ox.ac.uk}
-
-\author{Martin Strohmeier}
-\affiliation{%
-    \institution{Cyber-Defence Campus, armasuisse Science + Technology}
-    \city{Zurich}
-    \country{Switzerland}
-}
-\email{martin.strohmeier@armasuisse.ch}
-
-\author{Ivan Martinovic}
-\affiliation{%
-  \institution{University of Oxford}
-  \city{Oxford}
-  \country{UK}
-}
-\email{ivan.martinovic@cs.ox.ac.uk}
-
-\input{abstract.tex}
-
-\begin{CCSXML}
-  <ccs2012>
-  <concept>
-  <concept_id>10002978.10003014.10003017</concept_id>
-  <concept_desc>Security and privacy~Mobile and wireless security</concept_desc>
-  <concept_significance>500</concept_significance>
-  </concept>
-  <concept>
-  <concept_id>10010583.10010588.10011669</concept_id>
-  <concept_desc>Hardware~Wireless devices</concept_desc>
-  <concept_significance>500</concept_significance>
-  </concept>
-  <concept>
-  <concept_id>10010520.10010553.10003238</concept_id>
-  <concept_desc>Computer systems organization~Sensor networks</concept_desc>
-  <concept_significance>300</concept_significance>
-  </concept>
-  </ccs2012>
-\end{CCSXML}
-
-\ccsdesc[500]{Security and privacy~Mobile and wireless security}
-\ccsdesc[500]{Hardware~Wireless devices}
-\ccsdesc[300]{Computer systems organization~Sensor networks}
-
-\keywords{satellites, nasa, signal injection, overshadowing, arbitrary code execution}
+\hspace{\columnsep}\makebox[\columnwidth]{}}
 
 \maketitle
+
+\input{abstract.tex}
 
 \input{motivation.tex}
 \input{background.tex}
@@ -126,6 +87,6 @@
 % * Write attack
 % * Write conclusion
 
-\bibliographystyle{ACM-Reference-Format}
-\bibliography{refs}
+\bibliographystyle{IEEEtranS}
+\bibliography{IEEEabrv,refs}
 \end{document}
