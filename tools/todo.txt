@@ -1,0 +1,2 @@
+Investigate whether functions like auto data_word(int pos) &
+need to actually be a ref
