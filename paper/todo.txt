@@ -1,2 +1,6 @@
 Define EOS better
 Figures called "Figure" but referenced as "Fig."
+Thank JT
+
+"Earth Observing Systems" -> "Earth Observing System"
+Consistent use of practise throughout
