@@ -39,12 +39,14 @@
     \label{fig:injection}
 \end{figure*}
 
+\begin{comment}
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{diagrams/overshadowing_demo.pdf}
     \caption{Representation of a signal injection attack through overshadowing.}
     \label{fig:overshadowing_demo}
 \end{figure}
+\end{comment}
 
 \begin{figure}
     \centering
@@ -57,7 +59,7 @@ In order to demonstrate the feasibility of signal injection attacks on EOS downl
 We use ``GNU Radio'' to construct a pipeline which simulates a legitimate downlink signal broadcast from the Terra satellite and demodulated by a standard QPSK \textbf{TODO make sure explained} demodulator.
 We also simulate an attacker-injected signal added to the legitimate signal and demodulated by the same process.
 By varying the gain on the injected signal and measuring the Bit Error Rate (BER) of the decoded bytes, we can assess the transmission power required for the attack to succeed.
-The concept of signal overshadowing is illustrated in Figure~\ref{fig:overshadowing_demo}, and an overview of the experimental configuration is shown in Figure~\ref{fig:overshadowing_pipeline}.
+The concept of signal overshadowing is illustrated in Figure~\textbf{TODO}, and an overview of the experimental configuration is shown in Figure~\ref{fig:overshadowing_pipeline}.
 The source code is also available alongside our other artifacts (\textbf{TODO}).
 
 In order to carry out these simulations with a reasonable degree of confidence that they accurately represent the real world, we establish simulation parameters based on known characteristics of the EOS radio systems.
@@ -93,24 +95,24 @@ These key values are summarised in Table~\ref{tab:experimental-values}.
 
 We do not compute the EIRP of the attacker's transmitter, instead taking a range of values between $-100$ and $0$\,dBm.
 We also do not accurately model system losses -- since these are consistent between the victim and attacker, we assume their effect on the outcome of the experiment is negligible.
-This is verified to be the case by performing the same experiment across a range of noise values and confirming that the result changes by a negligible amount, as seen in Figure~\ref{fig:overshadowing_accuracy}.
+This is verified to be the case by performing the same experiment across a range of noise values and confirming that the result changes by a negligible amount, as seen in Figure~\ref{fig:overshadowing_ber}.
 For the main experiments, we set the background noise voltage to $1\,$\textmu V and the system noise to $200$\,mV, resulting in a bit error rate below the $5$\% required for the system to function.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\columnwidth]{diagrams/overshadowing_accuracy.pdf}
-    \caption{Proportion of successfully injected bits as the signal strength at the receiver increases. The shaded region represents the range of values under different levels of background and system noise.}
-    \label{fig:overshadowing_accuracy}
+    \includegraphics[width=\columnwidth]{diagrams/overshadowing_ber.pdf}
+    \caption{Error rate of attacker-injected bits as the signal strength at the receiver increases. The shaded region represents the range of values under different levels of background and system noise.}
+    \label{fig:overshadowing_ber}
 \end{figure}
 
-The immediate results of our experiment are shown in Figure~\ref{fig:overshadowing_accuracy}, which compares the signal strength at the receiver to the BER of the injected signal.
+The immediate results of our experiment are shown in Figure~\ref{fig:overshadowing_ber}, which compares the signal strength at the receiver to the BER of the injected signal.
 In order to understand these results in a meaningful sense, we need to instead consider the factors directly controlled by the attacker: the EIRP of the transmitted signal, and the distance between the attacker and the receiver.
 We take the EIRP and subtract FSPL (computed from distance using Equation~\ref{eq:fspl}) to get the received signal strength.
 
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{diagrams/distance_eirp_heatmap_95.pdf}
-    \caption{The accuracy of the injected signal as the attacker varies EIRP and distance from the receiver. The values beyond which the bit error rate drops below $5$\% are indicated using a line.}
+    \caption{The bit error rate of the injected signal as the attacker varies EIRP and distance from the receiver. The values beyond which the bit error rate drops below $5$\% are indicated using a line.}
     \label{fig:distance_eirp}
 \end{figure}
 

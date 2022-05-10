@@ -1,5 +1,14 @@
 \section{Background}\label{sec:background}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{diagrams/attack_illustration.pdf}
+    \caption{A demonstration of signal injection through overshadowing on a satellite downlink, resulting in the decoding of arbitrary bytes.}
+    \label{fig:attack-illustration}
+\end{figure}
+
+\textbf{TODO figure out where to put this figure}
+
 \textit{We begin by demonstrating at a high level how satellite data is processed, and the downstream systems that use the data (e.g. FIRMS for forest fire detection)}
 
 % TODO: add info about Google Maps
@@ -115,7 +124,7 @@ This key design decision, alongside demonstrating true commitment to open access
 
 The data is downlinked in almost exactly the same format for both the main data dump and the direct broadcast.
 Packets from the MODIS instrument are encapsulated wthin the CCSDS Space Packet Protocol (SPP), which are packed within an unencrypted custom data link protocol known as the \textit{Channel Access Data Unit}, or CADU.
-Finally, the CADUs and modulated via QPSK onto the X-band centered at 8160MHz. \textbf{TODO: is this the same for both DB and TDRSS dump?}
+Finally, the CADUs are modulated using \textit{Quadrature Phase Shift Keying} (QPSK) and transmitted on the X-band, centered at 8160\,MHz. \textbf{TODO: is this the same for both DB and TDRSS dump?}
 
 % TODO: diagram of data levels of processing for IPOPP
 The data processing systems run at both the main NASA complex and the direct broadcast ground stations are highly similar, both generally being derived from software found in the open source IPOPP distribution.

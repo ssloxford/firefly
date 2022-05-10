@@ -4,8 +4,8 @@ Fundamentally, the attacks explored in this paper arise from a lack of caution t
 Under these assumptions, it is safe to process all input data and trust the resulting output.
 However, we have shown that these assumptions do not necessarily hold and that a sufficiently motivated attacker with access to off-the-shelf radio hardware can inject crafted signals resulting in arbitrary decoded data and potential real-world harms.
 
-To counteract these attacks, we propose a number of countermeasures to prevent them entirely, offset their impact, or facilitate their detection.
-These attacks vary in effectiveness and complexity of implementation, allowing an organization to selectively implement some or all of them according to their risk budget and perceived attack surface.
+To counteract these attacks, we propose a number of countermeasures to facilitate their detection, offset their impact, or prevent them entirely.
+These attacks vary in effectiveness and complexity of implementation, allowing an organization to selectively implement some or all of them according to their attack surface and acceptable level of risk tolerance.
 
 
 \subsection{Cryptographic Measures}
@@ -14,21 +14,28 @@ The first and most obvious countermeasure is to simply encrypt downlinked signal
 In both cases this makes it possible to verify that a message is legitimate and has not been tampered with.
 If implemented properly, this trivially counteracts the attacks we describe.
 
+However, there are a number of reasons why an organization may decline to use cryptography in an existing system.
+We see a large number of existing systems which do not employ cryptographic measures due to the large amounts of computing power required; this is no longer a concern in most newer systems, but can make it difficult to patch existing space systems.
+Even in cases where limited computing power is not a concern, the engineering challenges and operational risk of overhauling the communications infrastructure are often considered to outweigh the benefits of the improved security it provides.
+Beyond this, it is also considered desirable in some cases for the downlinked data to be openly available to anyone with a suitable receiver.
+The EOS data was designed with this in mind, and encrypting the communications would make it more difficult to openly access the data by all the organizations currently relying on it.
+Of course, it would still be possible to openly access the data if it were signed rather than encrypted, but to make this change to an already deployed system would be difficult for the reasons described above.
+
 The difficulty comes in ensuring its proper implementation; there are a number of difficulties on the path to effective cryptography, and failing to acknowledge these can lead to a system which appears on the surface to be secure but is in reality only marginally better than if no cryptography had been added in the first place.
-This is a much more dangerous situation to be in, so it is of great importance that we consider the best practices in this area.
+This provides a false sense of security which is arguably more dangerous than lacking cryptography in the first place, so it is of great importance that we apply the best practices in this area.
 
 The first problem we consider is key management.
 Maintaining a single key is certainly the simplest possible system, but all it takes is a single leak for the security of the entire system to be compromised, possibly forever if there is no mechanism for changing keys.
 Unlike in terrestrial systems, it is not possible to physically access compromised machines to reset the onboard software or change affected keys.
 We see this occur in \textbf{TODO call back to satellite systems with compromised keys} -- these systems are no longer secure and may never be again.
 It is much better to build a key management system which supports key issue and revocation to ensure that security can be reestablished in this event.
+To verify chain of trust and minimize the risk of compromise, a ``master key'' should be issued which is only used for the purpose of issuing and revoking other keys.
 
 We must also consider management of ``subkeys'' in the case of shared satellite systems.
 In these contexts it is not uncommon for different parties to require different levels of access to the data or, in the case of uplinked data, control of the satellite itself.
 It is useful in this situation to be able to issue keys with different levels of system access, and for those keys to be able to issue subkeys with a subset of the original key's access.
-In the event that a key is revoked, all subkeys also stop working, making it trivial to revoke access for an entire organization.
-
-%\textbf{TODO something about chain of trust?}
+In the event that a key is revoked, all subkeys must also stop working, so that access can be easily revoked for an entire organization if necessary.
+To do so effectively, it is also vital to maintain complete awareness of what keys are currently issued, and therefore which parties have each level of access at any given time.
 
 Finally we must consider the layer at which the cryptographic measures are implemented.
 The simplest approach is to simply add these systems to the application layer, requiring only minor changes to the system as a whole.
@@ -37,23 +44,19 @@ However, unless sequence numbers are included in the payload of the message this
 
 If instead we implement encryption at a lower layer, all higher-level protocols and applications are secure by default, and replay attacks are prevented thanks to sequence counters baked into the frame header.
 Denial-of-service attacks are also mitigated since unencrypted or unsigned messages can be discarded at a much earlier stage than would otherwise be possible.
-Furthermore, the widely-used Space Data Link protocols designed by CCSDS are all designed to easily support the Space Data Link Security (SDLS) protocol, providing support for encryption and authentication at this layer~\cite{ccsdsSpace2015,ccsdsSpace2020}.
+It is not necessary to design a system that satisfies these conditions from scratch -- the \textit{Space Data Link Security} (SDLS) protocol designed by CCSDS provides support for encryption and authentication on top of the widely-used Space Data Link protocols~\cite{ccsdsSpace2015,ccsdsSpace2020}.
 There are free and open-source implementations of these protocols, so they are easy to implement in a newly designed system~\cite{nasaCryptolib}.
-SDLS and the associated extended procedures provide mechanisms for message authentication and encryption, replay protection, maintaining keys for different purposes, and key management (including issue and revocation).
+SDLS and the associated extended procedures provide mechanisms for message encryption and signature-based authentication, replay protection, maintaining keys for different purposes, and key management (including issue and revocation).
 However, it is still the responsibility of the satellite operator to ensure these systems are properly implemented and applied, avoiding use of a single master key for all communication and ensuring access control to core components and data is restricted to all but a few.
 
-We must also consider that there are a number of reasons why an organization may decline to use cryptography in an existing system.
-%There are a number of reasons why cryptography may not be used in existing systems.
-The foremost of these is simply that it is difficult (sometimes impossible) to patch the firmware of an already-deployed space system to change its functionality, and the engineering challenges and operational risk of overhauling the communications infrastructure of the system are often considered to outweigh the benefits of improved security.
-Beyond this, it is also considered desirable in some cases for the downlinked data to be openly available to anyone with a suitable receiver.
-The EOS data was designed with this in mind, and encrypting the communications would make it more difficult to openly access the data by all the organizations currently relying on it.
-Of course, it would still be possible to openly access the data if it were signed rather than encrypted, but to make this change to an already deployed system would be difficult for the reasons described above.
-
-In cases where the operators have declined to add cryptographic measures to space systems, it is still possible to mitigate signal injection and overshadowing attacks by observing other properties of the downlinked signal.
-These approaches are particularly appealing due to their ability to be implemented without modifying the space segment of the system in any way -- all required changes are implemented on the ground system.
+In cases where operators have declined to add cryptographic measures to space systems (or are unable to do so), it is important that we consider other methods to mitigate signal injection and overshadowing attacks; the long lifespans and high associated expenses of satellite missions mean we cannot stop using the satellites currently in operation, and must instead find ways to protect them in their current state.
+In these cases, we can provide security by observing other properties of the downlinked signal.
+All required changes for these are implemented on the ground station, requiring no changes to the space segment of the system -- this provides excellent backwards compatibility with existing systems.
 
 
 \subsection{Timing Analysis}
+
+\textbf{TODO consider moving implementation difficulty to the top}
 
 The first of these involves assessing the timing of received signals.
 This can come in a number of forms, the simplest of which is to ensure that the ground station is not processing signals when the satellite is not passing overhead.
@@ -61,10 +64,10 @@ This prevents the attacker from injecting signals at arbitrary times, instead fo
 It does not, however, prevent signal injection entirely.
 
 A more robust form of timing analysis involves measuring Time Difference of Arrival (TDOA) -- that is, comparing the difference between signal arrival times at different sensors.
+This has previously been demonstrated to be a viable method of authenticating satellites~\cite{jedermann2021orbit}.
 The position of the satellite at any given time is known, and from this we can deduce the expected difference between the signal arrival time at each location to verify that the signal has been transmitted from a legitimate source.
 If the time differences do not match the expected values to within a certain tolerance, it is likely that the signal has been injected by an attacker at a different location.
 The same is true if a signal is received at one location but not another, or if the data received at one location differs from that received at another location.
-The authors of~\cite{jedermann2021orbit} demonstrate this to be a viable method of authenticating satellites.
 
 The difficulty of this method arises from the fact that multiple ground stations are required in order to measure the timing differences.
 However, this system is effective and robust, increasing both the effectiveness of measurements and difficulty of overcoming the countermeasure as further sensors are added to the system.
@@ -74,8 +77,10 @@ It must also be stated that this does not prevent signal injection attacks entir
 \subsection{Waveform Analysis}
 
 Alongside looking at the timing of signals, we can also inspect the waveform itself.
+This is more difficult than the other proposed countermeasures, as it requires a software-defined radio capable of extracting raw samples from the antenna in addition to the decoded bytes.
+\textbf{TODO but a system employing these is much more versatile, should be protocol/modulation-agnostic}
 
-If a signal has been injected over the top of a legitimate signal, it will result in a change to the amplitude and SNR of the received signal, as well as possibly creating a momentary shift in the timing of the signal.
+If a signal has been overshadowed over a legitimate signal, it will result in a change to the amplitude and SNR of the received signal, as well as possibly creating a momentary shift in the timing of the signal.
 A carefully tuned model could measure these values and generate alerts when they change in unexpected ways.
 This would provide some amount of confidence that there is currently no signal being injected on top of the legitimate signal, but ultimately provides little real security beyond requiring the attacker to be more precise in their overshadowing.
 
@@ -88,9 +93,11 @@ This has been shown to be an effective method of mitigating spoofing attacks by 
 
 %Finally, we can assess features specific to the channel coding, data link, or network layer protocols which may be affected as the result of a signal injection.
 Finally, we can assess features specific to the data link or network layer protocols, or the underlying data, which may be affected as the result of a signal injection.
+This is possibly the simplest of all the countermeasures to implement, as it only requires changes to the software processing pipeline.
+
 In particular we consider general properties of these protocols which we expect to only be violated in adversarial conditions, but not in benign ones.
 For instance, random bit-flips, failed checksums, and lossy data are all expected to happen under normal conditions as noise on the data link increases.
-However, we do not expect messages to arrive out of order under any circumstances, so we can take this as an indication that the system may be under attack and alert the system's operators.
+However, we do not expect messages to arrive out of order in systems using single-path routing such as TDRSS, so we can take this as an indication that the system may be under attack and alert the system's operators.
 Similarly, when the checksum passes we expect all payload data to fulfil certain conditions -- for example, we expect application IDs and instrument numbers to fall within a certain range.
 If these conditions do not hold it is likely an attacker is attempting to induce unexpected behavior in the processing system so the data should not be processed.
 By adding safety checks such as these we can reduce the risk of exploits caused by malformed input data, and raise the technological bar required for attackers to spoof messages in the first place.
@@ -101,29 +108,10 @@ By adding safety checks such as these we can reduce the risk of exploits caused 
 
 %We can also assess more variable factors like the bit-error rate to measure unexpected changes which could be the result of an attack, but these are likely to be unreliable due to their variability under changing weather conditions and other factors, and provide little more than another obstacle for the attacker to overcome through better engineering.
 
-Alongside the timing analysis techniques already mentioned, we can compare the resulting data or image files received by multiple ground stations to ensure data has not been tampered with at one location.
+Alongside the timing analysis techniques already mentioned, we can compare the cryptographic hashes of data received by multiple ground stations to ensure data has not changed or been tampered with at one location.
 This provides a huge amount of robustness, since an attacker must inject signals at a majority of the ground stations for their data to be considered legitimate.
 In the case of NASA's EOS fleet, such a system could be achieved by working alongside organizations currently operating their own EOS ground stations to compare data in an automated fashion, providing a significant boost to security at a fairly minor engineering cost.
 There are sufficiently many organizations set up to receive downlinked EOS signals (168 at the time of writing) spanning the entire globe, so it should be possible to enrol some of these onto a collaborative differential comparison system promising improved security for everyone involved~\cite{nasaDirect}.
+\textbf{TODO talk about how this could be used in conjunction with TDOA}
 
 \textbf{TODO conclude this section?}
-
-\begin{comment}
-\subsection{Encryption, Signatures}
-
-One of the most straightforward solutions to suggest would be to simply encrypt the downlinked signals using a key known only to the operators.
-While this may seem simple, there are a number of reasons not to take this approach: although it may seem that it would only require a simple software update, the hardware on these satellites is highly specialised and it may be a challenge to insert encryption into the radio downlink pipeline.
-Satellite hardware is also computationally limited due to the requirement of high levels of radiation shielding and error correction, so it may not be feasible to perform the computation required for encryption onboard.
-
-Even if these problems can be resolved, encrypting signals from the EOS fleet would be detrimental to a large number of businesses and research institutions which have set up their own ground stations to receive downlinked signals.
-These parties would no longer be able to receive signals, rendering their often expensive ground stations worthless. \textbf{TODO: We can't claim this, since signatures are a cryptographic primitive that keeps data publicly available}
-This problem could be sidestepped by instead signing the data using a cryptographic key, but this would still likely require significant changes to the signal processing pipelines in use by these organisations.
-
-\subsection{Placeholder}
-\textbf{TODO think of title here}
-
-A more straightforward approach is for the receiving ground stations to simply treat downlinked data as untrustworthy, and build software and hardware stacks accordingly.
-Such behaviour includes keeping all software and libraries used in data processing fully up-to-date in order to reduce the threat of known vulnerabilities, as well as making sure input data is properly sanitised before passing into other tools/libraries or running shell commands derived from the input.
-
-This is helped by making sure processing software is not bloated and does not pull in excessive dependencies, and that the code written is well-documented and easy to understand, maintain, and update.
-\end{comment}

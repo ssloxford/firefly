@@ -2,7 +2,7 @@
 
 % https://directreadout.sci.gsfc.nasa.gov/?id=MODIS&date=2021-Nov-16
 
-In recent decades, satellite imaging of the Earth's surface has become increasingly important within research and safety-critical contexts alike. 
+In recent decades, satellite imaging of the Earth's surface has become increasingly important within research and safety-critical contexts alike.
 Equipped with optical sensors that can detect a spectrum wider than visible light alone, satellites within NASA's \textit{Earth Observing System} (EOS) fleet have found broad usage within areas such as atmospheric observation, wildfire detection, and deforestation monitoring. \textbf{TODO: cite}
 Automated data processing techniques are widely used to provide live data streams for incident response; ensuring data integrity at the radio downlink is therefore of high importance.
 
@@ -40,9 +40,10 @@ Both near real-time processing systems and medium- to long-term storage archives
 
 We go on to measure the feasibility of these attacks in a real-world setting, taking into account the particular difficulties associated with overshadowing the physical layer encoding phase shift keying in Section~\ref{sec:evaluation}.
 
-We discuss countermeasures in Section~\ref{sec:countermeasures}, considering how authenticity of the decoded signals can be established within the constraints of EOS and similar satellite systems where cryptographic primitives are impractical and undesirable.
-We show how even simple countermeasures based on timing, waveform, and protocol-level analysis can significantly increase the difficulty of achieving these attacks in a practical context.
-Through generalising our approach, we propose scalable countermeasures to permit gradual adoption according to an organisation's tolerance for risk.
+We discuss countermeasures in Section~\ref{sec:countermeasures}, considering ways to establish the authenticity of decoded signals using cryptographic and other means.
+We consider the benefits of properly implemented cryptography and the constraints required to do so, in addition to discussing situations where deployment of cryptography is impractical or undesirable.
+In these situations we show how even simple countermeasures based on timing, waveform, and data-level analysis can significantly increase the difficulty of achieving attacks in a practical context.
+Through generalising our approach, we propose scalable countermeasures to permit partial adoption according to an organisation's tolerance for risk.
 
 Finally in Section~\ref{sec:discussion}, we discuss how the practical outworkings of these new risks should affect the security posture within organisations, encompassing a discussion of untrusted user-submitted data and software architecture.
 We pay attention to the software architectural principles required to make satellite decoding systems robust against this sort of attack, considering particular issues surrounding legacy software systems.
