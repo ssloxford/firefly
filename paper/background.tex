@@ -137,35 +137,17 @@ This data is intended to be downloaded and processed locally on and end user's m
 Additionally, there exist several specialised near real time data APIs which are utilised widely in applications such as forest fire incident response~\cite{nasaFirms} and flood detection~\cite{nasaFlood}, where running a custom ground station would be impractical and prohibitively expensive.
 Despite being more prone to false positives than the multi-day processed data, the lower latency and entirely automated process makes this option attractive for many applications.
 
-\subsection{Forest Fire Live Alerting Systems} % FIRMS
+\subsection{Forest Fire Live Alerting Systems}
 
-Once such application is FIRMS,
+Fire management and incident response represents one such use case of the MODIS instrument, which has improved the fire response capability of over 90 countries \textbf{TODO: cite}.
+Although fire departments have little reason to run their own direct broadcast groundstations, the application is still time-critical.
+Therefore, NASA has invested in the Fire Information for Resource Management System (FIRMS)~\cite{firmsIndex}, which provides near real time active fire data, defined to be within three hours of observation.
+Among other services, FIRMS provides a fire notification API which will deliver notifications of new and active fires within a requested region, which is used to inform firefighters and coordinate their response.
+\textbf{TODO: add information on who uses this service, maybe a table. Does Google Maps use this?}
+The data is derived from processing the raw Aqua and Terra data with the programs in IPOPP.
 
+However, despite its importance as trusted infrastructure, FIRMS ultimately relies on unencrypted MODIS data which is therefore vulnerable to signal injection.
+Through carefully crafting input data to pass any existing integrity checks in the processing pipeline and overshadowing the X-band radio signal, an attacker has the potential to disrupt the fire detection stages of the pipeline, and therefore anyone who relies upon the data.
 
-\textbf{TODO add citations, remove this test cite}~\cite{moser2019digital}
-
-% TODO: figure here
-\begin{figure*}
-    \centering
-    \includegraphics[width=\textwidth]{diagrams/cadu_diagram.pdf}
-    \caption{Layout of data within a Channel Access Data Unit (CADU). Given correct headers, the section marked in red can contain arbitrary attacker-specified data.}
-    \label{fig:cadu_diagram}
-\end{figure*}
-
-% Showing how important satellite imaging is
-
-% Wireless spec to go into attack, since it's specific to the MODIS use case
-% \subsection{Wireless communications specifications}
-% \textit{Discuss the protocols that are used, which will be correlated to later processing stages}
-
-% In each of their downlink modes, \textit{Terra} and \textit{Aqua} communicate using frames modulated onto a carrier wave using quadrature phase shift keying (QPSK).
-%In QPSK each symbol (pair of bits) is encoded by shifting the phase of the carrier wave
-%In QPSK, symbols represent pairs of bits, and are encoded by shifting the phase of the carrier wave in one of four orientati.
-
-%Information from each of the scientific instruments on the spacecraft is encoded according to the CCSDS packet standard, and are packed into frames known as Channel Access Data Units (CADUs).
-
-%Each CADU is prefixed with a synchronisation header, enabling the receiver software to delimit the frames.
-%The rest of the body is "randomised" through XORing with a fixed polynomial to prevent long sequences of the same symbol disrupting transfer.
-%The full breakdown of the packet structure can be seen in Fig.~\ref{fig:cadu_diagram}.
-
-%The finalised CADUs are transferred directly to the X-band antenna when in direct broadcast mode, and also to a solid state recorder for playback during the data dumps.
+We proceed to precisely define the nature of the threat in Section~\ref{sec:threat-model}, and describe how an attacker can exploit FIRMS and other processing pipeline stages in Section~\ref{sec:attack}.
+We go on to validate the feasibility of the overshadowing approach in Section~\ref{sec:evaluation}, including the capabilities that the attacker requires to be successful.
