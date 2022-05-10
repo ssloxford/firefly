@@ -1,5 +1,79 @@
 \section{Arbitrary Image Injection}\label{sec:attack}
 
+% NB: in the case of EOS, we think the only real difference between the downlinks DB and TDRSS is bit rate, from the space shuttle report
+
+% Structure:
+%
+% Existing software exists (e.g. within IPOPP) to decode satellite signals
+% However, no real software exists to encode signals
+%
+% Prerequisites:
+% * Wireless communications packet structure and standards
+% * IPOPP pipeline processing stages
+
+
+The attacker fundamentally needs to overshadow the radio wave with a signal that decodes to the one that they want to inject.
+Their aim is the delivery of arbitrary bytes, which will either violate the packet protocol or cause problems in a satellite-derived dataset.
+As a case study, we consider specifically the protocols used in the MODIS downlink of Terra and Aqua, due to the availability of documentation, their representative usage of standard space network layer protocols, their broad usage in many critical satellite-derived datasets, and the lack of cryptography by design.
+We consider how the attacker generates these bytes, the requirements to successfully overshadow the radio wave, and the broader effects of such an attack in Section \ref{sec:evaluation}.
+
+In order to successfully inject bytes, the attacker must conform sufficiently to the protocol specifications so as to have their data accepted by at least the initial processing stages.
+Doing this requires knowledge of the packet structure and standards, alongside the IPOPP processing stages, which we proceed to outline.
+
+\subsection{Terra and Aqua wireless communications specifications} % TODO: different title?
+
+Terra and Aqua communicate on a number of different radio channels, downlinking housekeeping, telemetry, and scientific data. \textbf{Are these all the unique ones?}
+The satellites themselves can be in a variety of configurations, during which they send different information through the available channels. \textbf{TODO: cite SPACE GROUND AQUA document} % TODO: maybe talk about how you can find out more information about this in the appendix?
+However, during nominal operation the satellite is in Direct Broadcast mode, so continuously downlinks the current MODIS sensor data.
+This data is also stored in an internal buffer, so that when the satellite passes over Polar Ground Stations or nearby its TDRSS relay, it can dump its buffer over the X-band or Ku-band respectively.
+To broadcast to the Polar Ground Stations therefore requires a temporary shift out of Direct Broadcast Mode.
+The schedule for direct broadcast can be found for Terra~\cite{terraSchedule} and Aqua~\cite{aquaSchedule} at the HTTP file archive for the Goddard Space Flight Center.
+
+Before being buffered, the scientific data from the onboard instruments has already been encapsulated in the network and data link layer frames, resulting in very similar transmissions between Direct Broadcast, Polar Ground Station, and TDRSS modes.
+However, the Direct Broadcast is the best documented mode, and we therefore consider the work to generalise across all modes of broadcast.
+
+The MODIS instrument data is sent via a high data rate internal bus to an encoder, which are encapsulated within the standard CCSDS Space Packet Protocol (SPP).
+These are packed into a custom, unencrypted data link protocol knownm as the \textit{Channel Access Data Unit}, or CADU.
+Finally, the CADUs are modulated onto a radio wave either immediately in the case of Direct Broadcast, or after a short delay for bulk transmission.
+
+\subsection{MODIS downlink decoding pipeline}
+
+On the ground, the signal is received by a tracking satellite antenna and passes through multiple different processing stages to decode the wave into bits, align the bytes, and then interpret the data to form satellite-derived datasets.
+
+% TODO: continue the description
+
+
+
+
+\subsection{Encoding arbitrary bytes}
+
+\subsection{Manipulating existing data}
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{diagrams/cadu_diagram.pdf}
+    \caption{Layout of data within a Channel Access Data Unit (CADU). Given correct headers, the section marked in red can contain arbitrary attacker-specified data.}
+    \label{fig:cadu_diagram}
+\end{figure*}
+
+% Wireless spec to go into attack, since it's specific to the MODIS use case
+% \subsection{Wireless communications specifications}
+% \textit{Discuss the protocols that are used, which will be correlated to later processing stages}
+
+% In each of their downlink modes, \textit{Terra} and \textit{Aqua} communicate using frames modulated onto a carrier wave using quadrature phase shift keying (QPSK).
+%In QPSK each symbol (pair of bits) is encoded by shifting the phase of the carrier wave
+%In QPSK, symbols represent pairs of bits, and are encoded by shifting the phase of the carrier wave in one of four orientati.
+
+%Information from each of the scientific instruments on the spacecraft is encoded according to the CCSDS packet standard, and are packed into frames known as Channel Access Data Units (CADUs).
+
+%Each CADU is prefixed with a synchronisation header, enabling the receiver software to delimit the frames.
+%The rest of the body is "randomised" through XORing with a fixed polynomial to prevent long sequences of the same symbol disrupting transfer.
+%The full breakdown of the packet structure can be seen in Fig.~\ref{fig:cadu_diagram}.
+
+%The finalised CADUs are transferred directly to the X-band antenna when in direct broadcast mode, and also to a solid state recorder for playback during the data dumps.
+
+
 \subsection{Attack description}
 
 
