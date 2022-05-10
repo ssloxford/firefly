@@ -2,6 +2,7 @@
 
 \textit{We begin by demonstrating at a high level how satellite data is processed, and the downstream systems that use the data (e.g. FIRMS for forest fire detection)}
 
+% TODO: add info about Google Maps
 \begin{table*}
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lllll}
@@ -29,21 +30,116 @@
 \end{table*}
 
 Satellite data has become crucial to a wide range of both public and private organizations.
-It is now possible to access high-resolution images of the Earth, updating every day, in addition to infrared and other sensor readings.
-Beyond access to the raw data we have also seen a growing market for \textit{satellite-derived datasets}: data which has been produced through modification or analysis to make it more immediately useful for a range of use cases.
+It is now possible to access near real time high-resolution images of the Earth, updating within hours or less of the initial readings being taken, in addition to infrared and other sensor readings.
+Building upon this raw data, a growing market for \textit{satellite-derived datasets} has emerged: data which has been produced by processing and analysing the raw satellite data for a wide variety of use cases. % TODO: mention satellite-derived datasets throughout the paper since we introduce the term here
+These include critical national infrastructure such as forest fire and storm detection, and research-oriented purposes such as land and water management.
+End users may be more familiar with systems such as Google Maps, which provides a fire overlay and reroutes drivers around currently active fires and smoke zones.
+
 Table~\ref{tab:satellite-derived-datasets} summarises a number of currently available satellite-derived datasets.
+These are designed for various uses, and are derived from a mixture of self-operated, commercial, and open access satellites.
 
-The source of the base satellite dataset varies based on the organization and use case.
-Some businesses operate the satellite network alongside processing the dataset, granting fine-grained control at the cost of having to launch and operate their own satellites.
+The source of the base satellite dataset is chosen based on the organization and use case.
+Some businesses operate their own satellite network and then process the data, granting fine-grained control at the cost of having to launch and maintain their own satellites.
 For many organizations operating a satellite network is an unnecessary expense; many opt to instead acquire data from other satellite operators.
-This data can either be purchased from a private satellite operator such as Planet Labs, or received from a broadcast by a public-facing satellite such as one from NASA's fleet of Earth Observing System (EOS) satellites.
-Signals from these satellites can be received by anyone with a compatible ground station \textbf{TODO cite}, providing an immensely useful service to both private and public organizations.
+This data can either be purchased from a private satellite operator, or received from a publicly broadcast satellite such as one from NASA's fleet of Earth Observing System (EOS) satellites.
+Signals from the latter can be received by anyone with a compatible ground station \textbf{TODO cite}, providing an immensely useful service to both private and public organizations.
 
+% Availability, representativeness, utilisation by downstream consumers
+% Understanding the bounds of the attacker
+% How people rely on the data
+% Packet-based data downlink protocols that are unencrypted
+% Manifold security issues but seemingly little thought, with sizeable impact
+% GNSS spoofing -
 
-\subsection{Earth Observing Fleet System Description}
+% https://www.usenix.org/conference/usenixsecurity19/presentation/yang-hojoon
+
+\subsection{Applicability of the research}
+
+In this research we demonstrate how implicitly trusting input data opens the gateway for more sophisticated attacks against the processing pipeline through signal injection.
+As a case study, we focus on \textit{Terra} and \textit{Aqua}, two open access satellites within NASA's EOS fleet.
+Being open access, they are among the best publicly-documented satellite systems, and they provide no cryptographic authenticity by design.
+Despite this, the raw satellite data is trusted by a wide range of applications through derived datasets in both the private and public sectors.
+
+The extent that this research relates to other satellite systems depends upon the design of the communications layer in question, and at which stage, if any, secure cryptographic primitives are used.
+This work therefore directly applies to all publicly broadcast satellites, such as other satellites in the EOS fleet and the GOES satellites by NOAA~\textbf{TODO: cite}, which are unencrypted by design for ease of public access. % TODO: document which other satellites are therefore usable
+However, satellites which apply sound cryptographic mechanisms such as \textit{Space Data Link Security} (SDLS) to sign or encrypt at the data link layer, using good key and subkey management schemes to protect against leaks, and checksums to verify integrity, are resilient to these manipulations.
+
+% TODO: insert diagram of common space comms protocols
+
+% TODO: find out which other satellites are unencrypted, and especially those which are new and use CCSDS
+% Are they generally encrypted above the CCSDS layer?
+
+Despite this, encrypted satellites in current deployment can become vulnerable to similar techniques.
+Where encryption is left only for the network layer or above in the protocol stack, attackers can manipulate the low-level protocol headers and data to trigger potential vulnerabilities in the decoding software.
+Not only are such satellites fairly common, as demonstrated by the data link encryption layer in the CCSDS protocol being purely optional and not supported by all protocols~\cite{ccsdsOverview}\textbf{TODO: is this a weak citation?}, but vulnerabilities in the decoding software are prevalent.
+% This is often because decoders are written to only handle the subset of any given specification that their satellite uses under nominal conditions, failing under unexpected circumstances.
+% Other times, this is because the overall decoding system has slowly accumulated technical deficiencies, as one team tries to hack around not quite understanding the existing software.
+We justify this claim in Section~\textbf{TODO} through a security audit of NASA's flagship \textit{International Planetary Observation Processing Package} (IPOPP) software distribution.
+
+Also, where the cryptographic key management has been poor, keys can often be leaked or reverse engineered, potentially rendering the satellite vulnerable to injection once again\footnote{Whether key recovery results in injection depends on the encryption scheme used, and particularly upon whether the keys are symmetric.}.
+This is unfortunately common; decryption keys for the Korean satellite GEO-KOMPSAT-2A were leaked from code samples on the Korea Meteorological Administration website, and to this day remain unrevoked and available on their website~\cite{xrit-rx}.
+Other satellites implement either poor cryptography, or good cryptography poorly, and can therefore have their keys reversed.
+For example, COMS-1 uses single DES~\cite{lrit-key-dec}, with its keys successfully reversed from the satellite data. \textbf{TODO: check this is really how it was done. Subleties in the blog post...}
+We should continue to expect that more encrypted satellite communications become publicly decryptable, as once-secure encryption standards and practises cause leaked keys, some of which will be irrevocably baked into the firmware.
+
+% Tasked vs untasked images
+
+\subsection{NASA Earth Observing System}
+
+% One of the data providers
+% Loads of people depend on it, but nobody thought of security
 
 \textit{Here we describe the Earth Observing System satellite system, including the satellites in the fleet, how data gets downlinked, processed, stored and used.}
 
+Terra and Aqua, as core satellites within the EOS fleet, provide high resolution sensor readings across a variety of detectors.
+Images of the Earth's surface can be derived from their on board \textit{Moderate Resolution Imaging Spectroradiometer} (MODIS) sensor, which produce calibrated light readings across frequency bands wider than the visible spectrum.
+This allows satellite-derived datasets measuring phenomena such as forest fires, ozone scattering, and surface luminosity to be created.
+These can be viewed live from NASA's Worldview, which overlays color-corrected surface images with geographically located satellite derived datasets Figure~\ref{fig:bushfire}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{diagrams/bushfire.png}
+    \caption{The 2019 Australia bushfires as seen from Aqua's MODIS instrument, annotated with the \textit{Fires and Thermal Anomalies} dataset on NASA's worldview.\protect\footnotemark}
+    \label{fig:bushfire}
+\end{figure}
+
+\footnotetext{Image taken from \url{https://worldview.earthdata.nasa.gov/?v=138.5214305912576,-37.663755528187544,165.90196079866635,-23.47436617591061\&as=2019-09-07-T00\%3A00\%3A00Z\&ae=2019-10-26-T16\%3A00\%3A00Z\&l=MODIS\_Combined\_Thermal\_Anomalies\_All,VIIRS\_SNPP\_Thermal\_Anomalies\_375m\_Day(hidden),VIIRS\_SNPP\_Thermal\_Anomalies\_375m\_Night(hidden),Reference\_Labels\_15m,Reference\_Features\_15m,Coastlines\_15m,VIIRS\_SNPP\_CorrectedReflectance\_TrueColor(hidden),MODIS\_Aqua\_CorrectedReflectance\_TrueColor,MODIS\_Terra\_CorrectedReflectance\_TrueColor(hidden)\&lg=false\&al=true\&av=3.5\&ab=on\&t=2019-09-07-T02\%3A00\%3A00Z}}
+
+Thanks to their opposite polar sun-synchronous orbits, Terra and Aqua together image the entire surface of the Earth twice per day \textbf{TODO: fact check}, which has opened up possibilities for near real time analysis for time-critical applications, such as fire and storm detection.
+
+In addition to buffering and downlinking this data via the TDRSS satellite relay network to NASA in White Sands, New Mexico~\textbf{TODO: cite}, the satellites also continuously broadcast their sensor data via a mode known as direct broadcast.
+Therefore, anyone with access to the relevant X-band hardware can receive satellite images from their area with essentially zero latency.
+This key design decision, alongside demonstrating true commitment to open access data, is particularly useful for applications where the several hour delay waiting for Terra or Aqua to be within range of a relay satellite is unacceptable. \textbf{TODO: cite}
+
+% TODO: CADU diagram, with all the internals exposed
+
+The data is downlinked in almost exactly the same format for both the main data dump and the direct broadcast.
+Packets from the MODIS instrument are encapsulated wthin the CCSDS Space Packet Protocol (SPP), which are packed within an unencrypted custom data link protocol known as the \textit{Channel Access Data Unit}, or CADU.
+Finally, the CADUs and modulated via QPSK onto the X-band centered at 8160MHz. \textbf{TODO: is this the same for both DB and TDRSS dump?}
+
+% TODO: diagram of data levels of processing for IPOPP
+The data processing systems run at both the main NASA complex and the direct broadcast ground stations are highly similar, both generally being derived from software found in the open source IPOPP distribution.
+This enables the direct broadcast ground stations to generate the same data products, but for their particular area.
+Additionally, it provides a backup system by which NASA can recover missing data, if it was successfully received by a different ground station during direct broadcast.
+However, the uniformity of the software distribution means that vulnerabilities discovered in the software have a wide impact.
+
+% TODO: is such an in-depth explanation required here?
+The raw SPP packet data is known as \textit{Level 0}, and is processed through a chain of programs distributed through the IPOPP framework to generate higher-level satellite-derived datasets.
+The other EOS fleet satellites are processed in much the same way.
+The Level 0 data is processed into Level 1: an easier to use heirarchical data format, optionally geolocated to a subpixel accuracy using timing information, the satellite's orbital parameters, and an accurate model of the Earth's surface.
+Level 1 data is processed into a variety of Level 2 datasets, including fire detection, land surface temperature values, vegetation detection, etc.
+Finally, certain Level 3 datasets are produced, which generally consist of composites of the Level 2 data for specific purposes, such as analysing post-fire burned areas.
+
+Data across these various levels is available within minutes of being received by direct broadcast ground stations, but is also distributed centrally by NASA after being downlinked by TDRSS.
+Users can download from the main NASA archives from one of several \textit{Distributed Active Archive Centers} (DAACs), which provide datasets going back to the beginning of their respective missions.
+This data is intended to be downloaded and processed locally on and end user's machine, but is also periodically reprocessed in bulk as new algorithms become available.
+
+Additionally, there exist several specialised near real time data APIs which are utilised widely in applications such as forest fire incident response~\cite{nasaFirms} and flood detection~\cite{nasaFlood}, where running a custom ground station would be impractical and prohibitively expensive.
+Despite being more prone to false positives than the multi-day processed data, the lower latency and entirely automated process makes this option attractive for many applications.
+
+\subsection{Forest Fire Live Alerting Systems} % FIRMS
+
+Once such application is FIRMS,
 
 
 \textbf{TODO add citations, remove this test cite}~\cite{moser2019digital}
@@ -58,49 +154,9 @@ Signals from these satellites can be received by anyone with a compatible ground
 
 % Showing how important satellite imaging is
 
-%Meterology, ocean analysis, and fire management are just some of the areas in which Earth Observing System (EOS) data has made itself indispensable over the last few decades.
-%To provide timely, analyzed data for these purposes, near real-time systems have been developed which provide raw data with a latency of only 10 minutes~\textbf{TODO cite}, and processed data events within approximately 3 hours of satellite observation\textbf{TODO cite[https://earthdata.nasa.gov/faq/firms-faq]}.
-
-%Applications have therefore been developed to empower government departments and end users alike to explore and be notified of these global events.
-%For example, the \textit{Fire Information for Resource Management System} (FIRMS) provides a live fire map and notification system, and is used by over 90 countries for wildfire control~\textbf{TODO cite}.
-%End users may be more familiar with the Google Maps forest fire overlay, which allows people in hot and dry climes to assess the status of currently active fires when planning routes.
-
-%The analysis of long term trends are also supported, with archives of historical data being distributed to provide insights into climate and meterorological trends.
-%Data in the stored database is periodically reprocessed to correct any errors made in the near real-time pipeline, to provide a more complete data set if missing data is recovered, as well as to provide new insights as new processing algorithms are developed and existing ones updated.
-
-\subsection{The EOS fleet}
-
-\textit{Describe the satellites in the fleet, what data they produce, and at a high level what it's used for}
-
-%All of these services are ultimately enabled by data from the Earth Observing System fleet.
-%Amongst these satellites are \textit{Terra} and \textit{Aqua}, which use an imaging instrument known as \textit{MODIS} \textbf{[cite]} to take pictures of the Earth's surface and communicate this information to ground stations.
-
-%The information is communicated through three distinct downlink modes: in the Ku-band via the U.S. \textit{Tracking and Data Relay Satellite System} (TDRSS), or \textit{Polar Ground Stations} and \textit{Direct Broadcast Ground Stations} in the X-band \textbf{TODO cite here?}.
-
-%The TDRSS network is the main NASA transmission route, which delivers a regular high data rate dump of the of the latest instrument data every \textasciitilde 10 minutes via a network of data relay satellites.
-%The polar ground stations also receive a data dump, in the X-band and only when the satellites pass overhead.
-%The direct broadcast stations instead receive live data feeds from the satellites: a continuous real-time broadcast of instrument data.
-
-\subsection{Data processing systems}
-
-\textit{Describe the inputs into the system: radio waves, mailing list, and archive reprocessing}.
-
-\textit{Show through a diagram how the various systems relate, and therefore how a signal goes from radio wave to full image} \\
-
-The downlinked data is processed into data products through a multi-stage process in which the data is decoded, parsed, geotagged, and finally processed into high level data products such as fire and ocean temperature maps.
-
-The products are available in both near real-time and archived forms, to serve the needs of time-critical and long term analyses alike.
-Systems such as FIRMs use the first available processed data from each dataset to issue warnings and updates on forest fires to national departments, whereas oceanographic and climate datasets are aggregated and published in large archives to analyse trends.
-
-Users can gain access either to the near real-time data, or the entire archive of received information from MODIS.  Through services such as LADSWEB, datasets can be downloaded and processed on researchers' local machines.
-
-The archives are intended to be as complete and correct as possible.
-Therefore, the community of polar and direct broadcast ground stations are frequently drawn upon to help recover missing and corrupted data.
-Additionally, the entire archive is periodically reprocessed as new algorithms are released and improvements made to existing ones.
-
-
-\subsection{Wireless communications specifications}
-\textit{Discuss the protocols that are used, which will be correlated to later processing stages}
+% Wireless spec to go into attack, since it's specific to the MODIS use case
+% \subsection{Wireless communications specifications}
+% \textit{Discuss the protocols that are used, which will be correlated to later processing stages}
 
 % In each of their downlink modes, \textit{Terra} and \textit{Aqua} communicate using frames modulated onto a carrier wave using quadrature phase shift keying (QPSK).
 %In QPSK each symbol (pair of bits) is encoded by shifting the phase of the carrier wave
