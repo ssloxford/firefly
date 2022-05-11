@@ -1,4 +1,4 @@
-\section{Arbitrary Image Injection}\label{sec:attack}
+\section{Arbitrary Data Injection}\label{sec:attack}
 
 % NB: in the case of EOS, we think the only real difference between the downlinks DB and TDRSS is bit rate, from the space shuttle report
 
@@ -13,34 +13,114 @@
 
 
 The attacker fundamentally needs to overshadow the radio wave with a signal that decodes to the one that they want to inject.
-Their aim is the delivery of arbitrary bytes, which will either violate the packet protocol or cause problems in a satellite-derived dataset.
-As a case study, we consider specifically the protocols used in the MODIS downlink of Terra and Aqua, due to the availability of documentation, their representative usage of standard space network layer protocols, their broad usage in many critical satellite-derived datasets, and the lack of cryptography by design.
+Their aim is the delivery of arbitrary bytes, which will either violate the packet protocol to attempt to exploit a processing step, or cause problems in a satellite-derived dataset.
+As a case study, we consider specifically the protocols used in the MODIS downlink of Terra and Aqua, due to the availability of documentation, their representative usage of standard space network layer protocols, and their broad usage in many critical satellite-derived datasets.
 We consider how the attacker generates these bytes, the requirements to successfully overshadow the radio wave, and the broader effects of such an attack in Section \ref{sec:evaluation}.
 
-In order to successfully inject bytes, the attacker must conform sufficiently to the protocol specifications so as to have their data accepted by at least the initial processing stages.
-Doing this requires knowledge of the packet structure and standards, alongside the IPOPP processing stages, which we proceed to outline.
+In order to successfully inject bytes, the attacker must provide data that is parsed correctly by the relevant processing steps.
+Doing this requires knowledge of the expected packet structure, alongside the processing stages in the pipeline.
 
 \subsection{Terra and Aqua wireless communications specifications} % TODO: different title?
 
-Terra and Aqua communicate on a number of different radio channels, downlinking housekeeping, telemetry, and scientific data. \textbf{Are these all the unique ones?}
-The satellites themselves can be in a variety of configurations, during which they send different information through the available channels. \textbf{TODO: cite SPACE GROUND AQUA document} % TODO: maybe talk about how you can find out more information about this in the appendix?
-However, during nominal operation the satellite is in Direct Broadcast mode, so continuously downlinks the current MODIS sensor data.
-This data is also stored in an internal buffer, so that when the satellite passes over Polar Ground Stations or nearby its TDRSS relay, it can dump its buffer over the X-band or Ku-band respectively.
-To broadcast to the Polar Ground Stations therefore requires a temporary shift out of Direct Broadcast Mode.
-The schedule for direct broadcast can be found for Terra~\cite{terraSchedule} and Aqua~\cite{aquaSchedule} at the HTTP file archive for the Goddard Space Flight Center.
+Terra and Aqua communicate on a number of different radio channels and downlink housekeeping, telemetry, and scientific data. \textbf{Are these all the unique ones?}
+The satellites themselves can be in one of a number of operational modes, during which they send different information through the available channels. \textbf{TODO: cite SPACE GROUND AQUA document} % TODO: maybe talk about how you can find out more information about this in the appendix?
+During nominal operation the satellite is in Direct Broadcast mode, in which the current MODIS sensor data is continuously downlinked.
+The data is also buffered for high data rate downlink when the satellite passes over Polar Ground Stations or near its TDRSS relay.
 
-Before being buffered, the scientific data from the onboard instruments has already been encapsulated in the network and data link layer frames, resulting in very similar transmissions between Direct Broadcast, Polar Ground Station, and TDRSS modes.
-However, the Direct Broadcast is the best documented mode, and we therefore consider the work to generalise across all modes of broadcast.
+Since the buffer is packed with the same bytes as the Direct Broadcast signal, the format of the data is identical for all modes of broadcast.
+We therefore focus on the Direct Broadcast mode without loss of generality.
 
-The MODIS instrument data is sent via a high data rate internal bus to an encoder, which are encapsulated within the standard CCSDS Space Packet Protocol (SPP).
-These are packed into a custom, unencrypted data link protocol knownm as the \textit{Channel Access Data Unit}, or CADU.
+%To broadcast to the Polar Ground Stations therefore requires a temporary shift out of Direct Broadcast Mode.
+%The schedule for direct broadcast can be found for Terra~\cite{terraSchedule} and Aqua~\cite{aquaSchedule} at the HTTP file archive for the Goddard Space Flight Center.
+
+% TODO: describe the structure of each CADU and how the relevant fields e.g. IDs are used
+Since each instrument onboard the satellite needs to downlink data simultaneously, the scientific data is sent in a packets to the Formatter/Multiplexer Unit (FMU).
+The FMU encapsulates the instrument packets within CCSDS Space Packet Protocol (SPP) packets which contain an Application ID to support demultiplexing per instrument.
+The SPP packets are then packed into a custom, unencrypted data link protocol known as the \textit{Channel Access Data Unit}, or CADU.
 Finally, the CADUs are modulated onto a radio wave either immediately in the case of Direct Broadcast, or after a short delay for bulk transmission.
 
 \subsection{MODIS downlink decoding pipeline}
 
-On the ground, the signal is received by a tracking satellite antenna and passes through multiple different processing stages to decode the wave into bits, align the bytes, and then interpret the data to form satellite-derived datasets.
+On the ground, the signal is received by a tracking satellite antenna and passes through multiple different processing stages to firstly decode the wave into bits, then align the bytes, and finally interpret the data to form satellite-derived datasets.
 
-% TODO: continue the description
+The data is generally presented to the first software decoding stage as a stream of bits straight from a hardware demodulator component, which therefore presents the first opportunity to exploit a packet decoding stage.
+
+These bits must firstly be byte aligned and divided into CADUs, derandomised through Viterbi decoding depending on the satellite mode, and then error corrected according to the CADU checksum.
+These stages are sometimes implemented by dedicated hardware or as a separate piece of software, such as Dartcom's \textit{Polar Orbital Ingester}~\cite{dartcomsystemsltdXBand2021,dartcomPOI}.
+However, they can equivalently be handled by NASA's \textit{Real-time Software Telemetry Processing System} (RT-STPS).
+
+In addition to the previous steps, RT-STPS demultiplexes the CADUs and outputs the data they contain, which are in this case SPP packets.
+The demultiplexing acts as a basic sanity check, ensuring that each packet has a valid application ID and size.
+Through checking at hardcoded bit offsets, RT-STPS also tries to check whether the contents of the CADUs have the correct Application ID.
+
+The resulting data is known as Level 0 data, and contains the demultiplexed CCSDS packets.
+The Level 0 data is processed through a pipeline of programs within the IPOPP distribution into subsequently higher levels, eventually resulting in the satellite-derived datasets described in \textbf{TODO: make this table of MODIS data usage}.
+
+\subsubsection{Decoding the packet format}
+
+The Level 0 data consists of SPP packets containing the MODIS instrument packets.
+In a single decoding step, the raw sensor readings within the packet are unpacked into a heirarchical data format (HDF), alongside some metadata.
+
+This decoding step is therefore the last chance for an attacker to exploit a processing stage through malformed packet headers.
+It is also the point beyond which the satellite-derived datasets are produced, which can be potentially fooled through injecting false or modified data which still conforms to the packet specifications.
+
+%TODO: rephrase this
+However, the software is easily exploitable due to some engineering problems
+
+
+Each program within IPOPP has a standard interface written in XML which describes its available functions and operations.
+The XML is parsed by a Java application which runs the available functions through interpreting the available functions using the shell, which generally spawns another program to continue the processing.
+Although the interface is common among all IPOPP programs, the programs themselves are very diverse in language and architecture.
+
+
+The Level 0 data passes through two stages of the \textit{MODIS Level-1 Science Processing Algorithm} (MODISL1DB\_SPA), resulting in heirarchical data format (HDF) files geolocated to a subpixel accuracy.
+
+The first stage, known as \texttt{l0tol1}, processes Level 0 SPP data into Level 1 HDFs, which contains restructured raw sensor samples alongside other metadata.
+The second stage, known as \texttt{l1atob}, geolocates the HDFs to a subpixel accuracy using timing information from the data, the satellite's orbital parameters, and an accurate model of the Earth's surface.
+The resulting data is considered to be at Level 1B.
+
+Each of these stages relies upon \textit{OceanColor Science Software} (OCSSW)~\cite{ocssw}, written by the OceanColor Data team \textbf{TODO: check}, to perform the actual processing.
+In particular, \textbf{TODO: list the tools for each stage} perform the tasks of extracting the data, and correcting corrupted data in the case of failure.
+The OCSSW tools are written in C and Fortran, and were originally designed to be run as command line scripts.
+They expect a parameter file at a particular relative path \textbf{TODO: check} which itself describes the location of the data to be processed and supplies options for processing it.
+
+In order to automate processing and correcting the data, Python programs were written which construct the command line arguments and parameter files required for the OCSSW tools, and then invoke a shell to execute the tools.
+These are designed to be higher-level tools for use in analysing and processing the data files on the command line, which don't require knowledge of the arcane OCSSW formats.
+
+Within IPOPP, \texttt{l0tol1} and \texttt{l1atob} are themselves shell scripts which call these Python programs with certain arguments callable from the XML interface.
+\textbf{TODO: fact check that l1atob is actually a shell script and not the Python directly}
+
+\subsubsection{Creating satellite-derived datasets}
+
+% TODO: link to and cite the software manuals and SPA descriptions of each of these
+The geolocated Level 1B HDFs proceed into the next processing stage, the \textit{Level 2 MODIS Active Fire Product} (MOD14).
+MOD14 identifies active fires from the MODIS data and outputs HDF and txt files considered to be at Level 2. \textbf{TODO: cite manual}
+
+% TODO: describe the structure of MOD14
+
+Through analysing
+
+
+
+
+
+% TODO: describe granules, and how the raw data gets divided into them?
+% TODO: describe the arcane naming convention of the datasets
+%   Is this better left for evaluation?
+
+% l0tol1 is distributed twice, there's no version control anywhere
+% Reaching out over raw http to servers for data
+
+software within \textit{IPOPP}
+
+% Description of the construction of IPOPP algorithms
+
+
+%TODO: add details of which things it requires
+
+also demultiplexes the CADUs
+
+After being downconverted and sampled, 
 
 
 
@@ -120,7 +200,7 @@ However, in this situation it becomes easy to let implicit assumptions about the
 Code for handling these exceptional cases is often less rigorously tested, because it generally doesn't occur in benign example cases.
 
 However, by providing shorter packets than expected, with larger pointers than expected, we demonstrate how the attacker can take advantage of certain system components written in C to read off the end of the buffer into unallocated memory.
-We demonstrate an execution pathway that would result in the resulting data being stored and uploaded to the puclic data archives, theoretically allowing the attacker to leak sensitive information from other processes within the memory of the computer.
+We demonstrate an execution pathway that would result in the resulting data being stored and uploaded to the public data archives, theoretically allowing the attacker to leak sensitive information from other processes within the memory of the computer.
 
 
 \subsubsection{Exploiting bundled dependencies}
