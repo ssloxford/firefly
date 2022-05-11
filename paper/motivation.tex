@@ -2,6 +2,49 @@
 
 % https://directreadout.sci.gsfc.nasa.gov/?id=MODIS&date=2021-Nov-16
 
+
+Satellite-derived data has become a key part of critical infrastructure for private, national, and scientific use.
+Although new satellites are being launched at a high rate, even decades-old satellites are seeing novel use cases including advanced forest fire detection~\cite{nasaFirms} and analysing separatist-controlled regions during recent conflicts~\cite{separatistLuminosity}. % TODO: cite a new forest fire paper, not FIRMS
+These systems were built when robust cryptography was uncommon due to less powerful onboard computers.
+It is now well accepted that legacy software which handles data with little-to-no authentication, such as these terrestrial processing systems, are not resilient against modern adversaries.
+However, this was not a practical concern at the time since attacks at the physical layer would have required a costly and highly specialized setup.
+Consequently, there does not exist any current work to understand the effects of a modern adversary against such a system.
+
+Nowadays, software-defined radio hardware, capable of emitting arbitrarily encoded signals at the correct frequency, is readily available off the shelf.
+This lowers the barrier to entry for signal injection attacks significantly.
+Accordingly, both existing and novel use cases must now contend with the effects of signal injection, which include poisoning the dataset and exploiting the decoder.
+This has far-reaching ramifications due to increased reliance on satellite-derived datasets.
+
+
+Global reliance on satellite data, and the security ramifications of this, is becoming increasingly evident.
+Recent news demonstrates that motivated adversaries do in fact exist, and are interested in exploiting decoding pipelines e.g. ViaSat hack.
+We're also continuing to see new use cases for satellite data, in both the private and public sectors. % TODO: examples
+
+Satellites have really long lifespans, so missions launched decades ago are still highly relevant today.
+However, security principles and practice have come along a long way since then.
+
+
+
+% Things to mention:
+% * Recent satellite hacks, but none really focussing on the downlink system through radio
+% * We require a systematisation to analyse the effects that an adversary could have
+% * We need to show what real-world systems the attacker could expect to manipulate, so that we can secure them. To do this, we need to follow through a system end-to-end, and extract the general principles.
+
+% * We need realistic simulations at least to tell us what ballpark of cost the attacker needs to expend
+% * By manipulating the frame packet header, we can make fires...
+
+% Existing work:
+% * We need to follow in the footsteps of existing work which shows that, when similar systems are subjected to scrutiny, practical countermeasures have been proposed which continue to affect the industry as a whole
+% Here's how it relates to our work now
+% We're aware of the state of the art in other settings
+
+%    Para: The reasons why security wasn't core to the design
+%    Para: The ways in which security isn't core
+%    Para: The effects of security not being core
+
+\textbf{Old motivation below:}
+
+
 In recent decades, satellite imaging of the Earth's surface has become increasingly important within research and safety-critical contexts alike.
 Equipped with optical sensors that can detect a spectrum wider than visible light alone, satellites within NASA's \textit{Earth Observing System} (EOS) fleet have found broad usage within areas such as atmospheric observation, wildfire detection, and deforestation monitoring. \textbf{TODO: cite}
 Automated data processing techniques are widely used to provide live data streams for incident response; ensuring data integrity at the radio downlink is therefore of high importance.
