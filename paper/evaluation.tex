@@ -79,8 +79,8 @@ These key values are summarised in Table~\ref{tab:experimental-values}.
         \toprule
         & Victim & Attacker \\
         \midrule
-        EIRP (dBm) & $44.4$ & $[-100,0)$ \\
-        Distance $d$ (km) & $\sim 713$ & $[0, 10)$ \\
+        EIRP (dBm) & $44.4$ & $[0 \dots 100]$ \\
+        Distance $d$ (km) & $\sim 713$ & $[0 \dots 10]$ \\
         Free-Space Path Loss (dB) & $179.0$ & $\text{FSPL}_{\text{dB}}(d)$ \\
         Amplitude Multiplier $\left(m = 10^{\frac{\text{EIRP}_{\text{dB}}-\text{FSPL}_{\text{dB}}}{20}}\right)$ & $1.86 \cdot 10^{-7}$ & $m$  \\
         Antenna Gain $g_A$ (dB) & $44.1$ & $-10.0$ \\
@@ -93,8 +93,9 @@ These key values are summarised in Table~\ref{tab:experimental-values}.
     \label{tab:experimental-values}
 \end{table}
 
-We do not compute the EIRP of the attacker's transmitter, instead taking a range of values between $-100$ and $0$\,dBm.
-We also do not accurately model system losses -- since these are consistent between the victim and attacker, we assume their effect on the outcome of the experiment is negligible.
+We take a range of values for the signal strength at the receiver, between $-100$ and $0$\,dBm.
+Received signal strength can be expressed as a function of the attacker's EIRP and distance from the receiver, enabling us to observe the bit error rate as we vary either of these parameters.
+We do not accurately model system losses -- since these are consistent between the victim and attacker, we assume their effect on the outcome of the experiment is negligible.
 This is verified to be the case by performing the same experiment across a range of noise values and confirming that the result changes by a negligible amount, as seen in Figure~\ref{fig:overshadowing_ber}.
 For the main experiments, we set the background noise voltage to $1\,$\textmu V and the system noise to $200$\,mV, resulting in a bit error rate below the $5$\% required for the system to function.
 
