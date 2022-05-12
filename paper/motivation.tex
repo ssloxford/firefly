@@ -1,12 +1,11 @@
 \section{Motivation}
-
 % https://directreadout.sci.gsfc.nasa.gov/?id=MODIS&date=2021-Nov-16
 
 
 Satellite-derived data has become a key part of critical infrastructure for private, national, and scientific use.
 Although new satellites are being launched at a high rate, even decades-old satellites are seeing novel use cases including advanced forest fire detection~\cite{nasaFirms} and analysing separatist-controlled regions during recent conflicts~\cite{separatistLuminosity}. % TODO: cite a new forest fire paper, not FIRMS
 These systems were built when robust cryptography was uncommon due to less powerful onboard computers.
-It is now well accepted that legacy software which handles data with little-to-no authentication, such as these terrestrial processing systems, are not resilient against modern adversaries.
+It is now well accepted that legacy software which handle data with little-to-no authentication, such as these terrestrial processing systems, are not resilient against modern adversaries.
 However, this was not a practical concern at the time since attacks at the physical layer would have required a costly and highly specialized setup.
 Consequently, there does not exist any current work to understand the effects of a modern adversary against such a system.
 
@@ -15,14 +14,44 @@ This lowers the barrier to entry for signal injection attacks significantly.
 Accordingly, both existing and novel use cases must now contend with the effects of signal injection, which include poisoning the dataset and exploiting the decoder.
 This has far-reaching ramifications due to increased reliance on satellite-derived datasets.
 
+% Expand on in what way satellites are key infrastructure
+    % Maybe mention EOS fleet
+% how was setup specialised for previous attackers. Evidence for this?
+% Existing systems that weren't resilient against modern adversaries, and the benefits of reviewing them
+% Justifying how SDRs are more available, and looking at the estimated cost of pulling off the attack
 
-Global reliance on satellite data, and the security ramifications of this, is becoming increasingly evident.
-Recent news demonstrates that motivated adversaries do in fact exist, and are interested in exploiting decoding pipelines e.g. ViaSat hack.
-We're also continuing to see new use cases for satellite data, in both the private and public sectors. % TODO: examples
+As global reliance on on satellite data increases, the security implications are becoming increasingly relevant.
+Recent news demonstrates that motivated adversaries do in fact exist, and are interested in exploiting the decoding and demodulating pipelines.
+For example, in a recent attack against ViaSat's satellite broadband capability, a side channel terrestrial network permanently disabled the demodulating hardware across Ukraine, coinciding with the Russian invasion~\cite{satcomAnalysis}.
 
-Satellites have really long lifespans, so missions launched decades ago are still highly relevant today.
-However, security principles and practice have come along a long way since then.
+% TODO: narrow down specifically to Earth-observing data
+To support a wide range of use cases, raw satellite data is processed into more specialised derived datasets such as for forest fire and storm detection.
+This feeds into applications including critical national infrastructure and research-oriented purposes.
+The importance of these applications makes attacking the raw data appealing.
 
+These new applications make use of a variety of satellites, some of which were launched decades ago.
+Since then radio hardware has become more accessible along with a change in attitudes towards securing data transmissions.
+Therefore, both the satellite-derived datasets and the downlink processing systems that create them are potentially vulnerable to signal injection.
+
+The security community is becoming increasingly aware that radio overshadowing in a satellite context has the potential to affect critical services.
+As a result, recent countermeasures have been proposed which analyze artifacts of overshadowing on the physical channel to determine the authenticity of the received data.
+These artifacts include the timing of the signal~\cite{jedermann2021orbit} and features of the waveform such as unexpected differences in signal-to-noise, amplitude, or others extracted through machine learning techniques~\cite{oligeri2020past}.
+However, the impact of signal overshadowing against currently-deployed satellites, and the real-world consequences on the systems that depend upon their data, have not yet been considered.
+
+\subsection{Contributions}
+
+Specifically, we make the following contributions:
+
+\begin{itemize}
+    \item Introduce ...?
+    \item Systematise, showing the effects that an adversary can expect to have
+    \item Classify the kinds of attacks wrt the processing pipeline
+    \item Follow through an end-to-end case study, making fires and exploiting pipelines
+    \item Demonstrate the feasibility of this approach through radio simulations
+    \item Propose countermeasures taking into account the unique constraints (how are these different?)
+\end{itemize}
+
+In work, we investigate the impact of signal overshadowing against currently-deployed satellites, and the real-world consequences on the systems that depend upon their data.
 
 
 % Things to mention:
@@ -42,6 +71,9 @@ However, security principles and practice have come along a long way since then.
 %    Para: The ways in which security isn't core
 %    Para: The effects of security not being core
 
+
+
+\begin{comment}
 \textbf{Old motivation below:}
 
 
@@ -90,3 +122,5 @@ Through generalising our approach, we propose scalable countermeasures to permit
 
 Finally in Section~\ref{sec:discussion}, we discuss how the practical outworkings of these new risks should affect the security posture within organisations, encompassing a discussion of untrusted user-submitted data and software architecture.
 We pay attention to the software architectural principles required to make satellite decoding systems robust against this sort of attack, considering particular issues surrounding legacy software systems.
+
+\end{comment}
