@@ -1,6 +1,4 @@
 \section{Motivation}
-% https://directreadout.sci.gsfc.nasa.gov/?id=MODIS&date=2021-Nov-16
-
 
 Satellite-derived data has become a key part of critical infrastructure for private, national, and scientific use.
 Although new satellites are being launched at a high rate, even decades-old satellites are seeing novel use cases including advanced forest fire detection~\cite{nasaFirms} and analysing separatist-controlled regions during recent conflicts~\cite{separatistLuminosity}. % TODO: cite a new forest fire paper, not FIRMS
@@ -43,16 +41,14 @@ However, the impact of signal overshadowing against currently-deployed satellite
 Specifically, we make the following contributions:
 
 \begin{itemize}
-    \item Introduce ...?
-    \item Systematise, showing the effects that an adversary can expect to have
-    \item Classify the kinds of attacks wrt the processing pipeline
-    \item Follow through an end-to-end case study, making fires and exploiting pipelines
-    \item Demonstrate the feasibility of this approach through radio simulations
-    \item Propose countermeasures taking into account the unique constraints (how are these different?)
+    \item We present a systematic review of the impact of a modern adversary against satellite downlink processing systems using attacks at the physical layer;
+    \item We analyze the impact of these attacks against FIRMS, NASA's live forest fire detection service, as an end-to-end case study. We demonstrate that overshadowing of the wireless channel is sufficient to arbitrarily manipulate fires detected in the derived dataset, and achieve denial of service and arbitrary code execution on the processing software;
+    \item We discuss the potential impact of similar attacks against other satellite-derived datasets, exploring the effects that an attacker could expect to cause in the real world;
+    \item We demonstrate the feasibility of radio signal injection using commercial off-the-shelf equipment, taking into account the unique constraints of a terrestrial attacker against a highly directional dish;
+    \item We conclude by exploring the applicability of existing countermeasures, with respect to the unique constraints of this context.
 \end{itemize}
 
-In work, we investigate the impact of signal overshadowing against currently-deployed satellites, and the real-world consequences on the systems that depend upon their data.
-
+    % TODO: something about categorising the attacks that are possible?
 
 % Things to mention:
 % * Recent satellite hacks, but none really focussing on the downlink system through radio
@@ -70,7 +66,6 @@ In work, we investigate the impact of signal overshadowing against currently-dep
 %    Para: The reasons why security wasn't core to the design
 %    Para: The ways in which security isn't core
 %    Para: The effects of security not being core
-
 
 
 \begin{comment}
