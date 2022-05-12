@@ -9,8 +9,6 @@
 
 \textbf{TODO figure out where to put this figure}
 
-\textit{We begin by demonstrating at a high level how satellite data is processed, and the downstream systems that use the data (e.g. FIRMS for forest fire detection)}
-
 % TODO: add info about Google Maps
 \begin{table*}
     \resizebox{\textwidth}{!}{%
@@ -62,12 +60,12 @@ Signals from the latter can be received by anyone with a compatible ground stati
 
 % https://www.usenix.org/conference/usenixsecurity19/presentation/yang-hojoon
 
-\subsection{Applicability of the research}
+\subsection{Research Applicability}
 
 In this research we demonstrate how implicitly trusting input data opens the gateway for more sophisticated attacks against the processing pipeline through signal injection.
 As a case study, we focus on \textit{Terra} and \textit{Aqua}, two open access satellites within NASA's EOS fleet.
-Being open access, they are among the best publicly-documented satellite systems, and they provide no cryptographic authenticity by design.
-Despite this, the raw satellite data is trusted by a wide range of applications through derived datasets in both the private and public sectors.
+Being open access, they are among the best publicly-documented satellite systems, and the data they collect is trusted by a wide range of applications through derived datasetes in both the private and public sectors.
+These systems provide no cryptographic authenticity by design, raising concerns about their susceptibility to attack as the barrier to entry for attackers lowers -- in this work we assess the severity of this threat, and how best to mitigate it.
 
 The extent that this research relates to other satellite systems depends upon the design of the communications layer in question, and at which stage, if any, secure cryptographic primitives are used.
 This work therefore directly applies to all publicly broadcast satellites, such as other satellites in the EOS fleet and the GOES satellites by NOAA~\textbf{TODO: cite}, which are unencrypted by design for ease of public access. % TODO: document which other satellites are therefore usable
@@ -78,14 +76,14 @@ However, satellites which apply sound cryptographic mechanisms such as \textit{S
 % TODO: find out which other satellites are unencrypted, and especially those which are new and use CCSDS
 % Are they generally encrypted above the CCSDS layer?
 
-Despite this, encrypted satellites in current deployment can become vulnerable to similar techniques.
+Despite this, there are similar techniques which can affect even satellites with encrypted communications if improperly implemented.
 Where encryption is left only for the network layer or above in the protocol stack, attackers can manipulate the low-level protocol headers and data to trigger potential vulnerabilities in the decoding software.
-Not only are such satellites fairly common, as demonstrated by the data link encryption layer in the CCSDS protocol being purely optional and not supported by all protocols~\cite{ccsdsOverview}\textbf{TODO: is this a weak citation?}, but vulnerabilities in the decoding software are prevalent.
+Alongside these issues, vulnerabilities in the decoding software are prevalent and pose a real danger to not only the trustworthiness of the processed data but the processing system itself.
 % This is often because decoders are written to only handle the subset of any given specification that their satellite uses under nominal conditions, failing under unexpected circumstances.
 % Other times, this is because the overall decoding system has slowly accumulated technical deficiencies, as one team tries to hack around not quite understanding the existing software.
 We justify this claim in Section~\textbf{TODO} through a security audit of NASA's flagship \textit{International Planetary Observation Processing Package} (IPOPP) software distribution.
 
-Also, where the cryptographic key management has been poor, keys can often be leaked or reverse engineered, potentially rendering the satellite vulnerable to injection once again\footnote{Whether key recovery results in injection depends on the encryption scheme used, and particularly upon whether the keys are symmetric.}.
+Also, where cryptographic key management has been poor, keys can often be leaked or reverse engineered, compromising data confidentiality and potentially rendering the satellite vulnerable to spoofing\footnote{Whether key recovery can result in spoofing depends on the encryption scheme used, and particularly upon whether the keys are symmetric.}.
 This is unfortunately common; decryption keys for the Korean satellite GEO-KOMPSAT-2A were leaked from code samples on the Korea Meteorological Administration website, and to this day remain unrevoked and available on their website~\cite{xrit-rx}.
 Other satellites implement either poor cryptography, or good cryptography poorly, and can therefore have their keys reversed.
 For example, COMS-1 uses single DES~\cite{lrit-key-dec}, with its keys successfully reversed from the satellite data. \textbf{TODO: check this is really how it was done. Subleties in the blog post...}
@@ -97,8 +95,6 @@ We should continue to expect that more encrypted satellite communications become
 
 % One of the data providers
 % Loads of people depend on it, but nobody thought of security
-
-\textit{Here we describe the Earth Observing System satellite system, including the satellites in the fleet, how data gets downlinked, processed, stored and used.}
 
 Terra and Aqua, as core satellites within the EOS fleet, provide high resolution sensor readings across a variety of detectors.
 Images of the Earth's surface can be derived from their on board \textit{Moderate Resolution Imaging Spectroradiometer} (MODIS) sensor, which produce calibrated light readings across frequency bands wider than the visible spectrum.
@@ -135,8 +131,8 @@ However, the uniformity of the software distribution means that vulnerabilities 
 % TODO: is such an in-depth explanation required here?
 The raw SPP packet data is known as \textit{Level 0}, and is processed through a chain of programs distributed through the IPOPP framework to generate higher-level satellite-derived datasets.
 The other EOS fleet satellites are processed in much the same way.
-The Level 0 data is processed into Level 1: an easier to use heirarchical data format, optionally geolocated to a subpixel accuracy using timing information, the satellite's orbital parameters, and an accurate model of the Earth's surface.
-Level 1 data is processed into a variety of Level 2 datasets, including fire detection, land surface temperature values, vegetation detection, etc.
+The Level 0 data is processed into \textit{Level 1}: an easier to use heirarchical data format, optionally geolocated to a subpixel accuracy using timing information, the satellite's orbital parameters, and an accurate model of the Earth's surface.
+Level 1 data is processed into a variety of \textit{Level 2} datasets, including fire detection, land surface temperature values, vegetation detection, etc.
 Finally, certain Level 3 datasets are produced, which generally consist of composites of the Level 2 data for specific purposes, such as analysing post-fire burned areas.
 
 Data across these various levels is available within minutes of being received by direct broadcast ground stations, but is also distributed centrally by NASA after being downlinked by TDRSS.
@@ -160,3 +156,25 @@ Through carefully crafting input data to pass any existing integrity checks in t
 
 We proceed to precisely define the nature of the threat in Section~\ref{sec:threat-model}, and describe how an attacker can exploit FIRMS and other processing pipeline stages in Section~\ref{sec:attack}.
 We go on to validate the feasibility of the overshadowing approach in Section~\ref{sec:evaluation}, including the capabilities that the attacker requires to be successful.
+
+
+\subsection{Related Work}
+
+\textbf{TODO write}
+\begin{itemize}
+    \item existing work in signal sniffing/spoofing, ads-b?
+    \item existing work in satellite security?
+    \item explain how our work is novel and builds on these
+\end{itemize}
+
+Our work builds on \textbf{TODO}
+
+Existing work has shown that it is possible to spoof satellite signals, particularly when not encrypted; \textbf{TODO} demonstrates this using the GPS positioning satellites.
+By exploiting the unauthenticated nature of the signals it is possible to modify the unauthenticated data; our work builds on this by demonstrating that this is also possible for satellites for which the receiving and broadcasting equipment was previously thought to make such attacks prohibitively expensive.
+We also look beyond the payload and look at attacks on the data processing system itself to create novel attacks.
+
+\textbf{TODO something about packet-based broadcast vs continuous broadcast?}
+
+There is also wider work in the security community surrounding signal spoofing and its detection -- for instance, Čapkun et al.\ detect GPS spoofing by observing the physical properties of the signal alongside inspecting downlinked data \textbf{TODO cite SPREE}.
+\textbf{TODO more?}
+We \textbf{TODO}.

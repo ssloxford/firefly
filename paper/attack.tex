@@ -120,7 +120,7 @@ software within \textit{IPOPP}
 
 also demultiplexes the CADUs
 
-After being downconverted and sampled, 
+After being downconverted and sampled,
 
 
 
@@ -133,9 +133,16 @@ After being downconverted and sampled,
 \begin{figure*}
     \centering
     \includegraphics[width=\textwidth]{diagrams/cadu_diagram.pdf}
-    \caption{Layout of data within a Channel Access Data Unit (CADU). Given correct headers, the section marked in red can contain arbitrary attacker-specified data.}
+    \caption{Layout of data within a Channel Access Data Unit (CADU). Given correct headers, the section marked in red can contain arbitrary attacker-specified data. \textbf{TODO remove}}
     \label{fig:cadu_diagram}
 \end{figure*}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{diagrams/attack_types.pdf}
+    \caption{Illustration of the steps involved in processing MODIS image data and derived datasets, as well as the packet structure and layer within the network stack. \textbf{TODO edd rewrite?}}
+    \label{fig:attack_types}
+\end{figure}
 
 % Wireless spec to go into attack, since it's specific to the MODIS use case
 % \subsection{Wireless communications specifications}
