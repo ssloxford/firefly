@@ -114,4 +114,19 @@ In the case of NASA's EOS fleet, such a system could be achieved by working alon
 There are sufficiently many organizations set up to receive downlinked EOS signals (168 at the time of writing) spanning the entire globe, so it should be possible to enrol some of these onto a collaborative differential comparison system promising improved security for everyone involved~\cite{nasaDirect}.
 \textbf{TODO talk about how this could be used in conjunction with TDOA}
 
-\textbf{TODO conclude this section?}
+
+\subsection{Comparison}
+
+The simpler of each of our timing, waveform, and data analysis measures are comparable to ``security through obscurity'' -- they provide some measure of assurance against signal tampering, but only in the case where the attacker does not know about the countermeasures' usage.
+If we consider an attacker who has full knowledge of the target system, the countermeasures can simply be circumvented by being more careful with signal injection.
+However, they are cheap and straightforward to implement, making for a good intermediate response while a more thorough solution is worked on.
+
+On the other hand, data hash comparison, TDOA analysis, and fingerprinting all make signal injection significantly more difficult even in the case where the attacker knows of their existence.
+This is particularly clear with hash/TDOA analysis -- an attacker must fool all receivers at multiple physical locations in order to have the same effect on the processing system as before.
+The downside is of course that multiple receivers are required, although this should not be an issue for a system like NASA's EOS which already has many ground stations spread around the world.
+
+Finally, properly-implemented cryptographic and key management systems remain the best possible solution in the vast majority of cases, where they are possible to implement.
+In these systems, the attacker has no hope of successfully fooling the processing system unless keys are leaked.
+It is our hope that any new system is built with security first and foremost, using robust encryption or signature systems, and other effective countermeasures are implemented to bolster the security of legacy systems.
+In this way we ensure the resulting data can still be trusted as legitimate, even as missions continue into the coming decades.
+\textbf{TODO rewrite last sentence?}
