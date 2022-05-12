@@ -1,4 +1,5 @@
 \section{Background}\label{sec:background}
+\textbf{TODO figure out where to put this figure}
 
 \begin{figure}
     \centering
@@ -7,7 +8,40 @@
     \label{fig:attack-illustration}
 \end{figure}
 
-\textbf{TODO figure out where to put this figure}
+Earth observing satellite systems are widely used in a variety of contexts, providing high-resolution images and sensor readings which update within hours or less of the initial readings being taken.
+Accordingly, a growing market for satellite-derived datasets has emerged which derive data for specific purposes including forest fire, dust storm detection, ozone layer depletion, and flooding.
+Table~\ref{tab:satellite-derived-datasets} summarises a number of currently available satellite-derived datasets, which are derived from a mixture of self-operated, commercial, and open access satellites.
+
+NASA's \textit{Fire Information and Resource Management System} (FIRMS) is one such use case, providing a real-time fire notification service which is used for emergency response, disaster planning, and crisis analysis by the fire agencies of over 90 countries. \textbf{TODO: must cite}
+FIRMS depends on datasets derived from the Earth Observing System (EOS) fleet, including
+
+The EOS fleet are open access satellites
+
+Fire management and incident response represents one such use case, depending upon
+
+the MODIS instrument, which has improved the fire response capability of over 90 countries \textbf{TODO: cite}.
+Although fire departments have little reason to run their own direct broadcast groundstations, the application is still time-critical.
+Therefore, NASA has invested in the Fire Information for Resource Management System (FIRMS)~\cite{firmsIndex}, which provides near real time active fire data, defined to be within three hours of observation.
+Among other services, FIRMS provides a fire notification API which will deliver notifications of new and active fires within a requested region, which is used to inform firefighters and coordinate their response.
+\textbf{TODO: add information on who uses this service, maybe a table. Does Google Maps use this?}
+The data is derived from processing the raw Aqua and Terra data with the programs in IPOPP.
+
+
+% Once more specific to EOS, how used
+
+
+These datasets are used in a number of critical applications, including in the fire departments of over 
+
+End users may be more familiar with systems such as Google Maps, which provides a fire overlay and reroutes drivers around currently active fires and smoke zones.
+
+TO support these use cases,
+
+These are designed for various uses, and are derived from a mixture of self-operated, commercial, and open access satellites.
+
+
+However, despite its importance as trusted infrastructure, FIRMS ultimately relies on unencrypted MODIS data which is therefore vulnerable to signal injection.
+Through carefully crafting input data to pass any existing integrity checks in the processing pipeline and overshadowing the X-band radio signal, an attacker has the potential to disrupt the fire detection stages of the pipeline, and therefore anyone who relies upon the data.
+
 
 % TODO: add info about Google Maps
 \begin{table*}
@@ -30,20 +64,16 @@
         Upstream Tech HydroForecast~\cite{hydroforecast} & Water flow and weather intelligence & NASA (Terra/Aqua) & Open access & Commercial \\
         NASA FIRMS~\cite{nasaFirms} & Fire detection and management & NASA (EOS) & Self-operated & Open access \\
         \bottomrule
-    \end{tabular}%
+    \end{tabular}
     }
     \caption{Information on a number of satellite-derived datasets, including the satellite providers used to source the data.}
     \label{tab:satellite-derived-datasets}
 \end{table*}
 
-Satellite data has become crucial to a wide range of both public and private organizations.
-It is now possible to access near real time high-resolution images of the Earth, updating within hours or less of the initial readings being taken, in addition to infrared and other sensor readings.
-Building upon this raw data, a growing market for \textit{satellite-derived datasets} has emerged: data which has been produced by processing and analysing the raw satellite data for a wide variety of use cases. % TODO: mention satellite-derived datasets throughout the paper since we introduce the term here
-These include critical national infrastructure such as forest fire and storm detection, and research-oriented purposes such as land and water management.
-End users may be more familiar with systems such as Google Maps, which provides a fire overlay and reroutes drivers around currently active fires and smoke zones.
 
-Table~\ref{tab:satellite-derived-datasets} summarises a number of currently available satellite-derived datasets.
-These are designed for various uses, and are derived from a mixture of self-operated, commercial, and open access satellites.
+
+Satellite data has become crucial to a wide range of both public and private organizations.
+
 
 The source of the base satellite dataset is chosen based on the organization and use case.
 Some businesses operate their own satellite network and then process the data, granting fine-grained control at the cost of having to launch and maintain their own satellites.

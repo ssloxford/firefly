@@ -1,28 +1,27 @@
 \section{Motivation}
 
 Satellite-derived data has become a key part of critical infrastructure for private, national, and scientific use.
-Although new satellites are being launched at a high rate, even decades-old satellites are seeing novel use cases including advanced forest fire detection~\cite{nasaFirms} and analysing separatist-controlled regions during recent conflicts~\cite{separatistLuminosity}. % TODO: cite a new forest fire paper, not FIRMS
+Although new satellites are being launched at a high rate, even decades-old satellites are seeing novel use cases including advanced forest fire detection~\cite{nasaFirms} and analysis of activities in conflict areas~\cite{separatistLuminosity}. % TODO: cite a new forest fire paper, not FIRMS
 These systems were built when robust cryptography was uncommon due to less powerful onboard computers.
-It is now well accepted that legacy software which handle data with little-to-no authentication, such as these terrestrial processing systems, are not resilient against modern adversaries.
+It is now well accepted that legacy software which handle data without resilient authentication, such as these terrestrial processing systems, are not resilient against modern adversaries.
 However, this was not a practical concern at the time since attacks at the physical layer would have required a costly and highly specialized setup.
 Consequently, there does not exist any current work to understand the effects of a modern adversary against such a system.
 
-Nowadays, software-defined radio hardware, capable of emitting arbitrarily encoded signals at the correct frequency, is readily available off the shelf.
+Nowadays, software-defined radio hardware, capable of emitting arbitrarily encoded signals at the correct frequency, is readily available off the shelf. % TODO: find phrasing without "nowadays"
 This lowers the barrier to entry for signal injection attacks significantly.
-Accordingly, both existing and novel use cases must now contend with the effects of signal injection, which include poisoning the dataset and exploiting the decoder.
+Accordingly, both existing and novel use cases must now contend with the effects of signal injection, which include poisoning the dataset and exploiting the decoder as shown.
 This has far-reaching ramifications due to increased reliance on satellite-derived datasets.
 
-% Expand on in what way satellites are key infrastructure
-    % Maybe mention EOS fleet
-% how was setup specialised for previous attackers. Evidence for this?
-% Existing systems that weren't resilient against modern adversaries, and the benefits of reviewing them
-% Justifying how SDRs are more available, and looking at the estimated cost of pulling off the attack
+\begin{figure}
+    \includegraphics[width=\columnwidth]{diagrams/injection/pixels_800_140.jpg}
+    \caption{An injected signal from the attacker manipulates the infrared channels to create ficticious fires in the resulting dataset.}
+    \label{fig:location-injection}
+\end{figure}
 
-As global reliance on on satellite data increases, the security implications are becoming increasingly relevant.
-Recent news demonstrates that motivated adversaries do in fact exist, and are interested in exploiting the decoding and demodulating pipelines.
+As global reliance on satellite data increases, the security implications are becoming increasingly relevant.
+Recent news demonstrates that motivated adversaries exist, and are interested in exploiting the decoding and demodulating pipelines.
 For example, in a recent attack against ViaSat's satellite broadband capability, a side channel terrestrial network permanently disabled the demodulating hardware across Ukraine, coinciding with the Russian invasion~\cite{satcomAnalysis}.
 
-% TODO: narrow down specifically to Earth-observing data
 To support a wide range of use cases, raw satellite data is processed into more specialised derived datasets such as for forest fire and storm detection.
 This feeds into applications including critical national infrastructure and research-oriented purposes.
 The importance of these applications makes attacking the raw data appealing.
@@ -30,6 +29,7 @@ The importance of these applications makes attacking the raw data appealing.
 These new applications make use of a variety of satellites, some of which were launched decades ago.
 Since then radio hardware has become more accessible along with a change in attitudes towards securing data transmissions.
 Therefore, both the satellite-derived datasets and the downlink processing systems that create them are potentially vulnerable to signal injection.
+Critical services such as NASA's \textit{Fire Information and Resource Management System} (FIRMS) can be affected as shown in Figure~\ref{fig:location-injection}, to trigger false emergency response or mislead crisis analysis.
 
 The security community is becoming increasingly aware that radio overshadowing in a satellite context has the potential to affect critical services.
 As a result, recent countermeasures have been proposed which analyze artifacts of overshadowing on the physical channel to determine the authenticity of the received data.
@@ -42,7 +42,7 @@ Specifically, we make the following contributions:
 
 \begin{itemize}
     \item We present a systematic review of the impact of a modern adversary against satellite downlink processing systems using attacks at the physical layer;
-    \item We analyze the impact of these attacks against FIRMS, NASA's live forest fire detection service, as an end-to-end case study. We demonstrate that overshadowing of the wireless channel is sufficient to arbitrarily manipulate fires detected in the derived dataset, and achieve denial of service and arbitrary code execution on the processing software;
+    \item We analyze the impact of these attacks against FIRMS, NASA's live forest fire detection service, as an end-to-end case study. We demonstrate that overshadowing the wireless channel is sufficient to arbitrarily manipulate fires detected in the derived dataset, and achieve denial of service and arbitrary code execution on the processing software;
     \item We discuss the potential impact of similar attacks against other satellite-derived datasets, exploring the effects that an attacker could expect to cause in the real world;
     \item We demonstrate the feasibility of radio signal injection using commercial off-the-shelf equipment, taking into account the unique constraints of a terrestrial attacker against a highly directional dish;
     \item We conclude by exploring the applicability of existing countermeasures, with respect to the unique constraints of this context.
