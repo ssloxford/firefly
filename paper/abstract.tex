@@ -1,39 +1,5 @@
 \begin{abstract}
-% Satellite image injection attacks are clearly possible
-% Simplest form is to inject a pre-prepared image wholesale
-% This form is well-defended against by existing timing analysis
+Data from Earth-observing satellites has become crucial in private enterprises, research applications, and in coordinating national responses to events such as forest fires. These purposes are supported by datasets derived from a variety of satellites, some of which were launched decades ago. Since then, attitudes to securing the physical layer have changed, opening the door for modern adversaries to overshadow the signal with commercially available radio equipment.
 
-% To appear convincing against this sort of adversary, an attacker
-% needs to at least be broadcasting at roughly the same time
-% as the actual signal.
-
-% To play an image wholesale would require overshadowing it,
-% and simple amplitude analysis would give the game away.
-
-% This paper considers a new class of attacks that resists
-% detection by existing time-based analysis methods
-
-% TODO: check whether starting with "since" is a bad idea, and if so, rephrase
-
-Satellite imaging of the Earth has become crucial in safety-critical applications such as forest fire and storm detection, alongside a wide range of research and business applications.
-By disrupting the terrestrial systems responsible for processing satellite image data, attackers can cause real-world harms to all of these applications.
-Thanks to the assumption that downlinked data is benign at multiple stages of processing, an attacker can inject carefully crafted data to target specific components; the result of this is that a security flaw at any stage of processing can open up the entire system to attack.
-If the same data is saved and later reprocessed, an even larger number of systems may be vulnerable.
-
-In this paper, we demonstrate that even the most prominent satellite image data processing systems, using NASA's Earth observing fleet as a case study, are vulnerable to a wide range of attacks due to implicitly trusting their input data.
-We show that access to off-the-shelf radio hardware or simple social engineering techniques are sufficient to cause arbitrary image injection, denial of service, and remote code execution on the processing systems themselves.
-We classify the effects on downstream processing systems such as forest fire and storm detection.
-We demonstrate the real-world feasibility of these attacks using a series of simulations measuring the effectiveness of signal injection through overshadowing.
-We conclude with a discussion of the attitudes surrounding legacy software and software development for security, and a proposed series of changes to prevent similar attacks from becoming possible in the future.
-
-% Interesting questions
-% In this ML paper, how good would their mechanism be at detecting our attack?:
-% https://arxiv.org/pdf/2010.05470.pdf
-% AKA, do their measured parameters differ at all based on the new and manipulated signal?
-
-% https://lenders.ch/publications/conferences/wisec19_1.pdf
-
-% assessing the timing based on the orbital parameters [https://dl.acm.org/doi/pdf/10.1145/3448300.3469132]
-% fingerprinting the waveform [https://arxiv.org/pdf/2010.05470.pdf].
-
+In this paper, we consider how this opens the door to poisoning satellite-derived datasets and exploiting the processing systems themselves. As a case study, we consider NASA's live forest fire detection system, which is used by the fire agencies of over 90 countries \textit{TODO: must cite later}. We demonstrate that the attacker can arbitrarily manipulate fires in the derived dataset, and achieve denial of service and code execution in the processing software. Through radio simulation, we show that the required signal overshadowing can be achieved by a terrestrial attacker despite the highly directional nature of the dish. This raises concerns that any dataset derived from these satellites could be compromised by similar means.
 \end{abstract}
