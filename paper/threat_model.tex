@@ -26,8 +26,8 @@ Crucially, since the receiving satellite dish is highly directional and the atta
 Instead, they must rely on the signal being sufficiently strong that the ground station picks it up regardless of dish orientation. % TODO: diagram of dish orientation and the attacker's location?
 
 In order to define realistic price constraints, we consider off-the-shelf radio equipment intended to be used in cubesats.
-One cubesat manufacturer, EnduroSat, offers a system capable of encoding and transmitting signals in the X-band for €22,800 and a compatible antenna for €6,400~\cite{endurosat:xbandtransmitter,endurosat:xbandantenna}.
-This system has an integrated encoder and is thus not capable of transmitting attacker-crafted sequences of symbols, but it provides us with an understanding of how much similar equipment would cost.
+We estimate the overall equipment cost to be approximately $30,000$ EUR -- such a budget covers the cost of a suitable SDR (\cite{limeSdr,limeCompanion}, $598$ USD), a transmitter capable of amplifying and transmitting signals in the X-band (\cite{endurosat:xbandtransmitter}, $22,800$ EUR), and a compatible antenna (\cite{endurosat:xbandantenna}, $6,400$ EUR).
+%One cubesat manufacturer, EnduroSat, offers a system capable of encoding and transmitting signals in the X-band for €22,800 and a compatible antenna for €6,400~\cite{endurosat:xbandtransmitter,endurosat:xbandantenna}.
 These prices place the attacks within the budget range of a motivated hobbyist, opening the EOS systems up to attacks by a wide range of parties.
 
 We also take into account other mechanisms by which the attacker could carry out the intended goals, beyond the scope of the physical layer.
