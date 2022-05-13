@@ -1,4 +1,69 @@
-\section{Arbitrary Data Injection}\label{sec:attack}
+\section{Attack}\label{sec:attack}
+
+To successfully attack these systems, an attacker needs to overshadow the wireless channel to manipulate the raw demodulated data.
+Depending on their goals, the attacker can either generate the overshadowing signal beforehand or in real time.
+Generating the data beforehand requires only hardware capable of transmitting, but requires that the attacker generate their own data or find relevant prior broadcasts to manipulate and replay.
+Alternatively, with the addition of their own reciever dish, an attacker can receive the broadcast themselves and process it in real time to add artifacts or mask specific properties of the signal.
+
+% TODO: find that paper somewhere about generating convincing satellite images
+The injected data is designed to either poison the derived datasets or to exploit processing stages in the decoding pipeline.
+Convincingly poisoning the derived datasets requires that the overshadowed waveform decodes to raw data which is sufficiently similar to the original.
+This may prove easier in the real-time setup, in which the attacker can selectively modify only the relevant part of the signal.
+Exploiting the processing stages, however, generally relies on creating malformed protocol headers to manipulate control flow in the software.
+This must be done beforehand by discovering vulnerabilities and crafting the required packets.
+
+In the case of FIRMS, the satellite-derived dataset is a map of active forest fires, each with coordinates and a confidence value.
+The dataset is derived primarily from the infrared bands of the MODIS sensor, which can reveal hotspots on the surface.
+We consider the scenarios of injecting ficticious forest fires and masking existing ones in the pre-prepared and real-time setup.
+We also perform a security analysis of the decoding software itself, demonstrating how vulnerabilities in the protocol handling can lead to denial of service, and arbitrary code execution upon reprocessing.
+
+\subsection{Affecting the satellite-derived datasets}
+\subsubsection{Injecting ficticious forest fires}
+
+\subsubsection{Masking existing forest fires}
+
+\subsection{Exploiting downlink processing stages}
+
+\subsubsection{Denial of service}
+\subsubsection{Arbitrary code execution}
+\subsubsection{General principles}
+
+
+
+
+
+\textbf{Old stuff below:}
+
+The attacker wants to achieve one of the two objectives
+The achieve the first, they must broadcast data that gets decoded correctly.
+    This involves understanding any timing,, metadata, etc. is all correct
+To achieve the second, they must understand the decoding pipeline
+    They are advantaged by weaknesses and lack of standardisation at the data link layer
+
+
+
+To attack, yopu neeed to understand the stack
+Here's what the stack looks like in general
+In our specific case, here's how the protocols look
+Move into reencoding
+
+To do so, they must understand the network stack, and have the ability to reencode arbitrary data as a signal that they can overshadow
+
+They need to be able to broadcast at a sufficient strength, such that the receiver decodes it
+This is addressed in Section xxx
+
+To the receiver such that it reaches the correct layer in the stack
+
+
+Split the stack into protocol/data
+
+We discuss a bit about the ecosystem of protocols, with CCSDS SPP forming the common waist, like IP
+Data link protocols are less standardised in the space context than OSI model
+Fewer security audits, more proprietary software components, making vulnerabilities more likely?
+
+Nod to variety of data link protocols used,
+
+Satellites which roll their own protocols...
 
 % NB: in the case of EOS, we think the only real difference between the downlinks DB and TDRSS is bit rate, from the space shuttle report
 
@@ -175,7 +240,7 @@ Through the creation of a custom data frame, the attacker can encapsulate an arb
 We proceed to analyse several classes of attack made possible through this route, and enabled by insecure data handling practises.
 
 
-\section{Exploiting downlink processing systems}
+\subsection{Exploiting downlink processing systems}
 
 \subsubsection{Unprocessable malformed packets}
 
