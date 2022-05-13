@@ -2,7 +2,7 @@
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{diagrams/attack_illustration.pdf}
-    \caption{An illustration of the attacks described in this paper. 1)~The satellite broadcasts a signal; 2)~A ground-based attacker injects a crafted signal, overshadowing the legitimate signal; 3a)~The victim receiver decodes the attacker-controlled data, poisoning derived datasets; 3b)~The injected signal exploits vulnerabilities in the protocol decoders, resulting in denial of service or arbitrary code execution.}
+    \caption{An illustration of the attacks described in this paper. 1)~The satellite broadcasts a signal; 2)~A ground-based attacker injects a crafted signal, overshadowing the legitimate signal and resulting in one of two scenarios; 3a)~The victim receiver decodes the attacker-controlled data, poisoning derived datasets; 3b)~The injected signal exploits vulnerabilities in the protocol decoders, resulting in denial of service or arbitrary code execution.}
     \label{fig:attack-illustration}
 \end{figure}
 
@@ -11,14 +11,14 @@ Accordingly, a growing market for satellite-derived datasets has emerged which d
 Table~\ref{tab:satellite-derived-datasets} summarises a number of currently available satellite-derived datasets, which are derived from a mixture of self-operated, commercial, and open access satellites.
 
 NASA's \textit{Fire Information and Resource Management System} (FIRMS) is one such use case of satellite-derived data, providing a real-time fire notification service which is used for emergency response, disaster planning, and crisis analysis by the fire agencies of over 90 countries. \textbf{TODO: must cite}
-FIRMS depends on data derived from the Earth Observing System (EOS) fleet to produce the calibrated images of the Earth's surface overlaid with detected fires seen in Figure~\ref{fig:bushfire}.
+FIRMS depends on data derived from the Earth Observing System (EOS) fleet to produce the images seen in Figure~\ref{fig:bushfire}, overlaid with detected fires.
 This is possible because certain satellites in the EOS fleet contain instruments such as the \textit{Moderate Resolution Imaging Spectroradiometer} (MODIS), which provide near real time calibrated light readings across frequency bands wider than the visible spectrum.
-Primarily, the presence of a fire is indicated by high amplitudes in the infrared bands. \textbf{todo: cite MOD14 technical manual}
+The presence of a fire is primarily indicated by high amplitudes in the infrared bands. \textbf{todo: cite MOD14 technical manual}
 
 Specifically, the MODIS instruments are on board \textit{Terra} and \textit{Aqua}, two EOS fleet satellites.
-Thanks to their opposite polar sun-synchronous orbits, Terra and Aqua together image the entire surface of the Earth twice per day.
+Thanks to their opposite polar sun-synchronous orbits, Terra and Aqua together image the entire surface of the Earth twice per day. \textbf{TODO: fact check}
 The data is downlinked to receiver stations across the world in a continuous stream known as \textit{direct broadcast}, or instead as a buffered data dump to a few select locations.
-As a result, MODIS data is widely available, both from the central NASA archives \textbf{TODO: link} and from any of the \textbf{TODO: number} alternative receiver stations.
+As a result, MODIS data is widely available both from the central NASA archives \textbf{TODO: link} and from any of the \textbf{TODO: number} alternative receiver stations.
 
 Even though Terra and Aqua were launched in 1999 and 2002 respectively, MODIS-derived datasets continue to see broad usage beyond just forest fires.
 For example, derived datasets from the digital archives are frequently used for analysing global events, including diseases that pose serious risks to human health~\cite{valleyFever}.
@@ -33,10 +33,10 @@ In these cases, the attacker has been enabled by a lack of robust cryptography i
 % TODO: find out which other satellites are unencrypted, and especially those which are new and use CCSDS
 % Are they generally encrypted above the CCSDS layer?
 
-Many Earth observing satellites face similar issues; these systems were built at a time when robust cryptography was uncommon due to less powerful onboard computers.
+Many Earth observing satellites face similar issues, since these systems were built at a time when robust cryptography was uncommon due to less powerful onboard computers.
 Therefore, while it is unsurprising that such systems are not resilient against modern adversaries, it is surprising that safety-critical infrastructure depends upon the resulting data.
 These satellites include NASA's Earth Observing Fleet and NOAA's GOES fleet, which provide no cryptographic authenticity guarantees.
-They also include satellites which only implement cryptography partially, or which is no longer considered secure, or whose keys have been leaked through a data breach.
+They also include satellites which only implement cryptography partially, or which is no longer considered secure, or whose keys have been leaked through a data breach. % TODO: summarise this sentence better?
 
 % TODO: summary paragraph of these
 For example, Korean satellite COMS-1 uses single DES~\cite{lrit-key-dec}, which has lead to its keys being successfully reversed from the satellite data. \textbf{TODO: confirm this is an accurate summary from the blog post, which seems to imply that a server was involved}
