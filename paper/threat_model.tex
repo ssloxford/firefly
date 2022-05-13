@@ -17,8 +17,8 @@ This disruption can either seek to affect the execution of specific processing p
     \item Execute arbitrary code -- for instance, by exploiting boundaries between processing applications that have access to the shell.
 \end{itemize}
 
-\textbf{TODO: rewrite this paragraph - it's a mixture of ultimate goals and effects to the dataset}
-By achieving these, an attacker could aim to reroute traffic around ficticious fires, destroy or manipulate recent or historical archived data, prevent new data from being processed and saved, or hide malicious payloads in a long-term storage database, to be triggered by a later processing step.
+By achieving these, an attacker could aim to affect the datasets by destroying or manipulating recent or historical archived data, preventing new data from being processed and saved, or hiding malicious payloads in a long-term storage database to be triggered by a later processing step.
+They could also achieve concrete real-world harms such as rerouting traffic around ficticious fires or failing to warn people about incoming fires.
 
 We assume the attacker has access to commercially available off-the-shelf radio equipment such as Software Defined Radios (SDRs), amplifiers, and antennas, in order to emit signals in the X-band frequency range used by the EOS downlink.
 We also assume the attacker is able to maintain a presence in the vicinity of the receiver, in order to inject signals of a sufficient strength that they will be picked up by the receiver.
@@ -27,7 +27,6 @@ Instead, they must rely on the signal being sufficiently strong that the ground 
 
 In order to define realistic price constraints, we consider off-the-shelf radio equipment intended to be used in cubesats.
 We estimate the overall equipment cost to be approximately $30,000$ EUR -- such a budget covers the cost of a suitable SDR (\cite{limeSdr,limeCompanion}, $598$ USD), a transmitter capable of amplifying and transmitting signals in the X-band (\cite{endurosat:xbandtransmitter}, $22,800$ EUR), and a compatible antenna (\cite{endurosat:xbandantenna}, $6,400$ EUR).
-%One cubesat manufacturer, EnduroSat, offers a system capable of encoding and transmitting signals in the X-band for €22,800 and a compatible antenna for €6,400~\cite{endurosat:xbandtransmitter,endurosat:xbandantenna}.
 These prices place the attacks within the budget range of a motivated hobbyist, opening the EOS systems up to attacks by a wide range of parties.
 With a greater budget the attacker could purchase a more powerful amplifier, increasing the distance from which this attack can be carried out -- we explore this in detail in Section~\ref{sec:physical-layer-validation}.
 

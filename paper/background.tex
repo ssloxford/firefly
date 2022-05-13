@@ -7,7 +7,7 @@
 \end{figure}
 
 Earth observing satellite systems are widely used in a variety of contexts, providing high-resolution images and sensor readings available within hours or less of the initial readings being taken.
-Accordingly, a growing market for satellite-derived datasets has emerged which process data for specific purposes including forest fire, dust storm detection, ozone layer depletion, and flooding. \textbf{TODO: make sure these purposes are linked from the table}
+Accordingly, a growing market for satellite-derived datasets has emerged which process data for specific purposes including forest fire monitoring, dust storm detection, and flood tracking~\cite{sarikhani2021new}.
 Table~\ref{tab:satellite-derived-datasets} summarises a number of currently available satellite-derived datasets, which are derived from a mixture of self-operated, commercial, and open access satellites.
 
 NASA's \textit{Fire Information and Resource Management System} (FIRMS) is one such use case for satellite-derived data, providing a real-time fire notification service which is used for emergency response, disaster planning, and crisis analysis by the fire agencies of over 90 countries. \textbf{TODO: must cite}
@@ -26,8 +26,8 @@ For example, MODIS datasets continue to be used to improve fire detection algori
 
 However, over the last few decades, attitudes towards securing the wireless channel in communications systems have changed significantly.
 Previously, overshadowing the signal to inject data or deny service would have required a costly and highly specialized setup; since the advent of the software-defined radio, such attacks now only require access to hardware available off-the-shelf.
-It is now commonly known that, using this hardware, attackers can leverage overshadowing to manipulate communications or deny service in areas such as mobile internet~\cite{yang2019hiding,erni2021adaptover}, GNSS~\cite{tippenhauer2011requirements}, and even electric vehicle charging\textbf{TODO: more examples}.
-In these cases, the attacker has been enabled by a lack of robust cryptography in the systems being faced. % TODO: rephrase
+It is now commonly known that, using this hardware, attackers can leverage overshadowing to manipulate communications or deny service in areas such as mobile internet~\cite{yang2019hiding,erni2021adaptover}, GNSS~\cite{tippenhauer2011requirements}, and even the instruments onboard aircraft~\cite{sathayeWireless2019}.
+In each of these cases a lack of robust cryptography in the system has opened it up to attack.
 
 % TODO: insert diagram of common space comms protocols
 % TODO: find out which other satellites are unencrypted, and especially those which are new and use CCSDS
@@ -39,7 +39,7 @@ These satellites include NASA's Earth Observing Fleet and NOAA's GOES fleet, whi
 They also include satellites which only implement partial or now-insecure cryptography, or those whose keys have been leaked.
 
 % TODO: summary paragraph of these
-For example, the Korean satellite COMS-1 uses single DES encryption~\cite{lrit-key-dec}, which has led to its keys being successfully extracted from satellite data. \textbf{TODO: confirm this is an accurate summary from the blog post, which seems to imply that a server was involved}
+For example, the Korean satellite COMS-1 uses single DES encryption~\cite{lrit-key-dec}, which has led to customer keys being successfully extracted from satellite data.
 Additionally, GEO-KOMPSAT-2A had its keys leaked on the Korea Meteorological Administration website, and to this day remain publicly available~\cite{xrit-rx}.
 We should continue to expect that more encrypted satellite communications become publicly decryptable, as once-secure encryption standards and practises result in leaked encryption keys, some of which will be irrevocably baked into the firmware.
 
@@ -62,7 +62,6 @@ We go on to validate the feasibility of the overshadowing approach in Section~\r
 \footnotetext{Image taken from \url{https://worldview.earthdata.nasa.gov/?v=138.5214305912576,-37.663755528187544,165.90196079866635,-23.47436617591061\&as=2019-09-07-T00\%3A00\%3A00Z\&ae=2019-10-26-T16\%3A00\%3A00Z\&l=MODIS\_Combined\_Thermal\_Anomalies\_All,VIIRS\_SNPP\_Thermal\_Anomalies\_375m\_Day(hidden),VIIRS\_SNPP\_Thermal\_Anomalies\_375m\_Night(hidden),Reference\_Labels\_15m,Reference\_Features\_15m,Coastlines\_15m,VIIRS\_SNPP\_CorrectedReflectance\_TrueColor(hidden),MODIS\_Aqua\_CorrectedReflectance\_TrueColor,MODIS\_Terra\_CorrectedReflectance\_TrueColor(hidden)\&lg=false\&al=true\&av=3.5\&ab=on\&t=2019-09-07-T02\%3A00\%3A00Z}}
 
 
-% TODO: add info about Google Maps
 \begin{table*}
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lllll}
@@ -92,16 +91,14 @@ We go on to validate the feasibility of the overshadowing approach in Section~\r
 
 \subsection{Related Work}
 
-% TODO: GNSS spoofing - mention in related work?
-% https://www.usenix.org/conference/usenixsecurity19/presentation/yang-hojoon\textbf{TODO write}
-%
 Much existing work within spoofing and jamming satellite communications focuses on Global Navigation Satellite Systems (GNSS).
 The authors of~\cite{wuSpoofing2020} provide a comprehensive review of known types of spoofing and jamming attacks against these satellites, resulting in incorrectly reported positions and denial of service respectively.
 Spoofing attacks are carried out by a variety of methods including replay and forgery in order to fool the receiver into accepting illegitimate messages, and jamming is typically performed using high-power interference.
 This work also includes a review of methods by which spoofing and jamming can be detected or mitigated.
-These methods include consistency checking, measuring signal characteristics, measuring arrival times, utilizing arrays of antennas, measuring angle of signal arrival, and a number of other techniques.
+These methods include consistency checking, measuring signal characteristics, measuring arrival times~\cite{jedermann2021orbit}, utilizing arrays of antennas, measuring angle of signal arrival, and other factors extracted through machine learning techniques~\cite{oligeri2020past}.
 
-We apply some of these concepts to the \textbf{TODO novel threat model? novel target?}; we demonstrate that signal spoofing is possible for satellites for which the receiving and broadcasting equipment was previously thought to make such attacks prohibitively expensive, and show that attacks can have a significant effect on processing systems downstream from the original data.
+\textbf{TODO maybe rewrite first sentence.}
+We apply some of these concepts to the novel target of packet-based satellite downlinks; we demonstrate that signal spoofing is possible for satellites for which the receiving and broadcasting equipment was previously thought to make such attacks prohibitively expensive, and show that attacks can have a significant effect on processing systems downstream from the original data.
 We also look beyond the payload, analyzing the data processing system itself to create novel attacks.
 We also explore in Section~\ref{sec:countermeasures} how an existing system might apply known countermeasures, or adapt countermeasures from related fields, to reduce the attack surface of existing satellite systems.
 
@@ -113,14 +110,6 @@ Finally we consider work in physical-layer radio security beyond the scope of sa
 There are a number of deployed radio systems which do not employ cryptography, including the ``ADS-B'' protocol used to locate and track aircraft.
 There is a good amount of research into the security of ADS-B -- \cite{strohmeierSecurity2015} provides a good review of the extent to which the system is vulnerable and explores ways to make the system more secure through verifying the transmitter location or identity, or using cryptographic methods.
 Once again, we can recontextualize a number of these techniques to provide improvements to the security of other unsecured systems, which we see in Section~\ref{sec:countermeasures}.
-
-%There is also work showing that it is possible to spoof satellite signals, particularly when not encrypted; \textbf{TODO} demonstrates this using the GPS positioning satellites.
-%By exploiting the unauthenticated nature of the signals it is possible to modify the unauthenticated data; our work builds on this by demonstrating that this is also possible for satellites for which the receiving and broadcasting equipment was previously thought to make such attacks prohibitively expensive.
-%We also look beyond the payload and look at attacks on the data processing system itself to create novel attacks.
-
-%There is also wider work in the security community surrounding signal spoofing and its detection -- for instance, Čapkun et al.\ detect GPS spoofing by observing the physical properties of the signal alongside inspecting downlinked data \textbf{TODO cite SPREE}.
-%\textbf{TODO more?}
-
 
 % To go in the attack description:
 \begin{comment}

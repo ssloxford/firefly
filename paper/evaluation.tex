@@ -56,10 +56,10 @@
 \end{figure}
 
 In order to demonstrate the feasibility of signal injection attacks on EOS downlink systems in a real-world setting, we perform a simulated analysis of the proposed attacks.
-We use ``GNU Radio'' to construct a pipeline which simulates a legitimate downlink signal broadcast from the Terra satellite and demodulated by a standard QPSK \textbf{TODO make sure explained} demodulator.
+We use ``GNU Radio'' to construct a pipeline which simulates a legitimate downlink signal broadcast from the Terra satellite and demodulated using the \textit{Quadrature Phase Shift Keying} (QPSK) used in the EOS radio stack.
 We also simulate an attacker-injected signal added to the legitimate signal and demodulated by the same process.
 By varying the gain on the injected signal and measuring the Bit Error Rate (BER) of the decoded bytes, we can assess the transmission power required for the attack to succeed.
-The concept of signal overshadowing is illustrated in Figure~\textbf{TODO}, and an overview of the experimental configuration is shown in Figure~\ref{fig:overshadowing_pipeline}.
+The concept of signal overshadowing is introduced in Figure~\ref{fig:attack-illustration}, and an overview of the experimental configuration is shown in Figure~\ref{fig:overshadowing_pipeline}.
 The source code is also available alongside our other artifacts (\textbf{TODO}).
 
 In order to carry out these simulations with a reasonable degree of confidence that they accurately represent the real world, we establish simulation parameters based on known characteristics of the EOS radio systems.

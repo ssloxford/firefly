@@ -27,7 +27,7 @@ This provides a false sense of security which is arguably more dangerous than la
 The first problem we consider is key management.
 Maintaining a single key is certainly the simplest possible system, but all it takes is a single leak for the security of the entire system to be compromised, possibly forever if there is no mechanism for changing keys.
 Unlike in terrestrial systems, it is not possible to physically access compromised machines to reset the onboard software or change affected keys.
-We see this occur in \textbf{TODO call back to satellite systems with compromised keys} -- these systems are no longer secure and may never be again.
+We see this problem occur in satellites such as GEO-KOMPSAT-2A, the keys to which were leaked with no mechanism to revoke or reset them -- this system is no longer secure and may never be again~\cite{xrit-rx}.
 It is much better to build a key management system which supports key issue and revocation to ensure that security can be reestablished in this event.
 To verify chain of trust and minimize the risk of compromise, a ``master key'' should be issued which is only used for the purpose of issuing and revoking other keys.
 
@@ -55,8 +55,6 @@ All required changes for these are implemented on the ground station, requiring 
 
 
 \subsection{Timing Analysis}
-
-\textbf{TODO consider moving implementation difficulty to the top}
 
 The first of these involves assessing the timing of received signals.
 This can come in a number of forms, the simplest of which is to ensure that the ground station is not processing signals when the satellite is not passing overhead.
@@ -129,5 +127,4 @@ In turn they are more difficult to circumvent, requiring the attacker to perform
 Finally, properly-implemented cryptographic and key management systems remain the best possible solution in the vast majority of cases, where they are possible to implement.
 In these systems, the attacker has no hope of successfully fooling the processing system unless keys are leaked.
 It is our hope that any new system is built with security first and foremost, using robust encryption or signature systems, and other effective countermeasures are implemented to bolster the security of legacy systems.
-In this way we ensure the resulting data can still be trusted as legitimate, even as missions continue into the coming decades.
-\textbf{TODO rewrite last sentence?}
+By doing so we can verify that the systems and resulting data have not been tampered with and trust the resulting datasets, even as the missions continue into the coming decades.

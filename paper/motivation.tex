@@ -7,7 +7,7 @@ It is now well accepted that legacy software which handles data without resilien
 However, this was not a practical concern at the time since attacks at the physical layer would have required a costly and highly specialized setup.
 Consequently, there does not exist any current work to understand the effects of a modern adversary against such a system.
 
-Nowadays, software-defined radio hardware, capable of emitting arbitrarily encoded signals at the correct frequency, is readily available off the shelf. % TODO: find phrasing without "nowadays"
+Recent decades have seen a significant rise in the off-the-shelf availability of software-defined radio hardware, capable of emitting arbitrary signals at a wide range of frequencies.
 This lowers the barrier to entry for signal injection attacks significantly.
 Accordingly, both existing and novel use cases must now contend with the effects of signal injection, which include poisoning the dataset and exploiting the decoder.
 This has far-reaching ramifications due to increased reliance on satellite-derived datasets.
@@ -24,16 +24,17 @@ For example, a recent attack against ViaSat's satellite broadband capabilities e
 
 To support a wide range of use cases, raw satellite data is processed into more specialized derived datasets such as for forest fire and storm detection.
 This feeds into applications including critical national infrastructure and research-oriented purposes.
+\textbf{TODO cite}
 The importance of these applications makes attacking the raw data appealing.
 
-These new applications make use of a variety of satellites, some of which were launched decades ago.
-Since then radio hardware has become more accessible along with a change in attitudes towards securing data transmissions.
-Therefore, both the satellite-derived datasets and the downlink processing systems that create them are potentially vulnerable to signal injection.
-Critical services such as NASA's \textit{Fire Information and Resource Management System} (FIRMS) can be affected as shown in Figure~\ref{fig:location-injection}, to trigger false emergency response or mislead crisis analysis.
+Although these applications of satellite data are new, they rely on satellite infrastructure that was launched decades ago.
+Since then radio hardware has become more accessible and knowledge of attacks on wireless systems has become more widespread.
+Therefore, satellite-derived datasets and the processing systems that create them are now exposed to realistic attacks from far more adversaries -- in particular, data modification attacks from signal injection.
+Critical services including NASA's \textit{Fire Information and Resource Management System} (FIRMS) can be affected (shown in Figure~\ref{fig:location-injection}) to trigger false emergency response or mislead crisis analysis.
 
 The security community is becoming increasingly aware that radio overshadowing in a satellite context has the potential to affect critical services.
-As a result, recent countermeasures have been proposed which analyze artifacts of overshadowing on the physical channel to determine the authenticity of the received data.
-These artifacts include the timing of the signal~\cite{jedermann2021orbit} and features of the waveform such as unexpected differences in signal-to-noise, amplitude, or others extracted through machine learning techniques~\cite{oligeri2020past}.
+\textbf{TODO cite}
+As a result, recent countermeasures have been proposed which analyze artifacts of overshadowing on the physical channel to determine the authenticity of the received data~\cite{jedermann2021orbit,oligeri2020past}.
 However, the impact of signal overshadowing against currently-deployed satellites, and the real-world consequences on the systems that depend upon their data, have not yet been considered.
 
 \subsection{Contributions}
@@ -41,11 +42,11 @@ However, the impact of signal overshadowing against currently-deployed satellite
 Specifically, we make the following contributions:
 
 \begin{itemize}
-    \item We present a systematic review of the impact of a modern adversary against satellite downlink processing systems using attacks at the physical layer;
-    \item We analyze the impact of these attacks against FIRMS, NASA's live forest fire detection service, as an end-to-end case study. We demonstrate that overshadowing the wireless channel is sufficient to arbitrarily manipulate the detected fires in the derived dataset, and achieve denial of service and arbitrary code execution on the processing software;
+    \item We identify the capability of a modern adversary to affect satellite downlink processing systems using physical-layer attacks;
+    \item We illustrate the problem using a full end-to-end case study against NASA's FIRMS service, demonstrating masking of forest fires and generation of fake fires. We further show denial of service and arbitrary code execution attacks on the processing systems themselves;
     \item We discuss the potential impact of similar attacks against other satellite-derived datasets, exploring the effects that an attacker could expect to cause in the real world;
-    \item We demonstrate the feasibility of radio signal injection using commercial off-the-shelf equipment, taking into account the unique constraints of a terrestrial attacker against a highly directional dish;
-    \item Finally, we explore the applicability of existing countermeasures, with respect to the unique constraints of this context.
+    \item We analyze the feasibility of radio signal injection using commercial off-the-shelf equipment, taking into account the unique constraints of a terrestrial attacker against a highly directional dish;
+    \item Finally, we examine the applicability of existing countermeasures, with respect to the unique constraints of this context.
 \end{itemize}
 
     % TODO: something about categorising the attacks that are possible?
