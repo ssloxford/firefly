@@ -54,8 +54,15 @@ For Terra and Aqua, the MODIS data is already in the network layer protocol SPP,
 Unlike the highly standardised SPP, there is substantial variation in data link layer protocols for satellites \textbf{TODO: cite}.
 Accordingly, satellites such as those in the EOS fleet implement a custom protocol, fine-tuned to their operational requirements.
 
-Terra and Aqua make use of the custom \textit{Channel Access Data Unit} (CADU) protocol, a fixed-length frame structure containing a synchronising header and checksum~\cite{spaceGroundAqua},p32.
-The CADU is optionally Viterbi encoded to prevent desynchronisation during long runs of the same symbol.
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{diagrams/cadu_diagram.pdf}
+    \caption{Layout of data within a Channel Access Data Unit (CADU). The section marked in red can contain arbitrary attacker-specified data.}
+    \label{fig:cadu_diagram}
+\end{figure*}
+
+Terra and Aqua make use of the custom \textit{Channel Access Data Unit} (CADU) protocol shown in Figure~\ref{fig:cadu_diagram}, a fixed-length frame structure containing a synchronising header and checksum~\cite{spaceGroundAqua},p32.
+The CADU is optionally Viterbi encoded (XORed with a fixed polynomial) to prevent desynchronisation during long runs of the same symbol.
 
 Finally, the attacker must note that the decoder is likely to perform additional checks on top of adhering to the known standards.
 As a result, the injected data may be rejected if, for example, it doesn't specify the correct version number in the header, or is of an unexpected length.
@@ -67,11 +74,56 @@ As a result, the injected data may be rejected if, for example, it doesn't speci
 % However, even proprietary satellites tend to use certain standard protocols in order to make this easier
 % James Pavur's work on looking at data in DVBS/2 is related - you can scan the satellite's data to try and determine what its type is
 
-\subsection{Exploiting downlink processing stages}
-% Talk about the principles required to make this work
 
+
+\subsection{Exploiting downlink processing stages}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{diagrams/attack_types.pdf}
+    \caption{Illustration of the steps involved in processing MODIS image data and derived datasets, as well as the packet structure and layer within the network stack. \textbf{TODO edd rewrite?}}
+    \label{fig:attack_types}
+\end{figure}
+
+% Describe not specific attacks, but the pipeline itself
+
+% NB: we haven't really explained how the different parts of the protocol relate to parts of the packet, and the available attacks
+
+Prior to being processed into a satellite-derived dataset, the raw data from Earth observing satellites is first extracted from the packets into an intermediate structure.
+This takes the form of several pipeline stages, in which the outer data link and network layer packet structures are extracted and demultiplexed.
+In the case of MODIS, the outer CADU needs to be validated and error corrected, and the inner SPP packet demultiplexed to separate out the relevant data.
+
+However, in addition to manipulating the instrument data itself, attackers are also able to change protocol-specific fields within the packet headers.
+These fields are parsed and used by the initial stages of the processing pipeline to extract the correct data.
+As a result, attackers can potentially exploit these early pipeline stages through crafting packets to trigger vulnerabilities.
+
+As a case study, we consider NASA's \textit{International Planetary Observation Processing Package} (IPOPP), a software distribution for decoding and processing EOS data.
+The software in IPOPP contains protocol decoding stages alongside the satellite-derived dataset generation algorithms.
+In particular, the \textit{MODIS Level-1 Science Processing Algorithm} (MODISL1DB\_SPA) is responsible for decoding SPP packets with the MODIS secondary header into the \textit{Heirarchical Data Format} (HDF)~\cite{modisL1DB}.
+With a long history going back to the early EOS satellites, the overall system has grown to be incredibly complex, with many interrelating dependencies and execution pathways.
+Through overshadowing the signal, an attacker can deliver arbitrary bytes to these processing stages, which were not designed with untrusted input data in mind.
+
+In Section~\ref{sec:evaluation}, we consider the effect of a modern adversary against this system.
+We demonstrate how the complex execution pathway includes input data being passed between several different processing applications unsafely.
+Ultimately, this results in the creation of a payload which gets inserted into the intermediate data structure, and may be triggered by a future reprocessing step.
+
+However, IPOPP is also potentially exploitable due to other well-known vulnerabilities.
+Part of the complexity of the system is due to its high number of dependencies, many of which come pre-bundled with the source code.
+These dependencies include outdated libraries with CVEs which haven't been patched.
+For example, at the time of writing, MODISL1DB\_SPA comes bundled with HDF5 v1.12.0, which has 11 active CVEs.
+
+% Do I need to explain here exactly what processing stages are involved?
+
+% The code is distributed mixed in with pre-compiled binaries and libraries which are required to make the system work
+% Interestingly, Too old for log4shell, for which it is not patched
+
+The extent to which other processing software may be vulnerable to similar attacks is hard to quantify.
+However, satellite operators should be aware that similar systems, which may not have been designed to be resilient to untrusted input data, could be exploitable through similar techniques.
 
 \begin{comment}
+
+
+
 \textbf{Old stuff below:}
 
 The attacker wants to achieve one of the two objectives
@@ -235,19 +287,7 @@ After being downconverted and sampled,
 \subsection{Manipulating existing data}
 
 
-\begin{figure*}
-    \centering
-    \includegraphics[width=\textwidth]{diagrams/cadu_diagram.pdf}
-    \caption{Layout of data within a Channel Access Data Unit (CADU). Given correct headers, the section marked in red can contain arbitrary attacker-specified data. \textbf{TODO remove}}
-    \label{fig:cadu_diagram}
-\end{figure*}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{diagrams/attack_types.pdf}
-    \caption{Illustration of the steps involved in processing MODIS image data and derived datasets, as well as the packet structure and layer within the network stack. \textbf{TODO edd rewrite?}}
-    \label{fig:attack_types}
-\end{figure}
 
 % Wireless spec to go into attack, since it's specific to the MODIS use case
 % \subsection{Wireless communications specifications}
