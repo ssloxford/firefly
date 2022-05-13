@@ -2,16 +2,16 @@
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{diagrams/attack_illustration.pdf}
-    \caption{An illustration of the attacks described in this paper. 1)~The satellite broadcasts a signal; 2)~A ground-based attacker injects a crafted signal, overshadowing the legitimate signal and resulting in one of two scenarios; 3a)~The victim receiver decodes the attacker-controlled data, poisoning derived datasets; 3b)~The injected signal exploits vulnerabilities in the protocol decoders, resulting in denial of service or arbitrary code execution.}
+    \caption{An illustration of the attacks described in this paper. The attacker is indicated in red. 1)~The satellite broadcasts a signal; 2)~A ground-based attacker injects a crafted signal, overshadowing the legitimate signal and resulting in one of two scenarios; 3a)~The victim receiver decodes the attacker-controlled data, poisoning derived datasets; 3b)~The injected signal exploits vulnerabilities in the protocol decoders, resulting in denial of service or arbitrary code execution.}
     \label{fig:attack-illustration}
 \end{figure}
 
-Earth observing satellite systems are widely used in a variety of contexts, providing high-resolution images and sensor readings which update within hours or less of the initial readings being taken.
-Accordingly, a growing market for satellite-derived datasets has emerged which derive data for specific purposes including forest fire, dust storm detection, ozone layer depletion, and flooding. \textbf{TODO: make sure these purposes are linked from the table}
+Earth observing satellite systems are widely used in a variety of contexts, providing high-resolution images and sensor readings available within hours or less of the initial readings being taken.
+Accordingly, a growing market for satellite-derived datasets has emerged which process data for specific purposes including forest fire, dust storm detection, ozone layer depletion, and flooding. \textbf{TODO: make sure these purposes are linked from the table}
 Table~\ref{tab:satellite-derived-datasets} summarises a number of currently available satellite-derived datasets, which are derived from a mixture of self-operated, commercial, and open access satellites.
 
-NASA's \textit{Fire Information and Resource Management System} (FIRMS) is one such use case of satellite-derived data, providing a real-time fire notification service which is used for emergency response, disaster planning, and crisis analysis by the fire agencies of over 90 countries. \textbf{TODO: must cite}
-FIRMS depends on data derived from the Earth Observing System (EOS) fleet to additionally produce surface images overlaid with detected fires, such as those seen in Figure~\ref{fig:bushfire}.
+NASA's \textit{Fire Information and Resource Management System} (FIRMS) is one such use case for satellite-derived data, providing a real-time fire notification service which is used for emergency response, disaster planning, and crisis analysis by the fire agencies of over 90 countries. \textbf{TODO: must cite}
+FIRMS depends on data derived from the Earth Observing System (EOS) fleet to detect precise locations of fires; an example of a surface image overlaid with detected fires is seen in Figure~\ref{fig:bushfire}.
 This is possible because certain satellites in the EOS fleet contain instruments such as the \textit{Moderate Resolution Imaging Spectroradiometer} (MODIS), which provide near real time calibrated light readings across frequency bands wider than the visible spectrum.
 The presence of a fire is primarily indicated by high amplitudes in the infrared bands. \textbf{todo: cite MOD14 technical manual}
 
@@ -21,8 +21,8 @@ The data is downlinked to receiver stations across the world in a continuous str
 As a result, MODIS data is widely available both from the central NASA archives \textbf{TODO: link} and from any of the 168 alternative receiver stations~\cite{nasaDirect}.
 
 Even though Terra and Aqua were launched in 1999 and 2002 respectively, MODIS-derived datasets continue to see current usage across a wide variety of fields.
-The high design specifications and high upfront costs mean that even missions tend towards long lifespans, remaining useful for many decades.
-For example, the MODIS datasets have been used recently to continually improve fire detection algorithms, and analyse weather-dispersed diseases that pose serious risks to human health~\cite{valleyFever}.
+The high design specifications and high upfront costs mean that missions tend towards long lifespans, remaining useful for many decades.
+For example, MODIS datasets continue to be used to improve fire detection algorithms, and more recently have been used to analyze weather-dispersed diseases that pose serious risks to human health~\cite{valleyFever}.
 
 However, over the last few decades, attitudes towards securing the wireless channel in communications systems have changed significantly.
 Previously, overshadowing the signal to inject data or deny service would have required a costly and highly specialized setup; since the advent of the software-defined radio, such attacks now only require access to hardware available off-the-shelf.
@@ -39,13 +39,13 @@ These satellites include NASA's Earth Observing Fleet and NOAA's GOES fleet, whi
 They also include satellites which only implement partial or now-insecure cryptography, or those whose keys have been leaked.
 
 % TODO: summary paragraph of these
-For example, Korean satellite COMS-1 uses single DES~\cite{lrit-key-dec}, which has lead to its keys being successfully reversed from the satellite data. \textbf{TODO: confirm this is an accurate summary from the blog post, which seems to imply that a server was involved}
+For example, the Korean satellite COMS-1 uses single DES encryption~\cite{lrit-key-dec}, which has led to its keys being successfully extracted from satellite data. \textbf{TODO: confirm this is an accurate summary from the blog post, which seems to imply that a server was involved}
 Additionally, GEO-KOMPSAT-2A had its keys leaked on the Korea Meteorological Administration website, and to this day remain publicly available~\cite{xrit-rx}.
-We should continue to expect that more encrypted satellite communications become publicly decryptable, as once-secure encryption standards and practises cause leaked keys, some of which will be irrevocably baked into the firmware.
+We should continue to expect that more encrypted satellite communications become publicly decryptable, as once-secure encryption standards and practises result in leaked encryption keys, some of which will be irrevocably baked into the firmware.
 
 Due to the constraints of the time and a desire to make the data open access, Terra and Aqua downlink their data in the clear.
 Therefore, modern off-the-shelf radio hardware enables attackers to overshadow and manipulate the raw data.
-This can result in derived datasets poisoned with false information, with the processing pipeline stages themselves potentially exploitable.
+This can result in derived datasets poisoned with false information, with the processing pipeline stages themselves also potentially exploitable.
 
 We proceed to precisely define the nature of the threat in Section~\ref{sec:threat-model}.
 Using FIRMS as a case study, we describe how the attacker can poison the derived datasets and exploit the processing stages in section~\ref{sec:attack}.
@@ -94,16 +94,28 @@ We go on to validate the feasibility of the overshadowing approach in Section~\r
 
 % TODO: GNSS spoofing - mention in related work?
 % https://www.usenix.org/conference/usenixsecurity19/presentation/yang-hojoon\textbf{TODO write}
-% 
+%
 \begin{itemize}
-    \item existing work in signal sniffing/spoofing, ads-b?
-    \item existing work in satellite security?
+    \item existing work in signal spoofing, signal sniffing, possibly other attacks, possibly draw parallels with ads-b
+    \item existing work in satellite security, countermeasures to this stuff
     \item explain how our work is novel and builds on these
 \end{itemize}
 
 Our work builds on \textbf{TODO}
 
-Existing work has shown that it is possible to spoof satellite signals, particularly when not encrypted; \textbf{TODO} demonstrates this using the GPS positioning satellites.
+Existing work within the field of satellite security focuses on either \textbf{TODO spoofing GPS-like signals or sniffing communications}
+In 2020 it was demonstrated that confidential maritime satellite communications could be received by an SDR-equipped attacker from a great distance away (covering a total area of tens of millions of square kilometers), thanks to the satellites' wide beamwidth and unencrypted payload~\cite{pavurTale2020}.
+This work also explores the theoretical possibilities of TCP session hijacking by broadcasting signals over a high-speed wired connection.
+Our work differs in this respect -- we focus on the vulnerabilities created by an attacker capable of injecting signals over the radio link, compromising trust in the received signal.
+
+In~\cite{wuSpoofing2020} we see a comprehensive review of spoofing and jamming attacks against GNSS (positioning and navigation) satellites, resulting in denial of service and incorrectly reported positions respectively.
+Spoofing attacks are carried out by replay, forgery, and other methods to fool the receiver.
+This work also includes a review of methods by which spoofing and jamming can be detected or mitigated.
+These methods include consistency checking, measuring signal characteristics, measuring arrival times, utilizing arrays of antennas, measuring angle of signal arrival, and a number of other techniques.
+We apply some of these concepts to the novel threat model presented by \textbf{TODO}; we demonstrate that signal spoofing is possible for satellites for which the receiving and broadcasting equipment was previously thought to make such attacks prohibitively expensive, and show that attacks can have a significant effect on processing systems downstream from the original data.
+We also explore in Section~\ref{sec:countermeasures} how an existing system might apply novel and already known countermeasures to existing systems to reduce the attack surface.
+
+There is also work showing that it is possible to spoof satellite signals, particularly when not encrypted; \textbf{TODO} demonstrates this using the GPS positioning satellites.
 By exploiting the unauthenticated nature of the signals it is possible to modify the unauthenticated data; our work builds on this by demonstrating that this is also possible for satellites for which the receiving and broadcasting equipment was previously thought to make such attacks prohibitively expensive.
 We also look beyond the payload and look at attacks on the data processing system itself to create novel attacks.
 
