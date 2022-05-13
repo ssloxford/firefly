@@ -7,27 +7,27 @@
 \end{figure}
 
 Earth observing satellite systems are widely used in a variety of contexts, providing high-resolution images and sensor readings which update within hours or less of the initial readings being taken.
-Accordingly, a growing market for satellite-derived datasets has emerged which derive data for specific purposes including forest fire, dust storm detection, ozone layer depletion, and flooding.
+Accordingly, a growing market for satellite-derived datasets has emerged which derive data for specific purposes including forest fire, dust storm detection, ozone layer depletion, and flooding. \textbf{TODO: make sure these purposes are linked from the table}
 Table~\ref{tab:satellite-derived-datasets} summarises a number of currently available satellite-derived datasets, which are derived from a mixture of self-operated, commercial, and open access satellites.
 
 NASA's \textit{Fire Information and Resource Management System} (FIRMS) is one such use case of satellite-derived data, providing a real-time fire notification service which is used for emergency response, disaster planning, and crisis analysis by the fire agencies of over 90 countries. \textbf{TODO: must cite}
-FIRMS depends on data derived from the Earth Observing System (EOS) fleet to produce the images seen in Figure~\ref{fig:bushfire}, overlaid with detected fires.
+FIRMS depends on data derived from the Earth Observing System (EOS) fleet to additionally produce surface images overlaid with detected fires, such as those seen in Figure~\ref{fig:bushfire}.
 This is possible because certain satellites in the EOS fleet contain instruments such as the \textit{Moderate Resolution Imaging Spectroradiometer} (MODIS), which provide near real time calibrated light readings across frequency bands wider than the visible spectrum.
 The presence of a fire is primarily indicated by high amplitudes in the infrared bands. \textbf{todo: cite MOD14 technical manual}
 
 Specifically, the MODIS instruments are on board \textit{Terra} and \textit{Aqua}, two EOS fleet satellites.
 Thanks to their opposite polar sun-synchronous orbits, Terra and Aqua together image the entire surface of the Earth twice per day. \textbf{TODO: fact check}
 The data is downlinked to receiver stations across the world in a continuous stream known as \textit{direct broadcast}, or instead as a buffered data dump to a few select locations.
-As a result, MODIS data is widely available both from the central NASA archives \textbf{TODO: link} and from any of the \textbf{TODO: number} alternative receiver stations.
+As a result, MODIS data is widely available both from the central NASA archives \textbf{TODO: link} and from any of the 168 alternative receiver stations~\cite{nasaDirect}.
 
-Even though Terra and Aqua were launched in 1999 and 2002 respectively, MODIS-derived datasets continue to see broad usage beyond just forest fires.
-For example, derived datasets from the digital archives are frequently used for analysing global events, including diseases that pose serious risks to human health~\cite{valleyFever}.
-Such long lifespans are common for Earth observing satellites, which are designed to high specifications and have high upfront costs.
+Even though Terra and Aqua were launched in 1999 and 2002 respectively, MODIS-derived datasets continue to see current usage across a wide variety of fields.
+The high design specifications and high upfront costs mean that even missions tend towards long lifespans, remaining useful for many decades.
+For example, the MODIS datasets have been used recently to continually improve fire detection algorithms, and analyse weather-dispersed diseases that pose serious risks to human health~\cite{valleyFever}.
 
-However, over the last few decades, attitudes towards securing the wireless channel in communications systems has changed significantly.
+However, over the last few decades, attitudes towards securing the wireless channel in communications systems have changed significantly.
 Previously, overshadowing the signal to inject data or deny service would have required a costly and highly specialized setup; since the advent of the software-defined radio, such attacks now only require access to hardware available off-the-shelf.
-It is now commonly known that, using this hardware, attackers can leverage overshadowing to manipulate communications or deny service in areas such as mobile internet~\cite{yang2019hiding,erni2021adaptover}, GPS~\cite{tippenhauer2011requirements}, and even electric vehicle charging\textbf{TODO: more examples}.
-In these cases, the attacker has been enabled by a lack of robust cryptography in the systems being faced.
+It is now commonly known that, using this hardware, attackers can leverage overshadowing to manipulate communications or deny service in areas such as mobile internet~\cite{yang2019hiding,erni2021adaptover}, GNSS~\cite{tippenhauer2011requirements}, and even electric vehicle charging\textbf{TODO: more examples}.
+In these cases, the attacker has been enabled by a lack of robust cryptography in the systems being faced. % TODO: rephrase
 
 % TODO: insert diagram of common space comms protocols
 % TODO: find out which other satellites are unencrypted, and especially those which are new and use CCSDS
@@ -36,40 +36,21 @@ In these cases, the attacker has been enabled by a lack of robust cryptography i
 Many Earth observing satellites face similar issues, since these systems were built at a time when robust cryptography was uncommon due to less powerful onboard computers.
 Therefore, while it is unsurprising that such systems are not resilient against modern adversaries, it is surprising that safety-critical infrastructure depends upon the resulting data.
 These satellites include NASA's Earth Observing Fleet and NOAA's GOES fleet, which provide no cryptographic authenticity guarantees.
-They also include satellites which only implement cryptography partially, or which is no longer considered secure, or whose keys have been leaked through a data breach. % TODO: summarise this sentence better?
+They also include satellites which only implement partial or now-insecure cryptography, or those whose keys have been leaked.
 
 % TODO: summary paragraph of these
 For example, Korean satellite COMS-1 uses single DES~\cite{lrit-key-dec}, which has lead to its keys being successfully reversed from the satellite data. \textbf{TODO: confirm this is an accurate summary from the blog post, which seems to imply that a server was involved}
 Additionally, GEO-KOMPSAT-2A had its keys leaked on the Korea Meteorological Administration website, and to this day remain publicly available~\cite{xrit-rx}.
 We should continue to expect that more encrypted satellite communications become publicly decryptable, as once-secure encryption standards and practises cause leaked keys, some of which will be irrevocably baked into the firmware.
 
-%Finally, other satellites only sign or encrypt data at the application layer, rather than at the data link layer.
-%Although this protects the data itself against spoofing, attackers may still be able to take advantage of vulnerabilities in the early protocol decoding stages, as we demonstrate against the EOS fleet.
-%Although this boils down to better software engineering practises, the currently\textbf{todo: prove it?} fragmented nature of satellite data link level protocols has encouraged satellite operators to roll their own implementations.
-%Accordingly, there exist fewer battle-tested implementations, leaving the remainder open for exploitation.
-%We justify this claim in Section~\textbf{TODO} through a security audit of NASA's \textit{International Planetary Observation Processing Package} (IPOPP), the primary software distribution for decoding and processing EOS fleet protocols and data.
+Due to the constraints of the time and a desire to make the data open access, Terra and Aqua downlink their data in the clear.
+Therefore, modern off-the-shelf radio hardware enables attackers to overshadow and manipulate the raw data.
+This can result in derived datasets poisoned with false information, with the processing pipeline stages themselves potentially exploitable.
 
-Going back to FIRMS...
-
-We demonstrate that this issue leads to arbitrary code execution against the decoders used by NASA for the EOS fleet.
-We also discuss how FIRMS is a case study of relying upon unencrypted MODIS data
-Therefore we can say what an attacker can achieve through it.
-
-
-
-Fire management and incident response represents one such use case of the MODIS instrument, which has improved the fire response capability of over 90 countries \textbf{TODO: cite}.
-Although fire departments have little reason to run their own direct broadcast groundstations, the application is still time-critical.
-Therefore, NASA has invested in the Fire Information for Resource Management System (FIRMS)~\cite{firmsIndex}, which provides near real time active fire data, defined to be within three hours of observation.
-Among other services, FIRMS provides a fire notification API which will deliver notifications of new and active fires within a requested region, which is used to inform firefighters and coordinate their response.
-\textbf{TODO: add information on who uses this service, maybe a table. Does Google Maps use this?}
-The data is derived from processing the raw Aqua and Terra data with the programs in IPOPP.
-
-However, despite its importance as trusted infrastructure, FIRMS ultimately relies on unencrypted MODIS data which is therefore vulnerable to signal injection.
-Through carefully crafting input data to pass any existing integrity checks in the processing pipeline and overshadowing the X-band radio signal, an attacker has the potential to disrupt the fire detection stages of the pipeline, and therefore anyone who relies upon the data.
-
-We proceed to precisely define the nature of the threat in Section~\ref{sec:threat-model}, and describe how an attacker can exploit FIRMS and other processing pipeline stages in Section~\ref{sec:attack}.
-We go on to validate the feasibility of the overshadowing approach in Section~\ref{sec:evaluation}, including the capabilities that the attacker requires to be successful.
-
+We proceed to precisely define the nature of the threat in Section~\ref{sec:threat-model}.
+Using FIRMS as a case study, we describe how the attacker can poison the derived datasets and exploit the processing stages in section~\ref{sec:attack}.
+We demonstrate that overshadowing the physical layer is sufficient to arbitrarily manipulate the fire detection algorithm, and achieve denial of service and code execution on the processing software.
+We go on to validate the feasibility of the overshadowing approach in Section~\ref{sec:evaluation}, considering the case of a terrestrial attacker against a highly directional dish.
 
 \begin{figure}
     \centering
