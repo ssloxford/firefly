@@ -12,26 +12,66 @@ This may prove easier in the real-time setup, in which the attacker can selectiv
 Exploiting the processing stages, however, generally relies on creating malformed protocol headers to manipulate control flow in the software.
 This must be done beforehand by discovering vulnerabilities and crafting the required packets.
 
+% Call forward to the evaluation section
 In the case of FIRMS, the satellite-derived dataset is a map of active forest fires, each with coordinates and a confidence value.
 The dataset is derived primarily from the infrared bands of the MODIS sensor, which can reveal hotspots on the surface.
 We consider the scenarios of injecting ficticious forest fires and masking existing ones in the pre-prepared and real-time setup.
 We also perform a security analysis of the decoding software itself, demonstrating how vulnerabilities in the protocol handling can lead to denial of service, and arbitrary code execution upon reprocessing.
 
 \subsection{Affecting the satellite-derived datasets}
-\subsubsection{Injecting ficticious forest fires}
 
-\subsubsection{Masking existing forest fires}
+To affect a derived dataset such as forest fire detection, the attacker needs to inject a signal that decodes to the desired raw data.
+This data must target the algorithm responsible for generating the desired dataset, causing it to misclassify its input.
+This leads to effects such as the detection of ficticious forest fires, and the masking of existing ones. %TODO: rephrase? masking isn't really the opposite of detection
+
+Where the raw data is used for generating multiple derived datasets, the attacker may need to be careful to ensure that the injected data sufficiently resembles legitimate data to avoid detection. % TODO: rewrite - data, data, data...
+For example, the MODIS data is used to generate color-corrected images of the Earth's surface, with the forest fire data rendered on top.
+If the images appear out of sequence, distorted, or not like the Earth's surface at all, the downstream services which rely upon the data are unlikely to trust it.
+
+As a result, we assume that for this case, the attacker begins with instrument data that is sufficiently close to the original signal.
+The means for obtaining such data include replaying old data, generating new convincing data, or running the attack setup in real time.
+These different approaches, and their advantages and drawbacks, are discussed in Section~\ref{sec:evaluation}.
+
+% Getting the images to not appear distorted can itself be a challenge
+% We can show the scan line problem for this
+
+% TODO: some diagram of the packet and its fields?
+
+Once this data has been obtained, the attacker needs to determine how to manipulate the instrument data, and then reencode it according to the packet protocol.
+Each satellite system and instrument is likely to use its own custom protocol for its data channel.
+In the case of MODIS, the format consists of an extension to the CCSDS \textit{Space Packet Protocol} (SPP), the dominant network layer protocol for space and satellite systems~\cite{modisDescription},p177.
+
+After the primary header, a secondary header is used to encode timing information alongside information about the packet type and location in the overall image.
+The sensor readings are represented as a densely packed array of 12-bit words within the data zone, with a trailing checksum.
+Each value represents the intensity of light incident to the sensor of a specific frequency band, which is indicated by the position of the word within the array~\cite{modisDescription},p183-189.
+
+FIRMS derives its dataset from the \textit{MODIS Active Fire Product Science Processing Algorithm} (MOD14\_SPA), which primarily uses the bands of 4 and 11 micrometer wavelengths in the infrared spectrum to detect hotspots.
+Therefore, in order to manipulate the detected fires whilst leaving the visible images untouched, the attacker only needs to affect the values in these channels and recalculate the checksum.
+%other bands are used are used for the rejection of false positives, and could theoretically be manipulated for finer-grained control.
+
+Once the falsified data has been created, the attacker needs to reencode it according to the packet protocol used.
+For Terra and Aqua, the MODIS data is already in the network layer protocol SPP, which must then be acked into data link layer frames for broadcast.
+Unlike the highly standardised SPP, there is substantial variation in data link layer protocols for satellites \textbf{TODO: cite}.
+Accordingly, satellites such as those in the EOS fleet implement a custom protocol, fine-tuned to their operational requirements.
+
+Terra and Aqua make use of the custom \textit{Channel Access Data Unit} (CADU) protocol, a fixed-length frame structure containing a synchronising header and checksum~\cite{spaceGroundAqua},p32.
+The CADU is optionally Viterbi encoded to prevent desynchronisation during long runs of the same symbol.
+
+Finally, the attacker must note that the decoder is likely to perform additional checks on top of adhering to the known standards.
+As a result, the injected data may be rejected if, for example, it doesn't specify the correct version number in the header, or is of an unexpected length.
+
+%Since Earth-observing satellites often contain multiple instruments, and need to commuicate a mixture of scientific, engineering, and housekeeping information, a packet-based structure is chosen.
+%SPP supports this through Application IDs in the primary header; each instrument is given a unique ID, allowing the data from each to be multiplexed onto the same downlink.
+
+% In the case of publicly documented satellites, this is easier
+% However, even proprietary satellites tend to use certain standard protocols in order to make this easier
+% James Pavur's work on looking at data in DVBS/2 is related - you can scan the satellite's data to try and determine what its type is
 
 \subsection{Exploiting downlink processing stages}
-
-\subsubsection{Denial of service}
-\subsubsection{Arbitrary code execution}
-\subsubsection{General principles}
+% Talk about the principles required to make this work
 
 
-
-
-
+\begin{comment}
 \textbf{Old stuff below:}
 
 The attacker wants to achieve one of the two objectives
@@ -294,3 +334,5 @@ Besides potentially being a risk for privilege escalation, the sheer number of r
 %     \item Secure distribution and patching of dependencies
 %     \item Robustness against configuration changes
 % \end{itemize}
+
+\end{comment}
