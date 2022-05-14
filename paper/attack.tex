@@ -51,8 +51,7 @@ Therefore, in order to manipulate the detected fires whilst leaving the visible 
 
 Once the falsified data has been created, the attacker needs to reencode it according to the packet protocol used.
 For Terra and Aqua, the MODIS data is already in the network layer protocol SPP, which must then be acked into data link layer frames for broadcast.
-Unlike the highly standardized SPP, there is substantial variation in data link layer protocols for satellites \textbf{TODO: cite}.
-Accordingly, satellites such as those in the EOS fleet implement a custom protocol, fine-tuned to their operational requirements.
+Satellites such as those in the EOS fleet implement a custom data link layer protocol, fine-tuned to their operational requirements.
 
 \begin{figure*}
     \centering
@@ -81,7 +80,7 @@ As a result, the injected data may be rejected if, for example, it doesn't speci
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{diagrams/attack_types.pdf}
-    \caption{Illustration of the steps involved in processing MODIS image data and derived datasets, as well as the packet structure and layer within the network stack. \textbf{TODO edd rewrite?}}
+    \caption{Illustration of the steps involved in processing MODIS image data and derived datasets, as well as the packet structure and layer within the network stack.}
     \label{fig:attack_types}
 \end{figure}
 
@@ -96,6 +95,7 @@ As a result, attackers can potentially exploit these early pipeline stages throu
 As a case study we consider NASA's \textit{International Planetary Observation Processing Package} (IPOPP), a software distribution for decoding and processing EOS data.
 The software in IPOPP contains protocol decoding stages alongside the satellite-derived dataset generation algorithms.
 In particular, the \textit{MODIS Level-1 Science Processing Algorithm} (MODISL1DB\_SPA) is responsible for decoding SPP packets with the MODIS secondary header into the \textit{Heirarchical Data Format} (HDF)~\cite{modisL1DB}.
+A summary of the entire pipeline can be found in Figure~\ref{fig:attack_types}.
 With a long history going back to the early EOS satellites, the overall system has grown to be incredibly complex, with many interrelating dependencies and execution pathways.
 Through overshadowing the signal, an attacker can deliver arbitrary bytes to these processing stages, which were not designed with untrusted input data in mind.
 

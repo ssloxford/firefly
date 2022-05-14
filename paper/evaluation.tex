@@ -6,6 +6,9 @@ Then the attacker must overshadow a genuine broadcast with sufficient amplitude 
 
 In this section, we demonstrate the feasibility of each of these objectives with respect to a case study on FIRMS, NASA's forest fire detection system.
 We firstly show in Section~\ref{sec:effects-on-processing-systems} how an attacker can generate an attack sequence which results in the injection of ficticious forest fires, the masking of existing ones, or the exploitation of vulnerabilities in the protocol decoding stages.
+Since existing implementations of the EOS protocols are intended for decoding only, we firstly implement libraries to reencode the data.
+We build upon these to demonstrate our attacks end-to-end on the FIRMS software, resulting in color-corrected images overlaid with the detected forest fires.
+
 We go on to demonstrate the feasibility of the attack using only commercially available equipment through a series of radio overshadowing simulations.
 The results demonstrate that a ground-based attacker can achieve the required overshadowing of a highly directional dish, for the budget of a motivated hobbyist.
 
@@ -101,8 +104,7 @@ Attackers can also seek to disrupt the generation of satellite-derived datasets 
 In the simplest case, the attacker can take advantage of the noise-resilient properties of the physical layer encoding scheme to deny service.
 The data is encoded using \textit{Quadrature phase-shift keying} (QPSK), which encodes only two bits per symbol; as the number of bits encoded per symbol increases, the less resilient the encoding scheme is to noise since decoding relies on detecting increasingly subtle shifts in the carrier wave.
 Since each frame begins with a synchronisation header, which the downlink processing systems are designed to preferentially select, the attacker can selectively jam through overshadowing with the header.
-
-This technique has been shown to be effective in other similar scenarios, such as in the Ethernet protocol~\cite{}.
+This technique has been shown to be effective in other similar scenarios, targeting the collision avoidance system of 802.11 networks~\cite{gummadi2007understanding}.
 
 
 However, as explored in Section~\ref{sec:attack}, more suble attacks are possible which exploit the decoders for data link layer headers.
@@ -125,10 +127,6 @@ These are designed to be higher-level tools for use in analysing and processing 
 However, these tools now additionally form the basis of MODISL1DB\_SPA.
 
 In many cases, due to the architecture of the software, the only thing prevent arbitrary code execution are minor configuration issues.
-For example, as seen in Figure~\ref{}\textbf{TODO}, the names of the input data files are passed untokenized to the shell.
-As a result, if a file name includes executable commands, these commands will be executed when the file is processed.
-In this particular case, the only thing preventing execution is the constrained nature of the file names available from the previous processing step.
-
 However, in other cases, code execution pathways are possible.
 Figure~\ref{fig:code-execution} demonstrates a code excerpt, in which a function sets the output file path name based on the members of a tar file.
 Afterwards, this file path is passed untokenized to the shell.
@@ -189,7 +187,7 @@ We use ``GNU Radio'' to construct a pipeline which simulates a legitimate downli
 We also simulate an attacker-injected signal added to the legitimate signal and demodulated by the same process.
 By varying the gain on the injected signal and measuring the Bit Error Rate (BER) of the decoded bytes, we can assess the transmission power required for the attack to succeed.
 The concept of this signal overshadowing attack is introduced in Figure~\ref{fig:attack-illustration}, and an overview of the experimental configuration is shown in Figure~\ref{fig:overshadowing_pipeline}.
-The source code is also available alongside our other artifacts (\textbf{TODO}).
+% The source code is also available alongside our other artifacts (\textbf{TODO}).
 
 In order to carry out these simulations with a reasonable degree of confidence that they accurately represent the real world, we establish simulation parameters based on known characteristics of the EOS radio systems.
 We use the link budget established in~\cite{quinnNew2003} to establish the Effective Isotropic Radiated Power (EIRP) and free-space path loss of the radio signals transmitted by the Aqua and Terra satellites, as well as the antenna gain for signals within the beam of the receiver, and losses within the signal processing pipeline.

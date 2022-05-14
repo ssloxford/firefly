@@ -79,12 +79,11 @@ This is more difficult than the other proposed countermeasures, as it requires a
 
 If a signal has been overshadowed over a legitimate signal, it will result in a change to the amplitude and SNR of the received signal, as well as possibly creating a momentary shift in the timing of the signal.
 A carefully tuned model could measure these values and generate alerts when they change in unexpected ways.
-\textbf{TODO get edd to provide source for this}
 This would provide some amount of confidence that there is currently no signal being injected on top of the legitimate signal, but ultimately provides little real security beyond requiring the attacker to be more precise in their overshadowing.
 
 It may also be possible to analyze the physical properties of the radio signal itself to provide a measure of confidence that the device broadcasting the signal is the one we expect, rather than an attacker-controlled radio transmitter.
 Such \textit{fingerprinting} techniques involve learning how the transmitting radio hardware impairs the received signal in a way that is unique to the device and difficult to replicate by all but the most sophisticated radios.
-This has been shown to be an effective method of mitigating spoofing attacks by providing an additional method of authenticating the device~\cite{sankheNo2020}.
+This has been shown to be an effective method of mitigating spoofing attacks by providing an additional method of authenticating the device~\cite{sankheNo2020,oligeri2020past}.
 
 
 \subsection{Data Inspection}
