@@ -3,7 +3,7 @@
 To successfully attack these systems, an attacker needs to overshadow the wireless channel to manipulate the raw demodulated data.
 Depending on their goals, the attacker can either generate the signal to be injected beforehand or in real time.
 Generating the data beforehand does not require a receiver, only hardware capable of transmitting, but does require that the attacker generate their own data or find relevant prior broadcasts to manipulate and replay.
-Alternatively, with the addition of their own reciever dish, an attacker can receive the broadcast themselves and process it in real time to add artifacts or mask specific properties of the signal.
+Alternatively, with the addition of their own receiver dish, an attacker can receive the broadcast themselves and process it in real time to add artifacts or mask specific properties of the signal.
 
 % TODO: find that paper somewhere about generating convincing satellite images
 The injected data is designed to either poison the derived datasets or to exploit processing stages in the decoding pipeline.
@@ -313,7 +313,7 @@ Through the injection of standards-compliant frames, complete with synchronisati
 The input to this algorithm is so-called \textit{Level 0} data, which is the body of a data frame with all communications artefacts, including synchronisation headers and checksums, removed.
 Through the creation of a custom data frame, the attacker can encapsulate an arbitarary byte sequence which, when overshadowed over the existing signal, will result in the delivery of arbitrary bytes as the input to \textit{MODISL1DB\_SPA}.
 
-We proceed to analyse several classes of attack made possible through this route, and enabled by insecure data handling practises.
+We proceed to analyse several classes of attack made possible through this route, and enabled by insecure data handling practices.
 
 
 \subsection{Exploiting downlink processing systems}

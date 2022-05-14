@@ -1,14 +1,12 @@
 \section{Conclusion}
 
-% mention satellites
+We have demonstrated that signal injection against satellite downlink processing systems can have a significant effect, not just on the raw data, but also on services that depend upon the derived datasets.
+Through an end-to-end analysis of the processing pipeline, we have shown that satellites in NASA's EOS fleet are vulnerable, resulting in real-world impacts against a widely-used forest fire detection service.
+These attacks have been enabled by the availability of software-defined radios coinciding with shifting security practices towards securing the physical layer.
 
-We have demonstrated that signal injection can have a significant impact against systems which assume input data to be safe, particularly those which do not handle data with proper care during processing.
-We show that this results in modified data affecting downstream datasets and compromise of the processing machines, with real-world harms. % rewrite
-Newly-designed space systems should be designed with this in mind, building robust cryptographic systems into all communication and taking care to minimize vulnerabilities in the data processing pipeline.
-Existing systems can still be made secure to a certain extent even without the addition of cryptography by implementing countermeasures verifying aspects of the downlinked signal.
-These solutions in parallel can provide a substantial improvement in security of space systems over the current state of the field.
+Newly-designed space systems should be designed with this in mind, building robust authenticity guarantees through cryptography into all communications, and taking care to handle input data as untrusted.
+We have discussed the extent to which existing systems can still be secured without the use of cryptography by considering countermeasures based on signal and timing analysis.
 
-There is scope for future work demonstrating the attacks described against a deployed ground station, validating the distances calculated in our simulation experiments and demonstrating hardware attacks alongside the proven attacks against the software pipeline.
-It would also be useful to perform a full security audit of the EOS data pipeline to ensure there are no further vulnerabilities in the system.
-In a similar vein, future work could review which satellite systems are vulnerable to the types of attack explored in this paper, and the downstream systems which depend on their data and are thus also vulnerable.
+There is scope for future work validating our overshadowing simulations against real-world receiver dishes, which could demonstrate the attack in practice.
+A comprehensive review is also required of satellite systems vulnerable to this type of attack, considering the possible effects on downstream systems which depend on their data.
 Finally, further research is needed into non-cryptographic means of detecting and preventing signal overshadowing attacks on satellite systems, in order to provide increased security for legacy systems.
