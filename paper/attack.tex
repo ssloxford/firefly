@@ -1,8 +1,8 @@
-\section{Attack}\label{sec:attack}
+\section{Attack Description}\label{sec:attack}
 
 To successfully attack these systems, an attacker needs to overshadow the wireless channel to manipulate the raw demodulated data.
-Depending on their goals, the attacker can either generate the overshadowing signal beforehand or in real time.
-Generating the data beforehand requires only hardware capable of transmitting, but requires that the attacker generate their own data or find relevant prior broadcasts to manipulate and replay.
+Depending on their goals, the attacker can either generate the signal to be injected beforehand or in real time.
+Generating the data beforehand does not require a receiver, only hardware capable of transmitting, but does require that the attacker generate their own data or find relevant prior broadcasts to manipulate and replay.
 Alternatively, with the addition of their own reciever dish, an attacker can receive the broadcast themselves and process it in real time to add artifacts or mask specific properties of the signal.
 
 % TODO: find that paper somewhere about generating convincing satellite images
@@ -10,15 +10,15 @@ The injected data is designed to either poison the derived datasets or to exploi
 Convincingly poisoning the derived datasets requires that the overshadowed waveform decodes to raw data which is sufficiently similar to the original.
 This may prove easier in the real-time setup, in which the attacker can selectively modify only the relevant part of the signal.
 Exploiting the processing stages, however, generally relies on creating malformed protocol headers to manipulate control flow in the software.
-This must be done beforehand by discovering vulnerabilities and crafting the required packets.
+This must be done beforehand by discovering vulnerabilities in the processing stack and crafting the required packets.
 
 % Call forward to the evaluation section
 In the case of FIRMS, the satellite-derived dataset is a map of active forest fires, each with coordinates and a confidence value.
 The dataset is derived primarily from the infrared bands of the MODIS sensor, which can reveal hotspots on the surface.
-We consider the scenarios of injecting ficticious forest fires and masking existing ones in the pre-prepared and real-time setup.
-We also perform a security analysis of the decoding software itself, demonstrating how vulnerabilities in the protocol handling can lead to denial of service, and arbitrary code execution upon reprocessing.
+We consider the scenarios of injecting ficticious forest fires and masking existing ones, both in the pre-prepared and real-time setups.
+We also perform a security analysis of the decoding software itself, demonstrating how vulnerabilities in the protocol handling can lead to denial of service and arbitrary code execution upon reprocessing.
 
-\subsection{Affecting the satellite-derived datasets}
+\subsection{Affecting satellite-derived datasets}
 
 To affect a derived dataset such as forest fire detection, the attacker needs to inject a signal that decodes to the desired raw data.
 This data must target the algorithm responsible for generating the desired dataset, causing it to misclassify its input.
@@ -28,7 +28,7 @@ Where the raw data is used for generating multiple derived datasets, the attacke
 For example, the MODIS data is used to generate color-corrected images of the Earth's surface, with the forest fire data rendered on top.
 If the images appear out of sequence, distorted, or not like the Earth's surface at all, the downstream services which rely upon the data are unlikely to trust it.
 
-As a result, we assume that for this case, the attacker begins with instrument data that is sufficiently close to the original signal.
+As a result, we assume that for this case the attacker begins with instrument data that is sufficiently close to the original signal.
 The means for obtaining such data include replaying old data, generating new convincing data, or running the attack setup in real time.
 These different approaches, and their advantages and drawbacks, are discussed in Section~\ref{sec:evaluation}.
 
@@ -51,7 +51,7 @@ Therefore, in order to manipulate the detected fires whilst leaving the visible 
 
 Once the falsified data has been created, the attacker needs to reencode it according to the packet protocol used.
 For Terra and Aqua, the MODIS data is already in the network layer protocol SPP, which must then be acked into data link layer frames for broadcast.
-Unlike the highly standardised SPP, there is substantial variation in data link layer protocols for satellites \textbf{TODO: cite}.
+Unlike the highly standardized SPP, there is substantial variation in data link layer protocols for satellites \textbf{TODO: cite}.
 Accordingly, satellites such as those in the EOS fleet implement a custom protocol, fine-tuned to their operational requirements.
 
 \begin{figure*}
@@ -97,19 +97,19 @@ However, in addition to manipulating the instrument data itself, attackers are a
 These fields are parsed and used by the initial stages of the processing pipeline to extract the correct data.
 As a result, attackers can potentially exploit these early pipeline stages through crafting packets to trigger vulnerabilities.
 
-As a case study, we consider NASA's \textit{International Planetary Observation Processing Package} (IPOPP), a software distribution for decoding and processing EOS data.
+As a case study we consider NASA's \textit{International Planetary Observation Processing Package} (IPOPP), a software distribution for decoding and processing EOS data.
 The software in IPOPP contains protocol decoding stages alongside the satellite-derived dataset generation algorithms.
 In particular, the \textit{MODIS Level-1 Science Processing Algorithm} (MODISL1DB\_SPA) is responsible for decoding SPP packets with the MODIS secondary header into the \textit{Heirarchical Data Format} (HDF)~\cite{modisL1DB}.
 With a long history going back to the early EOS satellites, the overall system has grown to be incredibly complex, with many interrelating dependencies and execution pathways.
 Through overshadowing the signal, an attacker can deliver arbitrary bytes to these processing stages, which were not designed with untrusted input data in mind.
 
-In Section~\ref{sec:evaluation}, we consider the effect of a modern adversary against this system.
+In Section~\ref{sec:evaluation} we consider the effect of a modern adversary against this system.
 We demonstrate how the complex execution pathway includes input data being passed between several different processing applications unsafely.
 Ultimately, this results in the creation of a payload which gets inserted into the intermediate data structure, and may be triggered by a future reprocessing step.
 
 However, IPOPP is also potentially exploitable due to other well-known vulnerabilities.
 Part of the complexity of the system is due to its high number of dependencies, many of which come pre-bundled with the source code.
-These dependencies include outdated libraries with CVEs which haven't been patched.
+These dependencies include outdated libraries with documented CVEs (Common Vulnerabilities and Exposures) which haven't been patched.
 For example, at the time of writing, MODISL1DB\_SPA comes bundled with HDF5 v1.12.0, which has 11 active CVEs.
 
 % Do I need to explain here exactly what processing stages are involved?
@@ -150,7 +150,7 @@ To the receiver such that it reaches the correct layer in the stack
 Split the stack into protocol/data
 
 We discuss a bit about the ecosystem of protocols, with CCSDS SPP forming the common waist, like IP
-Data link protocols are less standardised in the space context than OSI model
+Data link protocols are less standardized in the space context than OSI model
 Fewer security audits, more proprietary software components, making vulnerabilities more likely?
 
 Nod to variety of data link protocols used,
@@ -202,7 +202,7 @@ On the ground, the signal is received by a tracking satellite antenna and passes
 
 The data is generally presented to the first software decoding stage as a stream of bits straight from a hardware demodulator component, which therefore presents the first opportunity to exploit a packet decoding stage.
 
-These bits must firstly be byte aligned and divided into CADUs, derandomised through Viterbi decoding depending on the satellite mode, and then error corrected according to the CADU checksum.
+These bits must firstly be byte aligned and divided into CADUs, derandomized through Viterbi decoding depending on the satellite mode, and then error corrected according to the CADU checksum.
 These stages are sometimes implemented by dedicated hardware or as a separate piece of software, such as Dartcom's \textit{Polar Orbital Ingester}~\cite{dartcomsystemsltdXBand2021,dartcomPOI}.
 However, they can equivalently be handled by NASA's \textit{Real-time Software Telemetry Processing System} (RT-STPS).
 
@@ -300,10 +300,10 @@ After being downconverted and sampled,
 %Information from each of the scientific instruments on the spacecraft is encoded according to the CCSDS packet standard, and are packed into frames known as Channel Access Data Units (CADUs).
 
 %Each CADU is prefixed with a synchronisation header, enabling the receiver software to delimit the frames.
-%The rest of the body is "randomised" through XORing with a fixed polynomial to prevent long sequences of the same symbol disrupting transfer.
+%The rest of the body is "randomized" through XORing with a fixed polynomial to prevent long sequences of the same symbol disrupting transfer.
 %The full breakdown of the packet structure can be seen in Fig.~\ref{fig:cadu_diagram}.
 
-%The finalised CADUs are transferred directly to the X-band antenna when in direct broadcast mode, and also to a solid state recorder for playback during the data dumps.
+%The finalized CADUs are transferred directly to the X-band antenna when in direct broadcast mode, and also to a solid state recorder for playback during the data dumps.
 
 
 \subsection{Attack description}

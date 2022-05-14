@@ -59,7 +59,7 @@ In order to demonstrate the feasibility of signal injection attacks on EOS downl
 We use ``GNU Radio'' to construct a pipeline which simulates a legitimate downlink signal broadcast from the Terra satellite and demodulated using the \textit{Quadrature Phase Shift Keying} (QPSK) used in the EOS radio stack.
 We also simulate an attacker-injected signal added to the legitimate signal and demodulated by the same process.
 By varying the gain on the injected signal and measuring the Bit Error Rate (BER) of the decoded bytes, we can assess the transmission power required for the attack to succeed.
-The concept of signal overshadowing is introduced in Figure~\ref{fig:attack-illustration}, and an overview of the experimental configuration is shown in Figure~\ref{fig:overshadowing_pipeline}.
+The concept of this signal overshadowing attack is introduced in Figure~\ref{fig:attack-illustration}, and an overview of the experimental configuration is shown in Figure~\ref{fig:overshadowing_pipeline}.
 The source code is also available alongside our other artifacts (\textbf{TODO}).
 
 In order to carry out these simulations with a reasonable degree of confidence that they accurately represent the real world, we establish simulation parameters based on known characteristics of the EOS radio systems.
@@ -71,7 +71,7 @@ On the attacker's side, we use the following standard formula for computing Free
 \end{align}
 where $d$ is the distance from the receiver in meters, and $f$ is the frequency in hertz.
 We use the reference antenna radiation pattern given by the International Telecommunication Union in~\cite{itu2022antenna} to estimate the out-of-beam gain of the receiver to be approximately $-10.0$\,dB.
-These key values are summarised in Table~\ref{tab:experimental-values}.
+These key values are summarized in Table~\ref{tab:experimental-values}.
 
 \begin{table}
     \resizebox{\columnwidth}{!}{%
@@ -122,6 +122,6 @@ This allows us to better understand the threat model initially established in Se
 The datasheets for the COTS radio equipment described in this section has an EIRP of up to $49$\,dBm -- we therefore know from our experimental results that an attacker with access to this equipment can carry out overshadowing attacks from a distsance of up to $0.71$\,km~\cite{endurosat:xbandtransmitter,endurosat:xbandantenna}.
 With access to a more powerful amplifier, the feasible attack range can be extended significantly; an organized criminal group or nation-state level attacker could reasonably be assumed to have access to these.
 
-We conclude from these results that there is moderate cause for concern regarding overshadowing attacks on NASA ground stations -- a motivated hobbyist with a relatively small budget can carry out attacks from a moderate distance, and attackers with greater means can do so from even further away.
+We conclude from these results that there is cause for concern regarding overshadowing attacks on NASA ground stations -- a motivated hobbyist with a budget of approximately $30,000$ EUR can carry out attacks from almost 1\,km away, and attackers with greater means can do so from an even greater distance.
 Furthermore, it is difficult to prevent overshadowing attacks without some method of validating the authenticity of the received signal, and locating the attacker requires a specialized setup to triangulate the signal's origin.
 This has implications beyond the attacks described in this paper, demonstrating that all downlink processing systems should be regarded as untrusted unless the data link is authenticated in some way.

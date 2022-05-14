@@ -27,7 +27,7 @@ This provides a false sense of security which is arguably more dangerous than la
 The first problem we consider is key management.
 Maintaining a single key is certainly the simplest possible system, but all it takes is a single leak for the security of the entire system to be compromised, possibly forever if there is no mechanism for changing keys.
 Unlike in terrestrial systems, it is not possible to physically access compromised machines to reset the onboard software or change affected keys.
-We see this problem occur in satellites such as GEO-KOMPSAT-2A, the keys to which were leaked with no mechanism to revoke or reset them -- this system is no longer secure and may never be again~\cite{xrit-rx}.
+We see this problem occur in satellites such as GEO-KOMPSAT-2A, the keys to which were leaked with no mechanism to revoke or reset them~\cite{xrit-rx} -- this system is no longer secure and may never be again.
 It is much better to build a key management system which supports key issue and revocation to ensure that security can be reestablished in this event.
 To verify chain of trust and minimize the risk of compromise, a ``master key'' should be issued which is only used for the purpose of issuing and revoking other keys.
 
@@ -63,7 +63,7 @@ It does not, however, prevent signal injection entirely.
 
 A more robust form of timing analysis involves measuring Time Difference of Arrival (TDOA) -- that is, comparing the difference between signal arrival times at different sensors to verify the position of the satellite.
 This has previously been demonstrated to be a viable method of authenticating satellites~\cite{jedermann2021orbit}.
-The expected position of the satellite is known, so the expected time differences can be computed to verify that the signal has been transmitted from a legitimate source.
+The position of the satellite is known, so the expected time differences can be computed to verify that the signal has been transmitted from a legitimate source.
 If the time differences do not match the expected values to within a certain tolerance, it is likely that the signal has been injected by an attacker at a different location.
 The same is true if a signal is received at one location but not another, or if the data received at one location differs from that received at another location.
 
@@ -114,7 +114,7 @@ There are a large number of organizations capable of receiving downlinked EOS si
 
 \subsection{Comparison}
 
-The simpler of each of our timing, waveform, and data analysis measures are comparable to ``security through obscurity'' -- they provide some measure of assurance against signal tampering, but only in the case where the attacker does not know about the countermeasures' usage.
+The simpler of each of our timing, waveform, and data analysis techniques are comparable to ``security through obscurity'' -- they provide some measure of assurance against signal tampering, but only in the case where the attacker does not know about the countermeasures' usage.
 If we consider an attacker who has full knowledge of the target system, the countermeasures can simply be circumvented by being more careful with signal injection.
 However, they are cheap and straightforward to implement, making for a good intermediate response while a more thorough solution is worked on.
 
