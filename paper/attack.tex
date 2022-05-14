@@ -89,12 +89,8 @@ As a result, the injected data may be rejected if, for example, it doesn't speci
 
 % NB: we haven't really explained how the different parts of the protocol relate to parts of the packet, and the available attacks
 
-Prior to being processed into a satellite-derived dataset, the raw data from Earth observing satellites is first extracted from the packets into an intermediate structure.
-This takes the form of several pipeline stages, in which the outer data link and network layer packet structures are extracted and demultiplexed.
-In the case of MODIS, the outer CADU needs to be validated and error corrected, and the inner SPP packet demultiplexed to separate out the relevant data.
-
 However, in addition to manipulating the instrument data itself, attackers are also able to change protocol-specific fields within the packet headers.
-These fields are parsed and used by the initial stages of the processing pipeline to extract the correct data.
+These fields are parsed and used by the initial stages of the processing pipeline to validate and error correct the downlinked signal, and demultiplex and extract the data into an intermediate structure.
 As a result, attackers can potentially exploit these early pipeline stages through crafting packets to trigger vulnerabilities.
 
 As a case study we consider NASA's \textit{International Planetary Observation Processing Package} (IPOPP), a software distribution for decoding and processing EOS data.
