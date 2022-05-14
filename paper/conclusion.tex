@@ -1,12 +1,23 @@
 \section{Conclusion}
 
-Having demonstrated the impact of signal injection attacks on systems which assume input data to be safe, a discussion remains to be had on how this situation was reached in the first place.
-Fundamentally, the assumption that all input data is safe led to a lack of safety checks and input sanitization in the pipeline, allowing any data to be processed, including that which was crafted by an attacker.
-This is compounded by a lack of security in bundled dependencies -- the system contains many redundant dependencies, including ones years out of date.
-This opens the system up to a huge number of known vulnerabilities which could be mitigated simply by using the latest versions of dependencies which have patched known security holes.
+We have demonstrated that signal injection can have a significant impact against systems which assume input data to be safe, particularly those which do not handle data with proper care during processing.
+We show that this results in modified data affecting downstream datasets and compromise of the processing machines, with real-world harms.
+Newly-designed space systems should be designed with this in mind, building robust cryptographic systems into all communication and taking care to minimize vulnerabilities in the data processing pipeline.
+Existing systems can still be made secure to a certain extent even without the addition of cryptography by implementing countermeasures verifying aspects of the downlinked signal.
+These solutions in parallel can provide a substantial improvement in security of space systems over the current state of the field.
 
-However, another core problem in this processing system is a lack of transparency within the codebase itself, making simple security audits and updates nearly impossible.
-The system is also brittle, with a number of potential exploits currently prevented by minor variables or configurations -- if these were to change in an update the system could easily become far more vulnerable.
-A redesign of this system could simplify the flow of data through it and make it far easier to understand and maintain, which would in turn make it far more secure.
+There is scope for future work demonstrating the attacks described against a deployed ground station, validating the distances calculated in our simulation experiments and demonstrating hardware attacks alongside the proven attacks against the software pipeline.
+It would also be useful to perform a full security audit of the EOS data pipeline to ensure there are no further vulnerabilities in the system.
+In a similar vein, future work could review which satellite systems are vulnerable to the types of attack explored in this paper, and the downstream systems which depend on their data and are thus also vulnerable.
+Finally, further research is needed into non-cryptographic means of detecting and preventing signal overshadowing attacks on satellite systems, in order to provide increased security for legacy systems.
 
-\textbf{TODO wrap this up nicely, probably rewrite earlier bits as well}
+%Having demonstrated the impact of signal injection attacks on systems which assume input data to be safe, a discussion remains to be had on how this situation was reached in the first place.
+%Fundamentally, the assumption that all input data is safe led to a lack of safety checks and input sanitization in the pipeline, allowing any data to be processed, including that which was crafted by an attacker.
+%This is compounded by a lack of security in bundled dependencies -- the system contains many redundant dependencies, including ones years out of date.
+%This opens the system up to a huge number of known vulnerabilities which could be mitigated simply by using the latest versions of dependencies which have patched known security holes.
+%
+%However, another core problem in this processing system is a lack of transparency within the codebase itself, making simple security audits and updates nearly impossible.
+%The system is also brittle, with a number of potential exploits currently prevented by minor variables or configurations -- if these were to change in an update the system could easily become far more vulnerable.
+%A redesign of this system could simplify the flow of data through it and make it far easier to understand and maintain, which would in turn make it far more secure.
+%
+%\textbf{TODO wrap this up nicely, probably rewrite earlier bits as well}
