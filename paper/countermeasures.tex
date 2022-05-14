@@ -10,6 +10,13 @@ These attacks vary in effectiveness and complexity of implementation, allowing a
 
 \subsection{Cryptographic Measures}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{diagrams/distance_eirp_heatmap_95.pdf}
+    \caption{The bit error rate of the injected signal as the attacker varies EIRP and distance from the receiver. The values beyond which the bit error rate drops below $5$\% are indicated using a line.}
+    \label{fig:distance_eirp}
+\end{figure}
+
 The first and most obvious countermeasure is to simply encrypt downlinked signals using a cryptographic key known only to the operators, or alternatively to use cryptographic keys to sign the messages.
 In both cases this makes it possible to verify that a message is legitimate and has not been tampered with.
 If implemented properly, this trivially counteracts the attacks we describe.

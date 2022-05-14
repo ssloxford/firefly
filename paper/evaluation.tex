@@ -1,5 +1,29 @@
 \section{Evaluation}\label{sec:evaluation}
 
+\begin{figure*}
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{diagrams/injection/original.jpg}
+        \caption{Original image with some fires.\newline}
+        \label{fig:injection-orig}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{diagrams/injection/random_combined_diagonal.jpg}
+        \caption{Fires randomly injected uniformly across the map. Composite of 3 images, with intensity of the fires increasing from top to bottom.}
+        \label{fig:injection-random}
+    \end{subfigure}
+    \caption{An overview of the possible ways an attacker can manipulate the output of the forest fire detection algorithm by overshadowing the downlinked data. In each image, forest fires detected by the algorithm are highlighted in yellow, orange, and red in increasing order of intensity.}
+    \label{fig:injection}
+\end{figure*}
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{diagrams/injection/masked_0.jpg}
+    \caption{MODIS image with legitimate fires masked out.}
+    \label{fig:injection-masked}
+\end{figure}
+
 In order to attack systems which rely upon Earth observing satellite data, the attacker must synthesise a malicious signal which decodes to the desired raw data.
 When processed, this raw data will either poison the targeted satellite-derived dataset, or exploit a stage in the processing pipeline itself.
 Then the attacker must overshadow a genuine broadcast with sufficient amplitude such that the targeted receiver decodes the attacker's signal.
@@ -38,12 +62,6 @@ Using this method, the attacker can determine the precise packets which, when mo
 However, since MOD14\_SPA detects fires through local peaks~\cite{mod14Manual}, the attacker can't write uniform values across large sequences of packets.
 Forest fires are detected if instead the values within the desired area are set according to a random distribution.
 
-\begin{figure}
-    \includegraphics[width=\columnwidth]{diagrams/interleave.png}
-    \caption{Failure correctly distinguish engineering from sensor data leads to malformed output.}
-    \label{fig:interleave}
-\end{figure}
-
 Additionally, in order to have the image decode correctly, the attacker must be careful not to modify any non-sensor packets within the sequence.
 For example, engineering packets are interspersed regularly throughout the sequence, which contain crucial timing information later used in the alignment of the scan lines between sensors.
 Engineering packets are distinguished uniquely with a frame data count of zero, so an exception must be made to leave such packets unmodified.
@@ -51,24 +69,6 @@ Figure ~\ref{fig:interleave} demonstrates the partial result of an image with th
 
 Finally, the attacker must reencode the SPP packet sequence into the CADU structure, aligning the packets within the structure accordind to the specification, recalculating the checksums, and applying the Viterbi encoding.
 Figures~\ref{fig:injection} and~\ref{fig:location-injection} show the results of the FIRMS software stack within IPOPP decoding the resulting signal.
-
-\begin{figure*}
-    \centering
-    \begin{subfigure}{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{diagrams/injection/original.jpg}
-        \caption{Original image with some fires.\newline}
-        \label{fig:injection-orig}
-    \end{subfigure}
-    \begin{subfigure}{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{diagrams/injection/random_combined_diagonal.jpg}
-        \caption{Fires randomly injected uniformly across the map. Composite of 3 images, with intensity of the fires increasing from top to bottom.}
-        \label{fig:injection-random}
-    \end{subfigure}
-    \caption{An overview of the possible ways an attacker can manipulate the output of the forest fire detection algorithm by overshadowing the downlinked data. In each image, forest fires detected by the algorithm are highlighted in yellow, orange, and red in increasing order of intensity.}
-    \label{fig:injection}
-\end{figure*}
 
 
 %Show the pipeline which results in the injection of ficticious fires, and the results
@@ -89,15 +89,15 @@ Specifically, the attacker needs to all of the infrared channels to a roughly un
 Therefore, MOD14\_SPA fails to detect the requisite peaks, and the resulting dataset contains no marked fires.
 The results can be seen in Figure~\ref{fig:injection-masked}.
 
-\begin{figure}
-    \includegraphics[width=\columnwidth]{diagrams/injection/masked_0.jpg}
-    \caption{MODIS image with legitimate fires masked out.}
-    \label{fig:injection-masked}
-\end{figure}
-
 % Show the pipeline for masking forest fires, including a code sample from the part that masks
 
 \subsubsection{Case Study: Exploiting MODIS packet decoding}
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{diagrams/interleave.png}
+    \caption{Failure correctly distinguish engineering from sensor data leads to malformed output.}
+    \label{fig:interleave}
+\end{figure}
 
 Attackers can also seek to disrupt the generation of satellite-derived datasets by exploiting the software which decodes the packets themselves.
 
@@ -166,22 +166,6 @@ As a result, by passing a malicious tarball in the form of an SPP packet, the at
 
 \subsection{Physical-Layer Validation}\label{sec:physical-layer-validation}
 
-\begin{comment}
-\begin{figure}
-    \centering
-    \includegraphics[width=\columnwidth]{diagrams/overshadowing_demo.pdf}
-    \caption{Representation of a signal injection attack through overshadowing.}
-    \label{fig:overshadowing_demo}
-\end{figure}
-\end{comment}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\columnwidth]{diagrams/overshadowing_pipeline.pdf}
-    \caption{An overview of the GNU Radio pipeline used to provide experimental validation for the overshadowing attacks. IQ samples are indicated in blue, bitstreams in magenta.}
-    \label{fig:overshadowing_pipeline}
-\end{figure}
-
 In order to demonstrate the feasibility of signal injection attacks on EOS downlink systems in a real-world setting, we perform a simulated analysis of the proposed attacks.
 We use ``GNU Radio'' to construct a pipeline which simulates a legitimate downlink signal broadcast from the Terra satellite and demodulated using (QPSK), the physical layer encoding scheme used in the EOS radio stack.
 We also simulate an attacker-injected signal added to the legitimate signal and demodulated by the same process.
@@ -199,6 +183,19 @@ On the attacker's side, we use the following standard formula for computing Free
 where $d$ is the distance from the receiver in meters, and $f$ is the frequency in hertz.
 We use the reference antenna radiation pattern given by the International Telecommunication Union in~\cite{itu2022antenna} to estimate the out-of-beam gain of the receiver to be approximately $-10.0$\,dB.
 These key values are summarized in Table~\ref{tab:experimental-values}.
+
+We take a range of values for the signal strength at the receiver, between $-100$ and $0$\,dBm.
+Received signal strength can be expressed as a function of the attacker's EIRP and distance from the receiver, enabling us to observe the bit error rate as we vary either of these parameters.
+We do not accurately model system losses -- since these are consistent between the victim and attacker, we assume their effect on the outcome of the experiment is negligible.
+This is verified to be the case by performing the same experiment across a range of noise values and confirming that the result changes by a negligible amount, as seen in Figure~\ref{fig:overshadowing_ber}.
+For the main experiments, we set the background noise voltage to $1\,$\textmu V and the system noise to $200$\,mV, resulting in a bit error rate below the $5$\% required for the system to function.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{diagrams/overshadowing_pipeline.pdf}
+    \caption{An overview of the GNU Radio pipeline used to provide experimental validation for the overshadowing attacks. IQ samples are indicated in blue, bitstreams in magenta.}
+    \label{fig:overshadowing_pipeline}
+\end{figure}
 
 \begin{table}
     \resizebox{\columnwidth}{!}{%
@@ -220,12 +217,6 @@ These key values are summarized in Table~\ref{tab:experimental-values}.
     \label{tab:experimental-values}
 \end{table}
 
-We take a range of values for the signal strength at the receiver, between $-100$ and $0$\,dBm.
-Received signal strength can be expressed as a function of the attacker's EIRP and distance from the receiver, enabling us to observe the bit error rate as we vary either of these parameters.
-We do not accurately model system losses -- since these are consistent between the victim and attacker, we assume their effect on the outcome of the experiment is negligible.
-This is verified to be the case by performing the same experiment across a range of noise values and confirming that the result changes by a negligible amount, as seen in Figure~\ref{fig:overshadowing_ber}.
-For the main experiments, we set the background noise voltage to $1\,$\textmu V and the system noise to $200$\,mV, resulting in a bit error rate below the $5$\% required for the system to function.
-
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{diagrams/overshadowing_ber_2.pdf}
@@ -236,13 +227,6 @@ For the main experiments, we set the background noise voltage to $1\,$\textmu V 
 The immediate results of our experiment are shown in Figure~\ref{fig:overshadowing_ber}, which compares the signal strength at the receiver to the BER of the injected signal.
 In order to understand these results in a meaningful sense, we need to instead consider the factors directly controlled by the attacker: the EIRP of the transmitted signal, and the distance between the attacker and the receiver.
 We take the EIRP and subtract FSPL (computed from distance using Equation~\ref{eq:fspl}) to get the received signal strength.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\columnwidth]{diagrams/distance_eirp_heatmap_95.pdf}
-    \caption{The bit error rate of the injected signal as the attacker varies EIRP and distance from the receiver. The values beyond which the bit error rate drops below $5$\% are indicated using a line.}
-    \label{fig:distance_eirp}
-\end{figure}
 
 We see the results in Figure~\ref{fig:distance_eirp}, displaying the BER of the injected signal across a range of EIRPs and distances.
 This allows us to better understand the threat model initially established in Section~\ref{sec:threat-model}.
