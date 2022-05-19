@@ -7,3 +7,4 @@ Consistent use of practise throughout
 near real-time -> near real time
 
 Table of EOS data uses
+Incorporate Marcell changes
