@@ -23,3 +23,13 @@ paper/main.pdf
 gnuradio/samples/results*
 __pycache__
 .DS_Store
+
+presentation/*.aux
+presentation/*.bbl
+presentation/*.blg
+presentation/*.log
+presentation/*.nav
+presentation/*.out
+presentation/*.pdf
+presentation/*.snm
+presentation/*.toc
