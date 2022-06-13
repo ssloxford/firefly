@@ -1,0 +1,3 @@
+Deduplicate images and references between paper and presentation
+Unify overall refs.tex with firefly one
+Write script to minimise refs.tex to just the used ones
