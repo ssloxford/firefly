@@ -1,0 +1,71 @@
+Feels like a tutorial style
+    would need an hour, to slow down and reflect
+
+Too much too quickly
+
+Closer constructio to the paper
+Bring the structure out at the start
+
+Not to explain the whole thing
+    to make the audience interested to read the paper
+    shorten the modulation/demodulation
+
+More time on evaluation
+    increasing to 100km to control multiple receivers in one go
+
+
+Ivan feedback
+    Overshadowing "related work" is actually background
+    we need work that's actually related
+
+    spend some time saying what comes from our lab, etc.
+
+
+    Having less content helps you make a relaxed talk
+        time to pause
+
+        side things to mention, if you have the time
+
+Yash
+    structure slide, speak about what I'm going to say
+        intro motivation this is what we're going to do
+     contributions forward - he was waiting for contributions
+        what is the stuff we "made" and "contributed"
+    keep reminding people by backreferencing
+
+    bit error rate
+        explain that it's a log scale, explain the graph more
+        maybe put in kilowatts
+        make sure to say db milliwatts
+
+Richard
+    rhetorical questions can invite pushback
+        probably cut them
+
+    having Josh's diagram next to multicolour
+
+Radostin
+    cut out web pages
+
+Martin
+    show a draft classification of satellites to contextualise the example
+    replace NDSS with Amogus
+    don't show the code
+
+Freddie
+    less is more
+        few words, riff on the long bullet points
+    cut code and protocol diagrams and hex dumps
+
+Freddie R
+    use pseudocode in slides, rather than pulling up the example
+    talk to US congressional report encryption better
+        doesn't entirely imply that it's unencrypted
+    swap to his figures
+
+Josh
+    define overshadowing
+        relating to signal injection
+        be more explicit about kill chain example
+    tweaking the noise - not really a worst case
+    define single DES "the cryptographic standard that's not regarded as insecure"
