@@ -3,6 +3,10 @@
 \setbeamertemplate{caption}[numbered]
 \usetheme{Hannover}
 \usepackage{subcaption}
+\expandafter\ifstrequal\expandafter{\jobname}{notes}{
+  \setbeameroption{show only notes}
+}{
+}
 
 \begin{document}
 
@@ -29,7 +33,7 @@
   \inst{1} Systems Security Lab, University of Oxford \and %
   \inst{2} Cyber-Defence Campus, armasuisse Science + Technology
 }
-\date{Trinity 2022}
+\date{Trinity Term 2022}
 
 \begin{frame}
   \titlepage
@@ -78,38 +82,42 @@
 \end{frame}
 
 \note{
-  It's a really interesting time to research space systems, partially because, for the first time ever, commercially competitive services are being developed to tackle problems such as Earth monitoring and global communications.
+  It's a really interesting time to research space systems, partially because with the dawn of so-called "new space", we're seeing unprecedented growth in the sector.
+  Commercially competitive services are being developed to complement existing national space agencies to tackle problems such as Earth monitoring and global communications.
+
   Lots of new satellites are being launched, which are for the first time considering security throughout the entire design process.
   This has lead to the development of standardised protocols, encryption standards, and hardware.
 }
 
 \begin{frame}
   \frametitle{Reliance on old space}
-  \begin{itemize}
+  \begin{itemize}[<+->]
     \item Many legacy satellite systems currently exist
+      \note<1>{
+        However, while the security community is mostly focussed on making this new technology more secure, legacy satellite systems still exist.
+      }
     \item They are widely used for research and national infrastructure
+      \note<2>{
+        Although these satellites were launched decades ago, many have outlived their planned lifespans to this day, and are still widely used for critical purposes such as forest fire detection and analysis of activities in conflict areas.
+
+        However, the groundstations for these satellites are often receiving data which isn't securely authenticated.
+        Instead, they implicitly trust that the input radio data is secure.
+      }
     \item Since their launch, hardware and attack techniques have advanced
+      \note<3>{
+        When these satellites were launched, intercepting communications and performing injection attacks would have required infeasibly expensive and specialised hardware.  
+        When combined with computational constraints on the satellites, it therefore sometimes made sense to transmit data in the clear.
+        However, it is now commonly understood that commercially available hardware, such as the software defined radio, is sufficient to emit an attacking interference pattern in the vicinity of the receiver, resulting in data injection.
+      }
     \item These satellites are vulnerable to new attack techniques
-  \end{itemize}
-  \note{
-    However, while the security community is mostly focussed on making this new technology more secure, legacy satellite systems still exist.
-    Although these satellites were launched decades ago, many have outlived their planned lifespans to this day, and are still widely used for critical purposes such as forest fire detection and analysis of activities in conflict areas.
-
-    However, the groundstations for these satellites are often receiving data which isn't securely authenticated.
-    Instead, they implicitly trust that the input radio data is secure.
-
-    When these satellites were launched, intercepting communications and performing injection attacks would have required infeasibly expensive and specialised hardware.  
-    When combined with computational constraints on the satellites, it therefore sometimes made sense to transmit data in the clear.
-    However, it is now commonly understood that commercially available hardware, such as the software defined radio, is sufficient to emit an attacking interference pattern in the vicinity of the receiver, resulting in data injection.
-
-    Additionally, in the last few decades, our understanding of cryptography has advanced, with certain satellites using encryption algorithms that are now considered weak.
-    This opens up previously secure satellites systems to the same kinds of signal injection attack.
-    We expect more such systems to be affected as cryptography advances and quantum computing breaks previously secure algorithms.
-
+      \note<4>{
+        Additionally, in the last few decades, our understanding of cryptography has advanced, with certain satellites using encryption algorithms that are now considered weak.
+        This opens up previously secure satellites systems to the same kinds of signal injection attack.
+        We expect more such systems to be affected as cryptography advances and quantum computing breaks previously secure algorithms.
     It is now well accepted that legacy computing systems which trust their input data aren't resilient against modern adversaries.
     However, no current research exists to determine which satellites are affected, how difficult it is to pull off such an attack, or what the ramifications would be.
-  }
-  
+      }
+  \end{itemize}
 \end{frame}
 
 % Since the advent of the software-defined radio, mounting an injection attack against an insecure satellite downlink requires only access to off-the-shelf hardware
@@ -135,6 +143,8 @@
   }
 \end{frame}
 
+% TODO: split previous notes across to this slide
+
 \subsection{Threat model}
 \begin{frame}
   \frametitle{Threat model}
@@ -151,18 +161,8 @@
     \item Exploiting or disrupting downlink processing stages:
     \begin{itemize}
       \item Achieve denial of service, e.g. by causing pipeline stages to crash.
-      \item Execute arbitrary core, e.g. by exploiting processing stages that call the shell.
+      \item Execute arbitrary code, e.g. by exploiting processing stages that call the shell.
     \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Threat model}
-  \framesubtitle{Adversary's capabilities}
-  \begin{itemize}
-    \item Access to commercially available hardware such as software-defined radios, amplifiers, and antennas.
-    \item Can maintain presence in the vicinity of a receiver.
-    \item Is ground based, so cannot emit signals directly within the beam of the receiver.
   \end{itemize}
 \end{frame}
 
@@ -236,32 +236,27 @@
       \end{enumerate}
   \end{enumerate}
 \end{frame}
-% In this work, we consider the physical layer
-% A number of challenges relating to the physical layer include:
-% * Ground-based attacker against a highly directional dish
-% * Generating the correct data
-% * Timing it agaist the original signal
 
-\begin{frame}
-  % Attack data generation
-  \frametitle{Attack overview}
-  \begin{itemize}
-    \item Construct attack data packets, by either;
-      \begin{itemize}
-        \item Tampering with image data to affect derived datasets.
-        \item Violating the packet protocols, to exploit processing stages.
-      \end{itemize}
-    \item Reencode into raw samples;
-      \begin{itemize}
-        \item Implement a data link protocol encoder and generate the raw data frames.
-      \end{itemize}
-    \item Inject the radio signal;
-      \begin{itemize}
-        \item Modulate the data onto the correct frequency.
-        \item Amplify to overshadow the legitimate signal in the vicinity of the receiver.
-      \end{itemize}
-  \end{itemize}
-\end{frame}
+% \begin{frame}
+%   % Attack data generation
+%   \frametitle{Attack overview}
+%   \begin{itemize}
+%     \item Construct attack data packets, by either;
+%       \begin{itemize}
+%         \item Tampering with image data to affect derived datasets.
+%         \item Violating the packet protocols, to exploit processing stages.
+%       \end{itemize}
+%     \item Reencode into raw samples;
+%       \begin{itemize}
+%         \item Implement a data link protocol encoder and generate the raw data frames.
+%       \end{itemize}
+%     \item Inject the radio signal;
+%       \begin{itemize}
+%         \item Modulate the data onto the correct frequency.
+%         \item Amplify to overshadow the legitimate signal in the vicinity of the receiver.
+%       \end{itemize}
+%   \end{itemize}
+% \end{frame}
 
 \subsection{Affecting the derived datasets}
 
@@ -272,7 +267,8 @@
   \begin{itemize}
     \item Obtain/capture legitimate data
     \begin{itemize}
-      \item Download from NASA distributed data archive
+      \item Beforehand -- download from NASA distributed data archive
+      \item Live -- set up custom receiver setup
     \end{itemize}
 
     \item Process it to add/remove artefacts
@@ -282,48 +278,37 @@
   \end{itemize}
 \end{frame}
 
+% \begin{frame}
+%   \frametitle{Affecting the derived dataset}
+%   \framesubtitle{Data capture}
+%   \begin{itemize}
+%     \item Derived datasets from Aqua available from distributed web archives from NASA's website
+%     \item The files are separated according to a timestamp format, so the attacker needs to find an image of the desired location by using the satellite's orbital parameters
+%   \end{itemize}
+%   
+%   \url{https://ladsweb.modaps.eosdis.nasa.gov}
+% 
+% \note{
+%   LADSWeb archive - can download datasets at several different levels of processing
+%   We want the lowest form possible
+%   To know what to download, we need to do some reversing of the satellite coordinates and timestamp etc
+%   Can theoretically do this in the live setting as well
+% }
+% \end{frame}
+
 \begin{frame}
   \frametitle{Affecting the derived dataset}
   \framesubtitle{Data capture}
-  \begin{itemize}
-    \item Derived datasets from Aqua available from distributed web archives from NASA's website
-    \item The files are separated according to a timestamp format, so the attacker needs to find an image of the desired location by using the satellite's orbital parameters
-  \end{itemize}
-  
-  \url{https://ladsweb.modaps.eosdis.nasa.gov}
-
-\note{
-  LADSWeb archive - can download datasets at several different levels of processing
-  We want the lowest form possible
-  To know what to download, we need to do some reversing of the satellite coordinates and timestamp etc
-  Can theoretically do this in the live setting as well
-}
-\end{frame}
-
-% TODO: add into here the format for names of the data
-\begin{frame}
-  \frametitle{Affecting the derived dataset}
-  \framesubtitle{Data capture}
-  \begin{figure}
-    \includegraphics[width=0.8\textwidth]{images/level0.png}
-    \caption{LAADS DAAC archive centre download}
-    \label{fig:level0}
-  \end{figure}  
-  \url{https://ladsweb.modaps.eosdis.nasa.gov/archive/Science\%20Domain/Level-0/MODIS\%20Level-0/MODIS\%20Aqua\%20C6.1\%20-\%20Level\%200\%20Raw\%20Instrument\%20Packets\%20(5\%20minutes)/2015/299/}
-
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/level0.png}
+  \url{https://ladsweb.modaps.eosdis.nasa.gov/archive/}
 \end{frame}
 
 \begin{frame}
   \frametitle{Affecting the derived dataset}
   \framesubtitle{Data processing: image format reversing}
   \includegraphics[width=\textwidth]{images/image_format.png}
-
-  \note{We must firstly reverse engineer the image format}
 \end{frame}
-
-%\begin{frame}
-%  \textbf{TODO: slide on running the tools}
-%\end{frame}
 
 \subsection{Exploiting processing stages}
 
@@ -335,7 +320,6 @@
    \begin{itemize}
      \item Look for possible exploits around manual memory management and execution boundaries
    \end{itemize}
-
     \item Construct payload packet to trigger vulnerability chain
     \begin{itemize}
       \item Violate assumptions about the protocol headers
@@ -345,33 +329,22 @@
 
 \begin{frame}
   \frametitle{Exploiting processing stages}
-  \framesubtitle{Obtain downlink decoder software}
+  \framesubtitle{Obtaining the processing software}
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/drl.png}
+  \newline
   With a research account, anyone can download the entire set of decoding software from NASA's \textit{Direct Readout Laboratory}
+  \newline
   \url{https://directreadout.sci.gsfc.nasa.gov/}
 \end{frame}
 
 \begin{frame}
   \frametitle{Exploiting processing stages}
-  \framesubtitle{Reformatting: Aqua's protocols}
+  \framesubtitle{Construct payload packet}
+  \centering
   \includegraphics[width=\textwidth]{images/cadu_diagram.pdf}
   \note{Number of causes of concern: L0 to L1 made of many disparate components, interacting across boundaries with access to the shell. Using C programs that don't pay huge attention to managing memory correctly, and using a slightly buggy protocol header parser.}
 \end{frame}
-
-%\begin{frame}
-%  \textbf{TODO: slide on running the tools}
-%\end{frame}
-
-\begin{frame}
-  \frametitle{Exploiting processing stages}
-  \framesubtitle{Analyse software for exploits}
-
-  \begin{itemize}
-    \item Usual problems with legacy software here, and we find a kill chain!
-    \item What if we just make the header pointer point past the end of the packet?
-    \item The NASA software catches this case, but it might not
-  \end{itemize}
-\end{frame}
-
 
 \section{Evaluation}
 \subsection{Experimental setup}
@@ -389,7 +362,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Exploiting processing stages}
+  \frametitle{Experimental setup}
   \framesubtitle{NASA decoder}
   \centering
   \includegraphics[width=0.8\textwidth]{images/attack_types.pdf}
@@ -604,7 +577,7 @@
   \frametitle{Conclusion}
   \begin{itemize}
     \item Signal injection against satellite downlinks are currently effective against decryptable classes of satellites
-    \item Through an end-to-end case study, we demonstrated that the EOS satellites are vulnerable, with wide ramifications
+    \item Through an end-to-end case study, we demonstrated that NASA's fire detection system is vulnerable, with wide ramifications
     \item Only a moderate equipment budget is required to perform these attacks
     \item Currently proposed countermeasures would increase the complexity of performing this attack in practice
     \item Future work should consider a comprehensive overview of similarly vulnerable systems
