@@ -1,109 +1,17 @@
 \documentclass{beamer}
 
-\setbeamertemplate{caption}[numbered]
-\usetheme{Hannover}
+\usetheme[altlogo=images/ssl-logo.png]{Oxford}
 \usepackage{subcaption}
+
+%\setbeamertemplate{caption}[numbered]
 \expandafter\ifstrequal\expandafter{\jobname}{notes}{
   \setbeameroption{show only notes}
 }{
 }
 
-\definecolor{OxfordBlue}{RGB}{4,30,66}
-\setbeamercolor{title in sidebar}{fg=white}
-\setbeamercolor{author in sidebar}{fg=white}
-\setbeamerfont{section in sidebar}{series=\bfseries}
-\setbeamercolor{section in sidebar}{fg=white}
-\setbeamercolor{subsection in sidebar}{fg=white}
-\setbeamercolor{sidebar}{bg=OxfordBlue}
-
 \begin{document}
 
-% TODO: make Oxford template
-
-\makeatletter
-\def\insertverticalnavigation#1{%
-  \vbox{%
-    \def\sectionentry##1##2##3##4##5{%
-      \ifnum##5=\c@part%
-      \def\insertsectionhead{##2}%
-      \def\insertsectionheadnumber{##1}%
-      \def\insertpartheadnumber{##5}%
-      \hbox to #1{{%
-        \usebeamerfont{section in sidebar}\usebeamercolor[fg]{section in sidebar}%
-          \hyperlink{Navigation##3}{%
-          \ifnum\c@section=##1%
-            \ifnum\c@subsection=0\relax%
-              {\usebeamertemplate{section in sidebar}}%
-            \else%
-              \ifx\beamer@nav@css\beamer@hidetext%
-                {\usebeamertemplate{section in sidebar}}%
-              \else%
-                {\usebeamertemplate{section in sidebar}}% HERE
-              \fi%
-            \fi%
-          \else
-            {\usebeamertemplate{section in sidebar shaded}}%
-          \fi}}}%
-      \beamer@currentsubsection=0\relax\fi}%
-    \def\slideentry##1##2##3##4##5##6{}%
-    \def\beamer@subsectionentry##1##2##3##4##5{%
-      \ifnum##1=\c@part%
-      \def\insertpartheadnumber{##1}%
-      \def\insertsectionheadnumber{##2}%
-      \def\insertsubsectionheadnumber{##3}%
-      \def\insertsubsectionhead{##5}%
-       \beamer@tocifnothide{\ifnum\c@section=##2\ifnum\c@subsection=##3\beamer@nav@css\else\beamer@nav@oss\fi\else\beamer@nav@ooss\fi}%
-      {\hbox{{%
-        \usebeamerfont{subsection in sidebar}\usebeamercolor[fg]{subsection in sidebar}%
-          \hyperlink{Navigation##4}{%
-          \ifnum\c@section=##2%
-            \ifnum\c@subsection=##3%
-              \ifnum\c@subsubsection=0\relax%
-                {\usebeamertemplate{subsection in sidebar}}%
-              \else%
-                {\usebeamertemplate{subsection in sidebar shaded}}%
-              \fi%
-            \else%
-              {\usebeamertemplate{subsection in sidebar shaded}}%
-            \fi%
-          \else%
-            {\usebeamertemplate{subsection in sidebar shaded}}%
-          \fi}}}%
-      }%
-      \fi}%
-    \def\beamer@subsubsectionentry##1##2##3##4##5##6{%
-      \ifnum##1=\c@part%
-      \def\insertpartheadnumber{##1}%
-      \def\insertsectionheadnumber{##2}%
-      \def\insertsubsectionheadnumber{##3}%
-      \def\insertsubsubsectionheadnumber{##4}%
-      \def\insertsubsubsectionhead{##6}%
-      \beamer@tocifnothide{\ifnum\c@section=##2\ifnum\c@subsection=##3\ifnum\c@subsubsection=##4\beamer@nav@css\else\beamer@nav@oss\fi\else\beamer@nav@ooss\fi\else\beamer@nav@ooss\fi}%
-      {\hbox{{%
-        \usebeamerfont{subsubsection in sidebar}\usebeamercolor[fg]{subsubsection in sidebar}%
-          \hyperlink{Navigation##5}{%
-          \ifnum\c@section=##2%
-            \ifnum\c@subsection=##3%
-              \ifnum\c@subsubsection=##4%
-                {\usebeamertemplate{subsubsection in sidebar}}%
-              \else
-                {\usebeamertemplate{subsubsection in sidebar shaded}}%
-              \fi%
-            \else%
-              {\usebeamertemplate{subsubsection in sidebar shaded}}%
-            \fi%
-          \else%
-            {\usebeamertemplate{subsubsection in sidebar shaded}}%
-          \fi}}}%
-      }%
-      \fi}%
-    %\beamer@currentsubsection=0\relax%
-    \dohead%
-  }%
-}
-\makeatother
-
-\title{Firefly: Exploiting Implicit Trust in Satellite Downlink Processing Systems}
+\title[Exploiting Implicit Trust in Satellite Downlink Processing Systems]{Firefly: Exploiting Implicit Trust in Satellite Downlink Processing Systems}
 \author[Edd Salkield]{
   \emph{Edd Salkield}
   \inst{1}
@@ -120,15 +28,13 @@
   Ivan Martinovic
   \inst{1}
 }
-\institute[University of Oxford]{
+\institute[]{
   \inst{1} Systems Security Lab, University of Oxford \and %
   \inst{2} Cyber-Defence Campus, armasuisse Science + Technology
 }
 \date{Trinity Term 2022}
 
-\begin{frame}
-  \titlepage
-\end{frame}
+\makeoxfordtitle
 
 \section{Motivation}
 
