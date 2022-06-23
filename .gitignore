@@ -33,3 +33,5 @@ presentation/*.out
 presentation/*.pdf
 presentation/*.snm
 presentation/*.toc
+presentation/firefly_20_min.fdb_latexmk
+presentation/firefly_20_min.fls
