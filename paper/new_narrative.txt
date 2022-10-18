@@ -1,2 +1,0 @@
-Something can only be said to be secure in its context, and while the cryptographic
-primitives have not changed, the context has.
