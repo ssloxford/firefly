@@ -7,14 +7,19 @@ open questions:
 * what downstream effects could they seek to have, therefore what cost/benefit ratio?
 
 ## background
+
 Legacy systems exist and are used
+
 This causes downstream issues
 
 ## related work
+
 Point to existing satellite downstream work
+
 If poss, cite Johannes' modem work
 
 ## threat model
+
 Signal injection is cheaper than we think, across various antenna systems
 
 ## section 1: physical layer
@@ -22,6 +27,7 @@ Signal injection is cheaper than we think, across various antenna systems
 ### Experiment 1: Out-of-band angular emission
 
 Outcome: Understand the key factors in antenna attenuation affecting injection capability
+
 Summary: Emit out-of-band signals at various dishes and measure the gain
 
 Factors to test:
@@ -46,7 +52,9 @@ Method 1:
 
 ### related work
 Measuring dish attenuation on wet dishes
+
 https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6916611
+
 Experiment was done in Malaysia
 > The distance (R) between the transmitter and receiver was 17m and 14.25m
 > The experiment was located in USM engineering campus.
@@ -56,6 +64,7 @@ Experiment was done in Malaysia
 ### Protocol and decoder analysis
 
 Outcome: Understand how common protocols/decoders are weak to injection on the downlink
+
 Summary: Reverse several protocols/decoders to determine packets that break things if injected
 
 Factors to test:
@@ -66,6 +75,7 @@ Factors to test:
 ### Experiment 2: end-to-end "for real" in a shielded box
 
 Outcome: Understand the key protocol factors affecting injection capability
+
 Summary: Emit in-band signals in a shielded box, calibrated to mirror the real-world setup gain, that cause erroneous bytes to be decoded
 
 Factors to test:
@@ -85,4 +95,5 @@ Factors to test:
 ## section 3: downstream consequences
 
 We map out which systems may be similarly vulnerable, pointing to future research
+
 We classify which systems use what antenna types, and so forth
