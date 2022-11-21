@@ -1,11 +1,11 @@
 \begin{abstract}
 Satellite communications are increasingly crucial in applications such as telecommunications and Earth observation.
-These purposes are supported by a variety of satellites, many of which are no longer considered cryptographically secure.
-Recent developments in radio hardware have opened the door for modern adversaries to inject signals into these channels using only commercially available radio equipment.
+These purposes are supported by a variety of satellites, many of which are no longer considered cryptographically secure, opening the door for modern adversaries to inject signals with only commercially available radio equipment.
 
-In this paper, we demonstrate for the first time the feasibility of signal injection attacks against a representative sample of real-world satellite systems.
-We present a threat model and physical simulation that links key challenges such as transmission frequency, receiver type, and protocol to the required equipment budget and chance of attack success.
-We validate our findings through an end-to-end experiment, overshadowing real satellite communications.
-With only a moderate equipment budget, we demonstrate reliable internet traffic injection, satellite-derived dataset poisoning, and code execution on key national infrastructure systems.
-This raises concerns about other satellite systems, which could be compromised by similar means.
+In this paper, we investigate the feasibility and impact of signal injection attacks against satellite downlink communications systems.
+We present a threat model which links attack sophistication and required budget to key properties of the victim system.
+We validate these conclusions experimentally by overshadowing a representative sample of real satellite communications, achieving internet traffic injection, dataset poisoning, and code execution to affect downstream systems.
+We show that the necessary hardware can be assembled with commercially available components for <\$500 across all common satellite communication types.
+The raises concerns about other satellite systems and downstream services, which could be compromised by similar means.
+We conclude with a discussion of potential countermeasures and mitigations.
 \end{abstract}

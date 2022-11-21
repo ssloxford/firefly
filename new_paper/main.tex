@@ -14,7 +14,7 @@
 \usepackage{subcaption}
 \usepackage{comment}
 \usepackage[hidelinks]{hyperref}
-%\usepackage[T1]{fontenc}
+\usepackage[T1]{fontenc}
 %\usepackage{lmodern} % TODO: work out why this doesn't compile without this https://tex.stackexchange.com/questions/10706/pdftex-error-font-expansion-auto-expansion-is-only-possible-with-scalable
 \lstset{
   basicstyle=\ttfamily,
@@ -29,10 +29,7 @@
 
 \begin{document}
 
-\title{Firefly: Exploiting Implicit Trust in Satellite Downlink Processing Systems}
-% \title{Firefly: Exploiting Implicit Trust in Satellite Packet-Based Downlink Processing Systems}
-% Overshadowing to Exploit Implicit Trust in Satellite-Derived Dataset Generation
-
+\title{Exploiting Signal Injection Attacks against Satellite Downlink Communications}
 \author{Anonymous Authors}
 
 \begin{comment}
@@ -73,10 +70,10 @@ ivan.martinovic@cs.ox.ac.uk}}
 \input{abstract.tex}
 
 \input{motivation.tex}
-\input{background.tex}
+\input{attack.tex} % describe the overall attack structure and hardware setup required
 \input{threat_model.tex}
-\input{attack.tex}
-\input{evaluation.tex}
+\input{evaluation.tex} % two experiments
+\input{background.tex} % describe the related work
 \input{countermeasures.tex}
 \input{conclusion.tex}
 
