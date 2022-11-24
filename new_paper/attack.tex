@@ -7,41 +7,47 @@
   \label{fig:attack-illustration}
 \end{figure}
 
-Successfully attacking a downlink satellite system requires the attacker to reliably overshadow an active wireless communications channel to manipulate the raw demodulated data.
-The injected data is designed to either affect the decoded data, or to exploit processing stages in the decoding pipeline, as depicted in Figure~\ref{fig:attack-illustration}.
-The decoded data could be affected to poison satellite-derived datasets, e.g. Earth observation, or man-in-the-middle internet traffic.
-Through creating malformed protocol headers, attackers can also seek to manipulate control flow in software and exploit potential vulnerabilities.
+Successfully attacking a downlink satellite system requires the attacker to reliably overshadow an active wireless communications channel, injecting a custom radio signal into the receiver.
+The injected signal is designed to either, as depicted in Figure~\ref{fig:attack-illustration}, affect the decoded data or exploit processing stages in the decoding pipeline.
+By affecting the decoded data, the attacker can either poison satellite-derived datasets, such as Earth observation data, or manipulate live sessions such as internet traffic.
+By instead creating malformed packet headers, attackers can also seek to manipulate control flow in the decoding software and exploit potential vulnerabilities.
 
-In order to reliably overshadow, the attacker must overcome multiple physical and protocol layer challenges.
-We discuss each of these in turn.
+We proceed to discuss the key physical and protocol layer factors in performing a successful overshadow.
+We demonstrate and assess the effects against real-world systems in Section~\textbf{TODO}.
 
 \subsection{Physical layer considerations}
 
 At the physical layer, the attacker must emit a sufficiently high gain interfering signal such that the receiver no longer decodes the original signal.
-Achieving this in the real world is non-trivial, since the equipment setup must be operate at the correct \textit{radio frequency}, \textit{transmission power}, and \textit{signal polarity}.
+Achieving this in the real world is non-trivial, since the equipment setup must be operate at the correct radio frequency, transmission power, and signal polarity.
 
 \subsubsection{Radio frequency}
 
-We assume that the attacker has access to a software-defined radio (SDR), and has precalculated the attacking signal.
-Since most SDRs, such as the HackRF, are capable of outputting a signal in the range 0-6GHz~\textbf{TODO: cite}, with only an amplifier and antenna an attacker can overshadow within this range.
-Satellites operating within this range include GPS, TV, and some communications satellites.
+Historically, securing satellite wireless channels has not been a priority for satellite operators, which prioritise system robustness over security guarantees~\textbf{TODO: mention the FUNcube email from Josh}.
+It was also assumed that the equipment required to eavesdrop and inject messages is highly specialised and difficult to access.
+However, recent software-defined radio (SDR) hardware can transmit and receive signals cheaply up to the UHF and VHF frequencies (up to 6GHz)~\textbf{TODO: cite HackRF}, lowering the barrier to entry for injection attacks.
 
-However, the majority of military and communications satellites downlink in the X-band (8-12GHz), Ku-band (12-18GHz), or the Ka-band (26-40GHz).
-Overshadowing signals at these higher frequencies requires significantly more advanced hardware.
-In particular, the signal from the SDR must first be upconverted to the correct frequency, and then amplified by a special-purpose amplifier for this frequency.
+Insecure satellite signals in this range are therefore most affected; eavesdropping is possible with only an SDR and cheap television equipment~\cite{pavur2020tale}.
+We demonstrate that these signals are also the easily overshadowed, requiring only a simple amplifier and antenna setup as used in amateur radio.
+Targetable systems include geostationary satellite internet providers, GNSS, television, and some communications satellites~\cite{esa_satellite_bands}.
+
+However, the majority of military and communications satellites downlink data in the X-band (8-12GHz), Ku-band (12-18GHz), or the Ka-band (26-40GHz).
+Since SDRs can't output in these frequencies, overshadowing requires upconverting and amplifying the signal with special-purpose high frequency radio equipment.
+Additionally, since the higher frequencies are more easily blocked by physical materials and less diffracted in the atmosphere, the attacker has to achieve line-of-sight with the receiver station.
 Off the shelf radio equipment for this is highly expensive; Endurosat sells the upconverter and transmitter for $22,800$ EUR~\cite{endurosat:xbandtransmitter}, and a compatible antenna for $6,400$ EUR \cite{endurosat:xbandantenna}.
 
-In Section~\textbf{TODO} we discuss how an attacker can design a custom transmission setup for significantly lower cost.
+In Section~\textbf{TODO} we discuss how an attacker can design a custom transmission setup covering these frequency ranges at a much lower cost.
 
 \subsubsection{Transmission power}
 
 Antennas intended for space communications tend to be highly directional, amplifying signals within a certain beam, and attenuating out of beam signals.
 Each antenna type has a unique gain pattern; monopole antennas, Yagi antennas, and parabolic dishes attenuate out-of-band signals considerably differently.
 Therefore, ground-based attackers transmitting out of beam must overcome the attenuation through sufficiently high gain.
-Furthermore, if the attacker transmits at an excessively high power, the victim receiver will be saturated and unable to decode the signal.
+However, if the attacker transmits at an excessively high power, the victim receiver will be saturated and unable to decode the signal.
 
-Therefore, since the attacker cannot directly measure the received gain, achieving injection requires the attacker to calculate the required transmit power beforehand, based on their position, the antenna type, and the legitimate satellite's transmission power.
-The experiments in Section~\textbf{TODO} are designed to establish this.
+Therefore, the attacker must transmit at the correct power such that the legitimate signal is overshadowed, but the receiver is not saturated.
+In Section~\textbf{TODO}, we determine how the attacker can establish this through modelling and experimental evaluation of several antenna types.
+
+% TODO: saturation graph?
 
 \subsubsection{Signal polarity}
 
@@ -56,12 +62,28 @@ The experiments in Section~\textbf{TODO} are designed to establish the importanc
 
 \subsection{Protocol layer considerations}
 
+% TODO: are these really worth discussing?
+
+In a successful signal injection attack, the injected data must either accepted and decoded by the victim, or be malformed to exploit a vulnerability in the decoder.
+
 \subsubsection{Cryptography}
+
+Robust cryptgraphy can prevent all forms of signal injection attacks by guaranteeing data secrecy, integrity, and authenticity.
+However, many real-world satellite downlink transmissions are either unencrypted, only partially encrypted, or are encrypted using a leaked key/weak algorithm.
+
+Systems where the receiver software is insecurely implemented are also vulnerable.
+For example, recent academic work has shown that that several major consumer satellite internet terminals are designed to handle both unencrypted and encrypted data.
+In these scenarios, an attacker doesn't need to break the cryptography to achieve message decoding.
 
 \subsubsection{Data integrity}
 
+The physical layer characteristics of satellite transmissions results in highly noisy channels which are prone to bit flips.
+As a result, SATCOM links generally include integrity checks such as checksums.
+Although not providing theoretic security guarantees, such measures do prevent simple bit-flipping attacks through injecting noise.
+
 \subsubsection{Timing}
 
+Finally, since many satellite data transmissions form continuous streams of data, attackers injecting signals must ensure that the injected data is continuous with the existing transmissions.
 
 \begin{comment}
 % reactive jamming discussion - put later
