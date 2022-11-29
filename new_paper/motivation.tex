@@ -11,12 +11,22 @@ However, recent decades have seen a significant rise in the off-the-shelf availa
 This has lowered the barrier to entry for signal injection and denial of service across many wireless systems, including WiFi, wireless sensors, mobile internet~\cite{yang2019hiding,erni2021adaptover}, GNSS~\cite{tippenhauer2011requirements}, and even avionic systems~\cite{sathayeWireless2019}.
 
 Whilst recent news demonstrates that modern adversaries exist and are sufficiently motivated to exploit the downlink~\cite{satcomAnalysis}, the practicality of performing these attacks on satellite downlinks is currently unknown.
-Achieving signal injection requires that the attacker operates within unique constraints imposed by the physical layer and protocol design of the satellite communications link.
-These include transmitting at frequencies that are higher than the operating range of most SDRs, and and overcoming the attenuation caused by of highly directional receiver dishes.
+This is because achieving signal injection requires that the attacker operates within unique constraints imposed by the physical layer and protocol design of the satellite communications link.
 
-Additionally, the potential impact is unknown~\textbf{TODO: expand}.
+If targeting satellites used for military or high bandwidth communications, this includes transmitting at frequencies higher than the operating range of most SDRs~\cite{esa_satellite_bands}.
+Terrestrial attackers against highly directional dish antennas must overcome the attenuation caused by transmitting out of beam, but without saturating the receiver.
+The expected polarity of the signal must also be matched.
+Additionally, since satellite communications are vulnerable to atmospheric noise, even unencrypted channels are subject to high data integity checks; these must be accounted for when generating the overshadowing signal.
 
-Finally, no current work evaluates the practicality of achieving signal injection in the real world through an experimental evaluation.
+% TODO: is this paragraph necessary considering contributions is coming next?
+This work seeks to evaluate the practicality of achieving signal injection attacks in the real world, given these constraints.
+We seek to understand how key factors in the design of the satellite affects the required budget and attack complexity.
+
+% TODO: Evaluate downstream consumers?
+
+Several anti-spoofing physical layer countermeasures have been proposed in the academic literature so far, seeking to upgrade the security of existing communications links.
+These consider properties such as channel noise, signal timing~\cite{jedermann2021orbit}, signal direction, and fingerprinting the transmitting hardware for continuous probabilistic authentication~\cite{foruhandeh2020spotr,oligeri2020past,borio2016gnss,qiu2022robust}.
+However, without a robust threat model for signal injection, no comparative analysis of real world effectiveness of these countermeasures has been possible. % TODO: Outline how the comparative analysis has been limited
 
 \begin{figure}
     \includegraphics[width=\columnwidth]{diagrams/injection/pixels_800_140.jpg}

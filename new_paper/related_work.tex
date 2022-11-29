@@ -1,17 +1,35 @@
 \section{Related Work}
 
+% TODO: cite Manulis paper asking for a threat model
+% TODO: write about information-theoretic noise model stuff
+% TODO: write about GPS in particular, with its spoofing, fingerprinting, countermeasures - basically everything explored, but within this unique context
+
+Security research of the SATCOM link covers eavesdropping, in which messages not intended for public access are decoded by an unauthorised receiver, and signal injection, in which the attacker's messages are inserted into the wireless channel.
+Existing eavesdropping research has demonstrated the widespread effectiveness of decoding the messages, given the wide area over which the signals can be received and the lack of robust cryptography on the channel.
+However, due to the publicly available specification, lack of cryptography, wide-reaching impact, and a radio frequency within the range of SDRs, GPS has been the focus of SATCOM signal injection and its associated countermeasures.
+This work draws upon existing research into signal injection against wireless channels in general, but isn't generalised across different satellite receiver types.
+
+As a result, many of the anti-spoofing countermeasures for SATCOM injection focus on GPS also.
+However, certain countermeasures instead depend upon physical-layer characteristics of satellites which generalise beyond GPS.
+
+We proceed to discuss work into eavesdropping, signal injection, and countermeasures in turn.
+
 \subsection{Eavesdropping}
 
 % Basic point: encrypted downlinks are hardly universal
 % Unencrypted for many reasons
+
+% TODO: mention existing work in reversing Iridium
 
 Fundamentally, securing communications over a wireless channel requires cryptographic guarantees about data confidentiality, integrity, and authenticity.
 Satellite systems are no exception; geostationary satellites in particular can often be received across distances of thousands of kilometers.
 As a result, unless the data link is robustly encrypted, anyone with access to suitable radio equipment can receive and decode these transmissions.
 
 Pavur et. al. recently uncovered that since many satellite internet providers do not encrypt the downlink~\cite{pavur2020tale}, passport information of ship crews, aircraft systems, and POS terminal data are all broadcast in the clear.
-This advances previous work from 2005 which noted the huge amount of information send via unsecured satellite broadcast~\cite{adelsbach2005satellite}.
-Cybercriminal gangs abuse this to secretly exfiltrate data; packets sent in the clear to any known satellite customer IP address are receivable anywhere within the satellite's footprint~\cite{satellite_apt}.
+This advances previous work from 2005 which noted the huge amount of information sent via unsecured satellite broadcast~\cite{adelsbach2005satellite}.
+This work also explores the theoretical possibilities of TCP session hijacking by broadcasting signals over a high-speed wired connection.
+
+Cybercriminal gangs have been known to abuse the broadcast property to secretly exfiltrate data; packets sent in the clear to any known satellite customer IP address are receivable anywhere within the satellite's footprint~\cite{satellite_apt}.
 Although newer satellite internet providers such as Starlink address this issue, and government agencies are beginning to require encryption~\textbf{TODO: cite}, these legacy systems are still widely used due to long mission lifespans and existing receiver hardware.
 
 Other satellite systems also use insecure downlinks.
@@ -24,22 +42,45 @@ Additionally, the GEO-KOMPSAT-2A satellite had its keys leaked on the Korea Mete
 
 \subsection{Signal injection}
 
-% Look more deeply into Tedeschi paper
-Limited work into signal injection exists, but is limited to specific systems such as GNSS, with a limited discussion of countermeasures~\cite{tedeschi2022satellite}.
-However, no current work seeks to understand the effects of a modern adversary spoofing non-GPS satellites through signal injection.
+Spoofing attacks are carried out by a variety of methods including replay and forgery in order to fool the receiver into accepting illegitimate messages, and jamming is typically performed using high-power interference.
+Other than GPS, the majority of work into signal injection considers non-satellite wireless systems; we touch upon each in turn.
 
-\subsubsection{Satellite receivers}
+\subsubsection{GPS spoofing}
 
-There is also work in satellite security beyond GNSS -- in 2020 it was demonstrated that confidential maritime satellite communications could be reveived by SDR-equipped attackers from a great distance away (covering a total area of tens of millions of square kilometers), thanks to the satellites' wide beamwidth and unencrypted payload~\cite{pavurTale2020}.
-This work also explores the theoretical possibilities of TCP session hijacking by broadcasting signals over a high-speed wired connection.
-Our work differs in this respect -- we focus on an attacker capable of injecting signals directly over the radio link, compromising trust in the received signal.
+Signal injection attacks in a GPS context are very well explored.
+The requirements for a successful attack within many contexts are well known, including in single- and multi-receiver and multi-attacker contexts~\cite{tippenhauer2011requirements}.
+It is also well understood how signal timing and precision affects the success of the attack.
 
-Max headroom - TV satellite
-Same protocols as used for satellite internet, traditionally
+%Much existing work within spoofing and jamming satellite communications focuses on Global Navigation Satellite Systems (GNSS).
+%The authors of~\cite{wuSpoofing2020} provide a comprehensive review of known types of spoofing and jamming attacks against these satellites, resulting in incorrectly reported positions and denial of service respectively.
+
+
+Advances in software-defined radios have opened the door for high-precision GPS spoofing attacks deployable with only cheaply available off-the-shelf hardware~\cite{gps-sdr-sim}.
+The communications are surprisingly easy to overshadow, requiring only a simple amplifier and antenna setup due to a number of physical layer factors.
+High gain isn't required because the legitimate signal is low power, and is received by an omnidirectional antenna.
+The signal is circularly polarized, meaning that the attacker doesn't need to be in phase, as per linear polarisation.
+Since the signal is of a sufficiently low frequency, a high frequency upconverter and amplifier is not required, and the signal is not absorbed by objects meaning that line-of-sight is not required.
+
+In GPS, data integrity is often checked on the receiver side, with a so-called GPS Lock.
+Once the receiver has locked onto a signal, it rejects signals that cause a vastly deviated distance calculation.
+Overcoming this lock therefore requires the attacker generate signals to maintain continuity.
+This principle applies in particular to Earth observation data, which is expected to be sampled from a continuous input; systems therefore detect anomalies by looking for large deviations between samples.
+
+%\subsubsection{Non-GPS satellite receivers}
+
+% TODO: scan space attacks open database to check for others
+
+%Outside of a GPS context, the documented signal injection attacks surround satellite television
+
+%Max headroom and similar - TV satellite
+%Same protocols as used for satellite internet, traditionally
 
 \subsubsection{Other wireless systems}
 
-This has lowered the barrier to entry for signal injection and denial of service across many wireless systems, including WiFi, wireless sensors, mobile internet~\cite{yang2019hiding,erni2021adaptover}, GNSS~\cite{tippenhauer2011requirements}, and even avionic systems~\cite{sathayeWireless2019}.
+Signal injection attacks against the receivers of other wireless systems are also well explored.
+These include WiFi, wireless sensors, mobile internet~\cite{yang2019hiding,erni2021adaptover}, GNSS~\cite{tippenhauer2011requirements}, and even avionic systems~\cite{sathayeWireless2019}.
+
+\textbf{TODO: get some advice on this and write it}
 
 Finally, we consider work in physical-layer radio security beyond the scope of satellite communication.
 There are a number of deployed radio systems which do not employ cryptography, including the ``ADS-B'' protocol used to locate and track aircraft.
@@ -47,28 +88,23 @@ There is a good amount of research into the security of ADS-B: \cite{strohmeierS
 Once again, we can recontextualize a number of these techniques to provide improvements to the security of other unsecured systems, which we see in Section~\ref{sec:countermeasures}.
 
 
-
-
-Much existing work within spoofing and jamming satellite communications focuses on Global Navigation Satellite Systems (GNSS).
-The authors of~\cite{wuSpoofing2020} provide a comprehensive review of known types of spoofing and jamming attacks against these satellites, resulting in incorrectly reported positions and denial of service respectively.
-Spoofing attacks are carried out by a variety of methods including replay and forgery in order to fool the receiver into accepting illegitimate messages, and jamming is typically performed using high-power interference.
-This work also includes a review of methods by which spoofing and jamming can be detected or mitigated.
-These methods include consistency checking, measuring signal characteristics, measuring arrival times~\cite{jedermann2021orbit}, utilizing arrays of antennas, measuring angle of signal arrival, and other factors extracted through machine learning techniques~\cite{oligeri2020past}.
-
-In contrast to GNSS systems' continuous broadcast of raw signals, the systems we are investigating are packet-based, implementing a more complex protocol stack.
-We apply spoofing and jamming concepts (and their associated countermeasures) to this novel target; we demonstrate that signal spoofing is possible for satellites for which the receiving and broadcasting equipment was previously thought to make such attacks prohibitively expensive, and show that attacks can have a significant effect on processing systems downstream from the original data.
-We also look beyond the payload, analyzing the data processing system itself to create novel attacks.
 \subsection{Countermeasures}
 
 As a result, recent countermeasures have been proposed which analyze artifacts of overshadowing on the physical channel to determine the authenticity of the received data~\cite{jedermann2021orbit,oligeri2020past}.
 However, the extent to which these countermeasures are effective in preventing overshadowing in a real world setup has yet to be determined.
 
-In Section~\ref{sec:countermeasures} we explore how an existing system might apply known countermeasures, or adapt countermeasures from related fields, to reduce the attack surface of existing satellite systems.
+These methods include consistency checking, measuring signal characteristics, measuring arrival times~\cite{jedermann2021orbit}, utilizing arrays of antennas, measuring angle of signal arrival, and other factors extracted through machine learning techniques~\cite{oligeri2020past}.
+
+\subsubsection{Channel noise masking}
 
 Some information theoretic countermeasures exist, including:
 
-https://ieeexplore.ieee.org/abstract/document/6739367?casa_token=rwzKea1crRoAAAAA:JYUiN2CdSAzZhFu0jOHq7-d-rINtM_STo4aCzUZasej6ailTUNX4MdaisXcM8G9qvl3AKWk
-https://ieeexplore.ieee.org/abstract/document/6108297?casa_token=hUULRC9BgwgAAAAA:tRxrOhLGzuLjOEE8S7UbXJ_5K4t6QZ0nPRpqiLgmDs7-1okaoezMIb5-HmK-eeCTsL5gcds
-https://ieeexplore.ieee.org/abstract/document/8822950?casa_token=-vLYsKFhvxIAAAAA:P6Xa33aZ_U191d0PGlmW-JdmkoUPYSBQDZ6e2svoM-qonIfm1WLji_smDt-qW1FTc2J2XI8
-https://ieeexplore.ieee.org/document/6638190
-https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6772207&casa_token=NFj6STXZ6mIAAAAA:US_nlhjLLvxy878JkL2F4-JjrgKZoYSH3SpbqwHyFGxbLadVk2foaH4WmccvW_WUe06ZZpc
+%https://ieeexplore.ieee.org/abstract/document/6739367?casa_token=rwzKea1crRoAAAAA:JYUiN2CdSAzZhFu0jOHq7-d-rINtM_STo4aCzUZasej6ailTUNX4MdaisXcM8G9qvl3AKWk
+%https://ieeexplore.ieee.org/abstract/document/6108297?casa_token=hUULRC9BgwgAAAAA:tRxrOhLGzuLjOEE8S7UbXJ_5K4t6QZ0nPRpqiLgmDs7-1okaoezMIb5-HmK-eeCTsL5gcds
+%https://ieeexplore.ieee.org/abstract/document/8822950?casa_token=-vLYsKFhvxIAAAAA:P6Xa33aZ_U191d0PGlmW-JdmkoUPYSBQDZ6e2svoM-qonIfm1WLji_smDt-qW1FTc2J2XI8
+%https://ieeexplore.ieee.org/document/6638190
+%https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6772207&casa_token=NFj6STXZ6mIAAAAA:US_nlhjLLvxy878JkL2F4-JjrgKZoYSH3SpbqwHyFGxbLadVk2foaH4WmccvW_WUe06ZZpc
+
+\subsubsection{Timing analysis}
+
+\subsubsection{Fingerprinting}
