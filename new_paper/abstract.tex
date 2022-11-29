@@ -1,11 +1,11 @@
 \begin{abstract}
-Satellite communications are increasingly crucial in applications such as telecommunications and Earth observation.
-These purposes are supported by a variety of satellites, many of which are no longer considered cryptographically secure, opening the door for modern adversaries to inject signals with only commercially available radio equipment.
+Satellite communications are increasingly crucial infrastructure for telecommunications and Earth observation.
+However, many widely used satellites are not cryptographically secure, opening this wireless channel to signal injection attacks.
+A specialized setup is required to overcome constraints unique to the satellite downlink, overcoming robust data integrity checks, directional dish attenuation, and the complexities in high frequency transmission. % TODO: rephrase somehow?
 
-In this paper, we investigate the feasibility and impact of signal injection attacks against satellite downlink communications systems.
-We present a threat model which links attack sophistication and required budget to key properties of the victim system.
-We validate these conclusions experimentally by overshadowing a representative sample of real satellite communications, affecting downstream systems with internet traffic injection, dataset poisoning, and code execution.
-We show that the transmitter hardware can be assembled with commercially available components for <\$500 across all common satellite communication types.
-The raises concerns about other satellite systems and downstream services, which could be compromised by similar means.
+In this paper, we present a systematic review of signal injection attacks against satellite downlink communications systems, establishing the feasibility and impact through real-world experiments.
+Our novel threat model and simulation links attack sophistication and required budget to key properties of the victim system, allowing the vulnerability of existing systems to be established.
+We validate the simulation by building the required hardware to overshadow the most common satellite communication types, and injecting amateur satellite communications in the real world.
+We achieve internet traffic injection on Iridium and dataset poisoning on NASA's Earth Observing System fleet, and raise concerns about other similar satellite systems and downstream services.
 We conclude with a discussion of potential countermeasures and mitigations.
 \end{abstract}
