@@ -1,13 +1,52 @@
 \section{Related Work}
 
-Recent work into SATCOM security mostly considers eavesdroping, which the wide broadcast area of geostationary satellites makes possible.
-For example, Pavur et. al. have demonstrated that high quantities of satellite internet traffic is conducted in plain HTTP through unencrypted satellite data links.  \cite{pavur2020tale}
+\subsection{Eavesdropping}
+
+% Basic point: encrypted downlinks are hardly universal
+% Unencrypted for many reasons
+
+Fundamentally, securing communications over a wireless channel requires cryptographic guarantees about data confidentiality, integrity, and authenticity.
+Satellite systems are no exception; geostationary satellites in particular can often be received across distances of thousands of kilometers.
+As a result, unless the data link is robustly encrypted, anyone with access to suitable radio equipment can receive and decode these transmissions.
+
+Pavur et. al. recently uncovered that since many satellite internet providers do not encrypt the downlink~\cite{pavur2020tale}, passport information of ship crews, aircraft systems, and POS terminal data are all broadcast in the clear.
+This advances previous work from 2005 which noted the huge amount of information send via unsecured satellite broadcast~\cite{adelsbach2005satellite}.
+Cybercriminal gangs abuse this to secretly exfiltrate data; packets sent in the clear to any known satellite customer IP address are receivable anywhere within the satellite's footprint~\cite{satellite_apt}.
+Although newer satellite internet providers such as Starlink address this issue, and government agencies are beginning to require encryption~\textbf{TODO: cite}, these legacy systems are still widely used due to long mission lifespans and existing receiver hardware.
+
+Other satellite systems also use insecure downlinks.
+For example, several of NASA's the Earth Observing Systems fleet communicate without encryption by design; the data is intended to be open, and so running a custom groundstation is encouraged.
+However, since the data is not cryptographically signed, authenticity cannot be verified, opening the door to signal injection attacks.
+
+Additionally, certain satellites that were considered secure at launch are now vulnerable.
+For example, the Korean satellite COMS-1 uses single DES encryption~\cite{lrit-key-dec}, which has led to customer keys being successfully extracted from satellite data.
+Additionally, the GEO-KOMPSAT-2A satellite had its keys leaked on the Korea Meteorological Administration website, which to this day remain publicly available~\cite{xrit-rx}.
+
+\subsection{Signal injection}
+
+% Look more deeply into Tedeschi paper
 Limited work into signal injection exists, but is limited to specific systems such as GNSS, with a limited discussion of countermeasures~\cite{tedeschi2022satellite}.
 However, no current work seeks to understand the effects of a modern adversary spoofing non-GPS satellites through signal injection.
 
-However, many existing satellites only partially implement encryption, or instead communicate in the clear; the standards required by government agencies are only beginning to require encryption in the space sector.
-As a result, recent countermeasures have been proposed which analyze artifacts of overshadowing on the physical channel to determine the authenticity of the received data~\cite{jedermann2021orbit,oligeri2020past}.
-However, the extent to which these countermeasures are effective in preventing overshadowing in a real world setup has yet to be determined.
+\subsubsection{Satellite receivers}
+
+There is also work in satellite security beyond GNSS -- in 2020 it was demonstrated that confidential maritime satellite communications could be reveived by SDR-equipped attackers from a great distance away (covering a total area of tens of millions of square kilometers), thanks to the satellites' wide beamwidth and unencrypted payload~\cite{pavurTale2020}.
+This work also explores the theoretical possibilities of TCP session hijacking by broadcasting signals over a high-speed wired connection.
+Our work differs in this respect -- we focus on an attacker capable of injecting signals directly over the radio link, compromising trust in the received signal.
+
+Max headroom - TV satellite
+Same protocols as used for satellite internet, traditionally
+
+\subsubsection{Other wireless systems}
+
+This has lowered the barrier to entry for signal injection and denial of service across many wireless systems, including WiFi, wireless sensors, mobile internet~\cite{yang2019hiding,erni2021adaptover}, GNSS~\cite{tippenhauer2011requirements}, and even avionic systems~\cite{sathayeWireless2019}.
+
+Finally, we consider work in physical-layer radio security beyond the scope of satellite communication.
+There are a number of deployed radio systems which do not employ cryptography, including the ``ADS-B'' protocol used to locate and track aircraft.
+There is a good amount of research into the security of ADS-B: \cite{strohmeierSecurity2015} provides a good review of the extent to which the system is vulnerable and explores ways to make the system more secure through verifying the transmitter location or identity, or using cryptographic methods.
+Once again, we can recontextualize a number of these techniques to provide improvements to the security of other unsecured systems, which we see in Section~\ref{sec:countermeasures}.
+
+
 
 
 Much existing work within spoofing and jamming satellite communications focuses on Global Navigation Satellite Systems (GNSS).
@@ -19,15 +58,17 @@ These methods include consistency checking, measuring signal characteristics, me
 In contrast to GNSS systems' continuous broadcast of raw signals, the systems we are investigating are packet-based, implementing a more complex protocol stack.
 We apply spoofing and jamming concepts (and their associated countermeasures) to this novel target; we demonstrate that signal spoofing is possible for satellites for which the receiving and broadcasting equipment was previously thought to make such attacks prohibitively expensive, and show that attacks can have a significant effect on processing systems downstream from the original data.
 We also look beyond the payload, analyzing the data processing system itself to create novel attacks.
+\subsection{Countermeasures}
+
+As a result, recent countermeasures have been proposed which analyze artifacts of overshadowing on the physical channel to determine the authenticity of the received data~\cite{jedermann2021orbit,oligeri2020past}.
+However, the extent to which these countermeasures are effective in preventing overshadowing in a real world setup has yet to be determined.
+
 In Section~\ref{sec:countermeasures} we explore how an existing system might apply known countermeasures, or adapt countermeasures from related fields, to reduce the attack surface of existing satellite systems.
 
-There is also work in satellite security beyond GNSS -- in 2020 it was demonstrated that confidential maritime satellite communications could be reveived by SDR-equipped attackers from a great distance away (covering a total area of tens of millions of square kilometers), thanks to the satellites' wide beamwidth and unencrypted payload~\cite{pavurTale2020}.
-This work also explores the theoretical possibilities of TCP session hijacking by broadcasting signals over a high-speed wired connection.
-Our work differs in this respect -- we focus on an attacker capable of injecting signals directly over the radio link, compromising trust in the received signal.
+Some information theoretic countermeasures exist, including:
 
-Finally, we consider work in physical-layer radio security beyond the scope of satellite communication.
-There are a number of deployed radio systems which do not employ cryptography, including the ``ADS-B'' protocol used to locate and track aircraft.
-There is a good amount of research into the security of ADS-B: \cite{strohmeierSecurity2015} provides a good review of the extent to which the system is vulnerable and explores ways to make the system more secure through verifying the transmitter location or identity, or using cryptographic methods.
-Once again, we can recontextualize a number of these techniques to provide improvements to the security of other unsecured systems, which we see in Section~\ref{sec:countermeasures}.
-
-\textbf{Countermeasures?}
+https://ieeexplore.ieee.org/abstract/document/6739367?casa_token=rwzKea1crRoAAAAA:JYUiN2CdSAzZhFu0jOHq7-d-rINtM_STo4aCzUZasej6ailTUNX4MdaisXcM8G9qvl3AKWk
+https://ieeexplore.ieee.org/abstract/document/6108297?casa_token=hUULRC9BgwgAAAAA:tRxrOhLGzuLjOEE8S7UbXJ_5K4t6QZ0nPRpqiLgmDs7-1okaoezMIb5-HmK-eeCTsL5gcds
+https://ieeexplore.ieee.org/abstract/document/8822950?casa_token=-vLYsKFhvxIAAAAA:P6Xa33aZ_U191d0PGlmW-JdmkoUPYSBQDZ6e2svoM-qonIfm1WLji_smDt-qW1FTc2J2XI8
+https://ieeexplore.ieee.org/document/6638190
+https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6772207&casa_token=NFj6STXZ6mIAAAAA:US_nlhjLLvxy878JkL2F4-JjrgKZoYSH3SpbqwHyFGxbLadVk2foaH4WmccvW_WUe06ZZpc
