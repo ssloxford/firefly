@@ -2,18 +2,31 @@
 
 \begin{figure}
   \centering
-  \includegraphics[width=\columnwidth]{diagrams/attack_illustration.pdf}
-  \caption{An illustration of the attacks described in this paper. The attacker is indicated in red. 1)~The satellite broadcasts a signal; 2)~A ground-based attacker injects a crafted signal, overshadowing the legitimate signal and resulting in one of two scenarios; 3a)~The victim receiver decodes the attacker-controlled data, poisoning derived datasets; 3b)~The injected signal exploits vulnerabilities in the protocol decoders, resulting in denial of service or arbitrary code execution.}
-  \label{fig:attack-illustration}
+  \includegraphics[width=\columnwidth]{diagrams/maths.pdf}
+  \caption{An illustration of the overshadowing attack described in this paper. The attacker is indicated in red. The variables relevant to the attacker in calculating transmit gain are labelled.}
+  \label{fig:variables}
 \end{figure}
 
-Successfully attacking a downlink satellite system requires the attacker to reliably overshadow an active wireless communications channel, injecting a custom radio signal into the receiver.
-The injected signal is designed to either, as depicted in Figure~\ref{fig:attack-illustration}, affect the decoded data or exploit processing stages in the decoding pipeline.
-By affecting the decoded data, the attacker can either poison satellite-derived datasets, such as Earth observation data, or manipulate live sessions such as internet traffic.
-By instead creating malformed packet headers, attackers can also seek to manipulate control flow in the decoding software and exploit potential vulnerabilities.
 
+%\begin{figure}
+%  \centering
+%  \includegraphics[width=\columnwidth]{diagrams/attack_illustration.pdf}
+%  \caption{An illustration of the attacks described in this paper. The attacker is indicated in red. 1)~The satellite broadcasts a signal; 2)~A ground-based attacker injects a crafted signal, overshadowing the legitimate signal and resulting in one of two scenarios; 3a)~The victim receiver decodes the attacker-controlled data, poisoning derived datasets; 3b)~The injected signal exploits vulnerabilities in the protocol decoders, resulting in denial of service or arbitrary code execution.}
+%  \label{fig:attack-illustration}
+%\end{figure}
+
+A successful satellite downlink overshadowing attack requires that the attacker's signal is received at the victim antenna with higher power than the satellite signal.
+Stealthy attackers should seek to use the minimum possible power to avoid saturating the receiver or being detected.
+The success rate therefore depends physical layer factors which cause signal attenuation, such as a terrestrial attacker injecting out-of-beam at a highly directional dish.
+The encoding design is also relevant, since the modulation scheme and presence of error correcting codes affects the decoding success rate.
 We proceed to discuss the key physical and protocol layer factors in performing a successful overshadow.
-We demonstrate and assess the effects against real-world systems in Section~\textbf{TODO}.
+
+
+%The attackign signal is designed to either, as depicted in Figure~\ref{fig:attack-illustration}, affect the decoded data or exploit processing stages in the decoding pipeline.
+
+
+%By affecting the decoded data, the attacker can either poison satellite-derived datasets, such as Earth observation data, or manipulate live sessions such as internet traffic.
+%By instead creating malformed packet headers, attackers can also seek to manipulate control flow in the decoding software and exploit potential vulnerabilities.
 
 \subsection{Physical layer considerations}
 
