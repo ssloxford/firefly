@@ -8,3 +8,10 @@ near real-time -> near real time
 
 Table of EOS data uses
 Incorporate Marcell changes
+
+
+# Complete the classification of which systems potentially vulnerable, and which downstream use cases there are
+
+supply chain issue
+evaluate countermeasures in our end-to-end context?
+threat model shortening

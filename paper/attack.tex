@@ -1,57 +1,54 @@
-\section{Attack Description}\label{sec:attack}
+\section{Case study: NASA's forest fire API}\label{sec:attack}
 
-To successfully attack these systems, an attacker needs to overshadow the wireless channel to manipulate the raw demodulated data.
-Depending on their goals, the attacker can either generate the signal to be injected beforehand or in real time.
-Generating the data beforehand does not require a receiver, only hardware capable of transmitting, but does require that the attacker generate their own data or find relevant prior broadcasts to manipulate and replay.
-Alternatively, with the addition of their own receiver dish, an attacker can receive the broadcast themselves and process it in real time to add artifacts or mask specific properties of the signal.
+% An end-to-end case study of how an attacker could target NASA's real time forest fire API
 
-% TODO: find that paper somewhere about generating convincing satellite images
-The injected data is designed to either poison the derived datasets or to exploit processing stages in the decoding pipeline.
-Convincingly poisoning the derived datasets requires that the overshadowed waveform decodes to raw data which is sufficiently similar to the original.
-This may prove easier in the real-time setup, in which the attacker can selectively modify only the relevant part of the signal.
-Exploiting the processing stages, however, generally relies on creating malformed protocol headers to manipulate control flow in the software.
-This must be done beforehand by discovering vulnerabilities in the processing stack and crafting the required packets.
+In this section we explore an end-to-end case study of overshadowing attacks against the \textit{Fire Information and Resource Management System} (FIRMS), NASA's real time forest fire API.
+We begin with a discussion of its architecture, focusing on the SATCOM link.
+Using only publicly documented information, we write a packet encoder for the protocol, and set up the decoding software as used by NASA in a test environment .
 
-% Call forward to the evaluation section
-In the case of FIRMS, the satellite-derived dataset is a map of active forest fires, each with coordinates and a confidence value.
-The dataset is derived primarily from the infrared bands of the MODIS sensor, which can reveal hotspots on the surface.
-We consider the scenarios of injecting ficticious forest fires and masking existing ones, both in the pre-prepared and real-time setups.
-We also perform a security analysis of the decoding software itself, demonstrating how vulnerabilities in the protocol handling can lead to denial of service and arbitrary code execution upon reprocessing.
+We explore poisoning the derived datasets by injecting ficticious images, and exploitation of processing stages by injecting malformed data, using the data derived from overshadowing our generated signal on top of a legitimate signal.
 
-\subsection{Affecting satellite-derived datasets}
+% We calculate the overshadow ratio...
 
-To affect a derived dataset such as forest fire detection, the attacker needs to inject a signal that decodes to the desired raw data.
-This data must target the algorithm responsible for generating the desired dataset, causing it to misclassify its input.
-This leads to effects such as the detection of ficticious forest fires, and the masking of existing ones. %TODO: rephrase? masking isn't really the opposite of detection
 
-Where the raw data is used for generating multiple derived datasets, the attacker may need to be careful to ensure that the injected data sufficiently resembles legitimate data to avoid detection. % TODO: rewrite - data, data, data...
-For example, the MODIS data is used to generate color-corrected images of the Earth's surface, with the forest fire data rendered on top.
-If the images appear out of sequence, distorted, or not like the Earth's surface at all, the downstream services which rely upon the data are unlikely to trust it.
+\subsection{Mission architecture}
 
-As a result, we assume that for this case the attacker begins with instrument data that is sufficiently close to the original signal.
-The means for obtaining such data include replaying old data, generating new convincing data, or running the attack setup in real time.
-% These different approaches, and their advantages and drawbacks, are discussed in Section~\ref{sec:evaluation}.
+FIRMs is a NASA project, which provides a worldwide map of active forest fires, each with precise coordinates and a confidence value.
+A real-time fire notification service is provided which is used for emergency response, disaster planning, and crisis analysis, and is sent to users in more than 160 countries~\cite{firmsUsage}.
 
-% Getting the images to not appear distorted can itself be a challenge
-% We can show the scan line problem for this
+\subsubsection{Earth observing satellites}
 
-% TODO: some diagram of the packet and its fields?
+The data is derived from several satellites in the Earth Observing System (EOS) fleet, which are equipped with sensors such as MODIS~\footnote{Moderate Resolution Imaging Spectroradiometer} which provide calibrated light readings across frequency bands wider than the visible spectrum.
+The presence of a fire is derived primarily from the infrared bands~\cite{mod14Manual}, which can reveal hotspots on the surface.
 
-Once this data has been obtained, the attacker needs to determine how to manipulate the instrument data, and then reencode it according to the packet protocol.
+Specifically, the MODIS instruments are on board \textit{Terra} and \textit{Aqua}, two EOS fleet satellites.
+Thanks to their opposite polar sun-synchronous orbits, Terra and Aqua together image the entire surface of the Earth each day.
+The data is downlinked in the clear to encourage the community to set up custom receiver stations.
+
+The two downlink mores are a continuous stream known as \textit{direct broadcast}, and a buffered data dump to a few select locations.
+As a result, MODIS data is widely available both from the central NASA archives~\cite{ladsweb} and from any of the 168 alternative receiver stations~\cite{nasaDirect}.
+
+Even though Terra and Aqua were launched in 1999 and 2002 respectively, MODIS-derived datasets continue to see current usage across a wide variety of fields.
+The satellites have a wide array of useful sensors and missions tend towards long lifespans, remaining useful for many decades.
+For example, MODIS datasets continue to be used to improve fire detection algorithms, and more recently have been used to analyze weather-dispersed diseases that pose serious risks to human health~\cite{valleyFever}.
+
+As a case study we consider NASA's \textit{International Planetary Observation Processing Package} (IPOPP), a software distribution for decoding and processing EOS data.
+The software in IPOPP contains protocol decoding stages alongside the satellite-derived dataset generation algorithms.
+In particular, the \textit{MODIS Level-1 Science Processing Algorithm} (MODISL1DB\_SPA) is responsible for decoding SPP packets with the MODIS secondary header into the \textit{Heirarchical Data Format} (HDF)~\cite{modisL1DB}.
+A summary of the entire pipeline can be found in Figure~\ref{fig:attack_types}.
+
+Using FIRMS as a case study, we describe how the attacker can poison the derived datasets and exploit the processing stages in section~\ref{sec:attack}.
+This results in arbitrary manipulation of the fire detection algorithm, and denial of service and arbitrary code execution on the processing software.
+
+
+\subsubsection{Protocol description}
+
 Each satellite system and instrument is likely to use its own custom protocol for its data channel.
 In the case of MODIS, the format consists of an extension to the CCSDS \textit{Space Packet Protocol} (SPP), the dominant network layer protocol for space and satellite systems~\cite{modisDescription},p177.
 
 After the primary header, a secondary header is used to encode timing information alongside information about the packet type and location in the overall image.
 The sensor readings are represented as a densely packed array of 12-bit words within the data zone, with a trailing checksum.
 Each value represents the intensity of light incident to the sensor of a specific frequency band, which is indicated by the position of the word within the array~\cite{modisDescription},p183-189.
-
-FIRMS derives its dataset from the \textit{MODIS Active Fire Product Science Processing Algorithm} (MOD14\_SPA), which primarily uses the bands of 4 and 11 micrometer wavelengths in the infrared spectrum to detect hotspots.
-Therefore, in order to manipulate the detected fires whilst leaving the visible images untouched, the attacker only needs to affect the values in these channels and recalculate the checksum.
-%other bands are used are used for the rejection of false positives, and could theoretically be manipulated for finer-grained control.
-
-Once the falsified data has been created, the attacker needs to reencode it according to the packet protocol used.
-For Terra and Aqua, the MODIS data is already in the network layer protocol SPP, which must then be acked into data link layer frames for broadcast.
-Satellites such as those in the EOS fleet implement a custom data link layer protocol, fine-tuned to their operational requirements.
 
 \begin{figure*}
     \centering
@@ -66,6 +63,31 @@ The CADU is optionally Viterbi encoded (XORed with a fixed polynomial) to preven
 Finally, the attacker must note that the decoder is likely to perform additional checks on top of adhering to the known standards.
 As a result, the injected data may be rejected if, for example, it doesn't specify the correct version number in the header, or is of an unexpected length.
 
+\subsubsection{Decoding software stack}
+
+%% Below here old
+
+\subsection{Attack}
+\subsubsection{Affecting satellite-derived datasets}
+
+% 
+% % Getting the images to not appear distorted can itself be a challenge
+% % We can show the scan line problem for this
+% 
+% % TODO: some diagram of the packet and its fields?
+% 
+% Once this data has been obtained, the attacker needs to determine how to manipulate the instrument data, and then reencode it according to the packet protocol.
+
+
+FIRMS derives its dataset from the \textit{MODIS Active Fire Product Science Processing Algorithm} (MOD14\_SPA), which primarily uses the bands of 4 and 11 micrometer wavelengths in the infrared spectrum to detect hotspots.
+Therefore, in order to manipulate the detected fires whilst leaving the visible images untouched, the attacker only needs to affect the values in these channels and recalculate the checksum.
+%other bands are used are used for the rejection of false positives, and could theoretically be manipulated for finer-grained control.
+
+Once the falsified data has been created, the attacker needs to reencode it according to the packet protocol used.
+For Terra and Aqua, the MODIS data is already in the network layer protocol SPP, which must then be acked into data link layer frames for broadcast.
+Satellites such as those in the EOS fleet implement a custom data link layer protocol, fine-tuned to their operational requirements.
+
+
 %Since Earth-observing satellites often contain multiple instruments, and need to commuicate a mixture of scientific, engineering, and housekeeping information, a packet-based structure is chosen.
 %SPP supports this through Application IDs in the primary header; each instrument is given a unique ID, allowing the data from each to be multiplexed onto the same downlink.
 
@@ -73,9 +95,7 @@ As a result, the injected data may be rejected if, for example, it doesn't speci
 % However, even proprietary satellites tend to use certain standard protocols in order to make this easier
 % James Pavur's work on looking at data in DVBS/2 is related - you can scan the satellite's data to try and determine what its type is
 
-
-
-\subsection{Exploiting downlink processing stages}
+\subsubsection{Exploiting downlink processing stages}
 
 \begin{figure}
     \centering
@@ -92,10 +112,6 @@ However, in addition to manipulating the instrument data itself, attackers are a
 These fields are parsed and used by the initial stages of the processing pipeline to validate and error correct the downlinked signal, and demultiplex and extract the data into an intermediate structure.
 As a result, attackers can potentially exploit these early pipeline stages through crafting packets to trigger vulnerabilities.
 
-As a case study we consider NASA's \textit{International Planetary Observation Processing Package} (IPOPP), a software distribution for decoding and processing EOS data.
-The software in IPOPP contains protocol decoding stages alongside the satellite-derived dataset generation algorithms.
-In particular, the \textit{MODIS Level-1 Science Processing Algorithm} (MODISL1DB\_SPA) is responsible for decoding SPP packets with the MODIS secondary header into the \textit{Heirarchical Data Format} (HDF)~\cite{modisL1DB}.
-A summary of the entire pipeline can be found in Figure~\ref{fig:attack_types}.
 With a long history going back to the early EOS satellites, the overall system has grown to be incredibly complex, with many interrelating dependencies and execution pathways.
 Through overshadowing the signal, an attacker can deliver arbitrary bytes to these processing stages, which were not designed with untrusted input data in mind.
 
@@ -119,59 +135,8 @@ However, satellite operators should be aware that similar systems, which may not
 \begin{comment}
 
 
-
-\textbf{Old stuff below:}
-
-The attacker wants to achieve one of the two objectives
-The achieve the first, they must broadcast data that gets decoded correctly.
-    This involves understanding any timing,, metadata, etc. is all correct
-To achieve the second, they must understand the decoding pipeline
-    They are advantaged by weaknesses and lack of standardisation at the data link layer
-
-
-
-To attack, yopu neeed to understand the stack
-Here's what the stack looks like in general
-In our specific case, here's how the protocols look
-Move into reencoding
-
-To do so, they must understand the network stack, and have the ability to reencode arbitrary data as a signal that they can overshadow
-
-They need to be able to broadcast at a sufficient strength, such that the receiver decodes it
-This is addressed in Section xxx
-
-To the receiver such that it reaches the correct layer in the stack
-
-
-Split the stack into protocol/data
-
-We discuss a bit about the ecosystem of protocols, with CCSDS SPP forming the common waist, like IP
-Data link protocols are less standardized in the space context than OSI model
-Fewer security audits, more proprietary software components, making vulnerabilities more likely?
-
-Nod to variety of data link protocols used,
-
-Satellites which roll their own protocols...
-
 % NB: in the case of EOS, we think the only real difference between the downlinks DB and TDRSS is bit rate, from the space shuttle report
 
-% Structure:
-%
-% Existing software exists (e.g. within IPOPP) to decode satellite signals
-% However, no real software exists to encode signals
-%
-% Prerequisites:
-% * Wireless communications packet structure and standards
-% * IPOPP pipeline processing stages
-
-
-The attacker fundamentally needs to overshadow the radio wave with a signal that decodes to the one that they want to inject.
-Their aim is the delivery of arbitrary bytes, which will either violate the packet protocol to attempt to exploit a processing step, or cause problems in a satellite-derived dataset.
-As a case study, we consider specifically the protocols used in the MODIS downlink of Terra and Aqua, due to the availability of documentation, their representative usage of standard space network layer protocols, and their broad usage in many critical satellite-derived datasets.
-We consider how the attacker generates these bytes, the requirements to successfully overshadow the radio wave, and the broader effects of such an attack in Section \ref{sec:evaluation}.
-
-In order to successfully inject bytes, the attacker must provide data that is parsed correctly by the relevant processing steps.
-Doing this requires knowledge of the expected packet structure, alongside the processing stages in the pipeline.
 
 \subsection{Terra and Aqua wireless communications specifications} % TODO: different title?
 

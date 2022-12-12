@@ -9,8 +9,12 @@ Consequently, there does not exist any current work to understand the effects of
 
 Recent decades have seen a significant rise in the off-the-shelf availability of software-defined radio hardware, capable of emitting arbitrary signals at a wide range of frequencies.
 This lowers the barrier to entry for signal injection attacks significantly~\cite{manulis2021cyber}. % TODO: page 306 (actually 20), top left
-Accordingly, both existing and novel use cases must now contend with the effects of signal injection, which include poisoning the dataset and exploiting the decoder.
-This has far-reaching ramifications due to increased reliance on satellite-derived datasets.
+Accordingly, satellite systems must now contend with the effects of signal injection, which include poisoning the dataset and exploiting the decoder.
+For example, the recent attack against ViaSat's satellite broadband capabilities exploited side channel vulnerabilities in the terrestrial network, resulting in the receiver stations across Ukraine being permanently disabled~\cite{satcomAnalysis}.
+
+Additionally, downstream systems which rely upon datasets are at risk from new supply chain security issues, where the satellite-derived datasets may be compromised.
+This includes critical infrastructure for forest fire and storm detection~\cite{nasaFirms,sarikhani2021new}, as well as research organisations and private enterprises.
+However, until now there does not exist a classification of these use cases.
 
 \begin{figure}
     \includegraphics[width=\columnwidth]{diagrams/injection/pixels_800_140.jpg}
@@ -18,34 +22,17 @@ This has far-reaching ramifications due to increased reliance on satellite-deriv
     \label{fig:location-injection}
 \end{figure}
 
-As global reliance on this data increases, the security implications are becoming increasingly relevant.
-Recent news demonstrates that motivated adversaries exist, and are interested in exploiting the decoding and demodulating pipelines.
-For example, a recent attack against ViaSat's satellite broadband capabilities exploited side channel vulnerabilities in the terrestrial network, resulting in the receiver stations across Ukraine being permanently disabled; a move coinciding with the Russian invasion of the country~\cite{satcomAnalysis}.
+% key point: Earth observation have scientific instruments that are really expensive
 
-To support a wide range of use cases, raw satellite data is processed into more specialized derived datasets such as for forest fire and storm detection~\cite{nasaFirms,sarikhani2021new}.
-This feeds into applications including critical national infrastructure and research-oriented purposes.
-The importance of these applications makes attacking the raw data appealing.
+Unfortunately, upgrading existing satellites to use robust cryptography is infeasible and the data is still widely used.
+Therefore recent work into anti-spoofing countermeasures depends on analyzing artifacts of overshadowing on the physical channel to determine the authenticity of the received data~\cite{jedermann2021orbit,oligeri2020past}.
+Other possible countermeasures include the comparison of data as received at multiple locations, or additional consistency checks.
 
-Although these applications of satellite data are new, they rely on satellite infrastructure that was launched decades ago.
-Since then radio hardware has become more accessible and knowledge of attacks on wireless systems has become more widespread.
-Therefore, satellite-derived datasets and the processing systems that create them are now exposed to realistic attacks from far more adversaries -- in particular, data modification attacks from signal injection.
-Critical services including NASA's \textit{Fire Information and Resource Management System} (FIRMS) can be affected (shown in Figure~\ref{fig:location-injection}) to trigger false emergency response or mislead crisis analysis.
-
-The security community is becoming increasingly aware that radio overshadowing in a satellite context has the potential to affect critical services.
-%\textbf{TODO cite}
-As a result, recent countermeasures have been proposed which analyze artifacts of overshadowing on the physical channel to determine the authenticity of the received data~\cite{jedermann2021orbit,oligeri2020past}.
-However, the impact of signal overshadowing against currently-deployed satellites, and the real-world consequences on the systems that depend upon their data, have not yet been considered.
-
-\subsection{Contributions}
-
-Specifically, we make the following contributions:
-
-\begin{itemize}
-    \item We identify the capability of a modern adversary to affect satellite downlink processing systems using physical-layer attacks;
-    \item We illustrate the problem using a full end-to-end case study against NASA's FIRMS service, demonstrating masking of forest fires and generation of fake fires. We further show denial of service and arbitrary code execution attacks on the processing systems themselves;
-    \item We discuss the potential impact of similar attacks against other satellite-derived datasets, exploring the effects that an attacker could expect to cause in the real world;
-    \item We analyze the feasibility of radio signal injection using commercial off-the-shelf equipment, taking into account the unique constraints of a terrestrial attacker against a highly directional dish;
-    \item Finally, we examine the applicability of existing countermeasures, with respect to the unique constraints of this context.
-\end{itemize}
+In this work we therefore analyse the security threat posed by attackers equipped with modern SDR hardware against Earth observing (EO) SATCOM architectures.
+In Section~\ref{sec:background}, we assess currently deployed EO SATCOMs in terms of data link security, and the currently proposed countermeasures.
+The capabilities required to overshadow an insecure SATCOM link are defined in in Section~\ref{sec:threat-model}.
+We consider, through an end-to-end case study, how such an attacker could target NASA's real time forst fire API in Section~\ref{sec:attack}.
+Finally, in Section~\ref{sec:evaluation}, we evaluate the effectiveness of existing countermeasures in detecting and preventing this attack.
+% TODO: something about related work?
 
 At the time of writing, we have been in initial contact with NASA's Direct Readout Laboratory to disclose our findings, and are in the process of compiling a complete vulnerability report.
