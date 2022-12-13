@@ -7,7 +7,7 @@ Physical layer factors
 The calculated power the attacker needs to transmit from their hardware
 
 Derived from:
-- Satellite Rx power - derived from physical layer public information
+- Satellite received power - derived from physical layer public information
 - Overshadow factor - derived from the protocol layer information
 - Injection loss (from graph) - derived from the physical layer
     - attacker direction

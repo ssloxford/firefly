@@ -3,12 +3,10 @@ Data from Earth-observing satellites has become crucial in private enterprises, 
 These purposes are supported by datasets derived from a variety of satellites, some of which were launched decades ago.
 Since then, attitudes to securing the physical layer have changed, opening the door for modern adversaries to overshadow the signal with commercially available radio equipment.
 
-In this paper, we present a security review of signal injection attacks against Earth observation satellite systems.
-We classify the attacker capabilities required to poison satellite-derived datasets and exploit the processing systems themselves, affecting downstream systems.
-We validate our results through an end-to-end case study on NASA's live forest fire detection system, which is sent to users in more than 160 countries.
-We demonstrate that the attacker can arbitrarily manipulate fires in the derived dataset to trigger false emergency response or mislead crisis analysis, and achieve denial of service in the processing software.
-This raises concerns that any dataset derived from these satellites could be compromised by similar means.
-We conclude with a discussion of possible countermeasures.
+In this paper, we demonstrate how satellite images from widely-used satellites can be manipulated by an attacker operating off-the-shelf radio equipment.
+Taking NASA's live forest fire detection system as a case study, we demonstrate that the attacker can arbitrarily manipulate fires in the derived dataset to trigger false emergency response or mislead crisis analysis, and achieve denial of service in the processing software.
+We provide a simulation framework to identify and measure the key properties required for attack success.
+We conclude with an evaluation of existing countermeasures to detect and defend against such an attacker.
 
 % Through radio simulation, we show that the required signal overshadowing can be achieved by a terrestrial attacker despite the highly directional nature of the dish.
 \end{abstract}
