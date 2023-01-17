@@ -18,3 +18,5 @@ mod14-docker: mod14/Dockerfile
 
 bluemarble-docker: bluemarble/Dockerfile
 	docker build ./bluemarble/ -t bluemarble
+
+.PHONY: all all-docker modisl1db mod14 bluemarble modisl1db-docker mod14-docker bluemarble-docker
