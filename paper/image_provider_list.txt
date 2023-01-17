@@ -1,5 +1,0 @@
-PlanetLabs
-Maxar
-
-USGS
-https://earthexplorer.usgs.gov/

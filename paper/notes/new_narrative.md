@@ -24,7 +24,6 @@ If poss, cite Johannes' modem work
 
 Non-satellite related work: WiFi, wireless sensor spoofing, etc.
 
-
 ## threat model
 
 Signal injection is cheaper than we think, across various antenna systems
