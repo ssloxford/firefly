@@ -1,1 +1,0 @@
-Eavesdropping countermeasures only really relevant in a reactive context
