@@ -1,4 +1,4 @@
-14 mins, 8 mins for questions
+12 mins, 10 mins for questions
 
 [ ] Slides without animations for web upload
 
@@ -62,3 +62,30 @@ generalisability -> challenges
     code will be provided
     think about key takeaways (as if someone fell asleep)
         if you read our paper, you will learn more about xyz
+
+
+# new notes
+
+[x] reduce screenshots
+    what information do we want to convey specifically?
+
+[ ] convey tools:
+    packet before diagram -> through tool > packet after -> thing crashes
+    what you have to change, how you change it
+    we've done all the work to do this
+    these tools aren't provided as there's no legit reason to reencode
+
+packet structre
+    zoom in on interesting bit
+
+it's variable length, but this application only ever uses two lengths *foreshadowing!*
+
+[x] citations fix
+[x] fix footnotes
+[ ] 70% dimness for diagrams fading in
+[ ] finish countermeasures
+
+[x] fade in experiment setup section
+    reduce to pipeline + key
+
+code listing instead of screnshot of RT-STPS (syntax highlighting)
