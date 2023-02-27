@@ -1,10 +1,16 @@
-\documentclass{beamer}
-%\documentclass[handout]{beamer}
+\documentclass[aspectratio=169]{beamer}
+%\documentclass[aspectratio=169,handout]{beamer}
 
 \usetheme[hidefootline,altlogo=images/ssl-logo_text.png,sidebarwidth=1.9cm]{Oxford}
 \usepackage{subcaption}
 \usepackage{listings}
 \lstset{escapeinside={<@}{@>}}
+
+% TODO: factor into beamer-oxford template
+\setbeamertemplate{footline}{}
+\setbeamertemplate{page number in head/foot}[framenumber]
+\setbeamertemplate{navigation symbols}{\footnotesize\usebeamertemplate{page number in head/foot}\vspace{0.2em}}
+\addtocounter{framenumber}{-1}
 
 \begin{document}
 
@@ -39,19 +45,17 @@
   \inst{1} Systems Security Lab, University of Oxford \and %
   \inst{2} Cyber-Defence Campus, armasuisse Science + Technology
 }
-\date{Trinity Term 2022}
+\date{NDSS SpaceSec 2023}
 
 \makeoxfordtitle
 
 \note{
-Satellite data is becoming increasingly important in private enterprises, research applications, and in coordinating national responses to events such as forest fires.
-However, many of these satellites downlink this data on unauthenticated wireless channels.
-This opens the door for spoofing attacks, where an adversary can impersonate a legitimate satellite by using a software-defined radio to transmit a malicious signal, which is received and decoded by the victim ground station as though it were legitimate.
+Although satellite data is becoming increasingly important, many satellites don't use cryptography to authenticate the downlink, which opens the door for spoofing attacks.
+My name's Edd Salkield, and I'm from the Systems Security Lab at the University of Oxford.
+I'm presenting Firefly, an analysis of the vulnerability and effects of spoofing attacks against current Earth observation satellite systems.
+In particular, we'll consider the effects of a motivated, modern adversary against NASSA's real-time forest fire API.
 
-Hi, my name's Edd Salkield, and I'm presenting to you today Firefly, a paper from the Systems Security Lab at the University of Oxford.
-In this talk, we'll provide an overview of our research into the vulnerability of current Earth observation satellite systems to spoofing attacks, with more details found in the paper.
-Taking NASA's live forest fire detection system as a case study, we demonstrate that the attacker can arbitrarily manipulate fires in the derived dataset to trigger false emergency response or mislead crisis analysis, and achieve denial of service in the processing software.
-We conclude with a discussion of physical-layer countermeasures to detect and defend against spoofing, even when the satellite hardware cannot be upgraded.
+The current situation in space is that...
 }
 
 \section{Motivation}
@@ -63,9 +67,9 @@ We conclude with a discussion of physical-layer countermeasures to detect and de
   \begin{itemize}[<+->]
     \item Many current satellites do not encrypt the downlink, due to:
     \begin{itemize}[<+->]
-      \item Increased power budget and costs
-      \item Open access data
+      \item Increased power budget, mission complexity, and cost
       \item Legacy systems backwards compatibility
+      \item Open access data
     \end{itemize}
     
     \item Other satellites are decryptable, due to:
@@ -90,10 +94,6 @@ We conclude with a discussion of physical-layer countermeasures to detect and de
     \item Infrared sensing, e.g., Metop-A,B
     \item Climate monitoring, e.g., Suomi-NPP
   \end{itemize}
-
-  \pause
-  \newline
-  Further details available in the paper
 \end{frame}
 
 \subsection{Implications}
@@ -108,6 +108,7 @@ We conclude with a discussion of physical-layer countermeasures to detect and de
   \end{center}
 
   \pause
+  \vspace{-0.7cm}
 
   Using an SDR and open source software, attackers can:
   \pause
@@ -124,9 +125,9 @@ We conclude with a discussion of physical-layer countermeasures to detect and de
 
   \vspace{-0.4cm}
   \begin{center}
-    \includegraphics<1|handout:0>[width=0.7\textwidth]{images/overshadow_illustration_1.pdf}%
-    \includegraphics<2|handout:0>[width=0.7\textwidth]{images/overshadow_illustration_2.pdf}%
-    \includegraphics<3->[width=0.7\textwidth]{images/overshadow_illustration_3.pdf}%
+    \includegraphics<1|handout:0>[width=0.5\textwidth]{images/overshadow_illustration_1.pdf}%
+    \includegraphics<2|handout:0>[width=0.5\textwidth]{images/overshadow_illustration_2.pdf}%
+    \includegraphics<3->[width=0.5\textwidth]{images/overshadow_illustration_3.pdf}%
   \end{center}
 
   \pause[4]
@@ -136,14 +137,14 @@ We conclude with a discussion of physical-layer countermeasures to detect and de
   \pause
   \begin{itemize}[<+->]
     \item GNSS to manipulate calculated location\footnote<5->[1]{Motallebighomi et. al. (2022) ``\textit{Cryptography Is Not Enough: Relay Attacks on Authenticated GNSS Signals}''}
-    \item Uplinks for satellite hijacking\footnote<6->[2]{``\textit{2011 REPORT TO CONGRESS of the U.S.-CHINA ECONOMIC AND SECURITY REVIEW COMMISSION}'' p.223--224} or broadcast intrusion\footnote<6->[3]{Broadcasting (1986) ``\textit{'Captain Midnight' unmasked}''}
+    \item Uplinks for satellite hijacking\footnote<6->[2]{``\textit{2011 REPORT TO CONGRESS of the U.S.-CHINA ECONOMIC AND SECURITY REVIEW COMMISSION}'' p.223--224} or broadcast intrusion\footnote<6->[3]{Broadcasting (1986) ``\textit{`Captain Midnight' unmasked}''}
   \end{itemize}
 
   \pause[\thebeamerpauses]
   No work considers spoofing Earth Observation satellites
 
   \pause
-  \textbf{RQ}: What can the attacker achieve by exploiting the unauthenticated channel?
+  \textbf{RQ}: What can the attacker achieve by exploiting the unauthenticated channel of these specific systems?
 \end{frame}
 
 \subsection{Threat model}
@@ -174,19 +175,22 @@ We conclude with a discussion of physical-layer countermeasures to detect and de
   \begin{tabular}{ l | l }
     \textbf{Hardware component} & \textbf{Cost} \\
     \hline
-    \textit<2>{limeSDR} & $598$ USD \\
-    \textit<3>{X-Band upconverter} & $100$ USD\footnotemark[1] \\
-    \textit<4>{X-Band amplifier} & $1,638$ USD \\
-    \textit<5>{Compatible antenna} & $431$ USD \\
+    Software-defined radio & $598$ USD\footnotemark[1] \\
+    X-Band upconverter & \textasciitilde$100$ USD\footnotemark[2] \\
+    X-Band amplifier & $1,638$ USD \\
+    Compatible antenna & $431$ USD \\
     \hline
-    \textit<6>{Total} & $3,000$ USD
+    Total & \textasciitilde$3,000$ USD
   \end{tabular}
   \end{center}
 
-  \footnotetext[1]{Estimated price from self-built amateur radio equipment}
+  \footnotetext[1]{Cost of a LimeSDR}
+  \footnotetext[2]{Estimated price from self-built amateur radio equipment}
 
-  \pause[6]
-  Within the budget of a motivated hobbyist
+  \pause
+  \begin{center}
+    Within the budget of a motivated hobbyist
+  \end{center}
 \end{frame}
 
 \section{Case Study: FIRMS}
@@ -196,7 +200,7 @@ We conclude with a discussion of physical-layer countermeasures to detect and de
   \frametitle{Case Study: Forest fire detection in FIRMS}
   \framesubtitle{NASA's global fire detection service}
   \centering
-  \includegraphics[width=\columnwidth]{images/bushfire.png}
+  \includegraphics[width=0.9\columnwidth]{images/bushfire.png}
   \newline
   The 2019 Australia bushfires as seen from Aqua's MODIS instrument, annotated with the \textit{Fires and Thermal Anomalies} dataset on NASA's worldview.
 \end{frame}
@@ -211,30 +215,35 @@ We conclude with a discussion of physical-layer countermeasures to detect and de
     \includegraphics<3|handout:0>[width=0.8\textwidth]{images/attack_types_3.pdf}%
     \includegraphics<4->[width=0.8\textwidth]{images/attack_types_4.pdf}%
   \end{center}
-  With a research account, anyone can download the entire set of decoding software from NASA's \textit{Direct Readout Laboratory}
-  \url{https://directreadout.sci.gsfc.nasa.gov/}
+
+  \footnotetext[1]{NASA source code available with a research account from \url{https://directreadout.sci.gsfc.nasa.gov/}}
+  \alt<2->{\footnotetext[2]{Custom tools to pack/unpack CADU frames \url{https://github.com/ssloxford/libcadu}}}{\let\thefootnote\relax\footnotetext{~}}
+  \alt<3->{\footnotetext[3]{Custom tools to pack/unpack SPP packets \url{https://github.com/ssloxford/libspp}}}{\let\thefootnote\relax\footnotetext{~}}
+  \alt<4->{\footnotetext[4]{Custom tools to modify MODIS sensor readings \url{https://github.com/ssloxford/libgiis}}}{\let\thefootnote\relax\footnotetext{~}}
 \end{frame}
 
 \subsection{Attack overview}
 
+% TODO: redo this attack overview re Simon's feedback
 \def\footnoterule{\oldfootnoterule}
 \begin{frame}
   \frametitle{Attack overview}
+  \framesubtitle{Our attack}
   \begin{itemize}[<+->]
-    \item Obtain legitimate data from digital archive\footnote<1->[1]{\url{https://ladsweb.modaps.eosdis.nasa.gov/archive/}}
-   \item Perform security audit on downlink decoder software\footnote<2->[2]{\url{https://directreadout.sci.gsfc.nasa.gov/}, with an academic account}
+    \item Obtain legitimate data from digital archive\footnote<1->[1]{NASA Distributed Active Archive containing MODIS data: \url{https://ladsweb.modaps.eosdis.nasa.gov/archive/}}
+   \item Perform security audit on downlink decoder software\footnote<2->[2]{Decoder source code available with an academic account: \url{https://directreadout.sci.gsfc.nasa.gov/}}
    \begin{itemize}
      \item Determine data integrity checks
      \item Identify vulnerabilities where safe input data assumed
    \end{itemize}
-    \item Process data to add/remove artifacts\footnote<5->[3]{Code provided in the paper}
+    \item Create maliciously crafted data
     \begin{itemize}
-      \item Edit image format to insert fictitious data
+      \item Reprocess archived data to add/remove artifacts
       \item Construct payload packet to trigger vulnerability chain
     \end{itemize}
   \end{itemize}
+  \note{All the tools used in our attack will be published alongside our paper}
 \end{frame}
-
 
 \subsection{Affecting the derived dataset}
 
@@ -250,7 +259,7 @@ We conclude with a discussion of physical-layer countermeasures to detect and de
 \begin{frame}
   \frametitle{Affecting the derived dataset}
   \framesubtitle{Attack consequences}
-  \includegraphics[width=\textwidth]{images/injection/original.jpg}
+  \includegraphics[width=0.7\textwidth]{images/injection/original.jpg}
   \newline
   \centering
   Original image.
@@ -259,7 +268,7 @@ We conclude with a discussion of physical-layer countermeasures to detect and de
 \begin{frame}
   \frametitle{Affecting the derived dataset}
   \framesubtitle{Attack consequences}
-  \includegraphics[width=\textwidth]{images/injection/masked_0.jpg}
+  \includegraphics[width=0.7\textwidth]{images/injection/masked_0.jpg}
   \newline
   \centering
   Masking existing fires.
@@ -268,7 +277,7 @@ We conclude with a discussion of physical-layer countermeasures to detect and de
 \begin{frame}
   \frametitle{Affecting the derived dataset}
   \framesubtitle{Attack consequences}
-  \includegraphics[width=\textwidth]{images/injection/pixels_800_140.jpg}
+  \includegraphics[width=0.7\textwidth]{images/injection/pixels_800_140.jpg}
   \newline
   \centering
   Fine-grained control over fire injection.
@@ -287,7 +296,7 @@ We conclude with a discussion of physical-layer countermeasures to detect and de
 \begin{frame}[fragile]
   \frametitle{Exploiting the decoder}
   \framesubtitle{Attack consequences}
-  \begin{lstlisting}[basicstyle=\ttfamily\small,basewidth=0.6em]
+  \begin{lstlisting}[basicstyle=\ttfamily\scriptsize,basewidth=0.6em]
 $ printf %1337s  | tr " " "f"  | \
   spppack --type-flag telecommand \
             --sec-hdr-flag 1 \
@@ -296,29 +305,32 @@ $ printf %1337s  | tr " " "f"  | \
   \end{lstlisting}
 
   \pause
-  \begin{lstlisting}[basicstyle=\ttfamily\small,basewidth=0.6em]
+  \begin{lstlisting}[basicstyle=\ttfamily\scriptsize,basewidth=0.6em]
 $ cat bad_packet.PDS good_packet_sequence.PDS \
     > ./data/MYD00F.A2015299...001.PDS
   \end{lstlisting}
 
   \pause
-  \begin{lstlisting}[basicstyle=\ttfamily\small,basewidth=0.6em]
+  \begin{lstlisting}[basicstyle=\ttfamily\scriptsize,basewidth=0.6em]
 $ ./run_all.sh ./data/
 DATA_PATH: /mnt/data
 CONTAINER_RUNTIME: docker
   \end{lstlisting}
 
   \pause
-  \begin{lstlisting}[basicstyle=\ttfamily\small,basewidth=0.6em]
+  \begin{lstlisting}[basicstyle=\ttfamily\scriptsize,basewidth=0.6em]
 ### Processing new PDS:
   MYD00F.A2015299.2110.20152992235.001.PDS
   \end{lstlisting}
 
   \pause
-  \begin{lstlisting}[basicstyle=\ttfamily\small,basewidth=0.6em]
+  \begin{lstlisting}[basicstyle=\ttfamily\scriptsize,basewidth=0.6em]
 ### Running modisl1db l1a-geo initial processing
 <@\textcolor{red}{l0fix\_modis: Unrecoverable error in l0fix\_modis!}@>
   \end{lstlisting}
+
+  \pause
+  Further vulnerabilities have been discovered since submission
 \end{frame}
 
 \section{Countermeasures}
@@ -345,9 +357,12 @@ CONTAINER_RUNTIME: docker
   \newline
 
   \pause[\thebeamerpauses]
-  Comparative analysis presented in the paper
+
+  Existing countermeasures are effective, but aren't viable in all scenarios
 
   \note{
+    \textbf{We discuss the countermeasures in context}
+
     Multi-receiver data comparison
     \begin{itemize}
       \item Certain systems already have multiple receiver stations
@@ -372,30 +387,49 @@ CONTAINER_RUNTIME: docker
   }
 \end{frame}
 
+\section{Future work}
+
+\begin{frame}
+  \frametitle{Future research directions}
+  This work confirms the real-world vulnerability of existing Earth Observing systems
+
+  \pause
+  \vspace{0.5cm}
+  Future research is required to:
+
+  \pause
+  \begin{itemize}[<+->]
+    \item Validate this work against real-world receiver hardware
+    \item Comprehensively review other vulnerable satellites
+    \item Analyze the effectiveness of proposed overshadowing countermeasures
+  \end{itemize}
+
+\note{Review of vulnerable satellites: dovetails with other conference work e.g. SAR systems}
+\end{frame}
+
 \section{Conclusion}
 
 \begin{frame}
   \frametitle{Conclusion}
 
-  Our paper...
+  We have...
   \pause
   \begin{itemize}[<+->]
-    \item presents a demonstration of byte-level spoofing against NASA's forest fire detection system.
-    \item provides the source code required to manipulate the packet data and structure.
-    \item confirms that only a moderate budget is required to perform these attacks.
-    \item identifies current countermeasures which significantly increase attack difficulty.
+    \item demonstrated viable spoofing attacks against NASA's forest fire detection system.
+    \item provided the source code required to manipulate the packet data and structure.
+    \item confirmed that only a moderate budget is required to perform these attacks.
+    \item identified current countermeasures which significantly increase attack difficulty.
   \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{Thank you for your attention}
 
-  \vspace{-1.2cm}
   \begin{center}
     \Large
     Any questions?
   \end{center}
-  \vspace{1cm}
+  \vspace{0.6cm}
 
   \begin{center}
     Reach out to me at \\

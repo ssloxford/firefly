@@ -1,6 +1,6 @@
 12 mins, 10 mins for questions
 
-[ ] Slides without animations for web upload
+[x] Slides without animations for web upload (fixed in Beamer handout mode)
 
 Walk people through the results
 Explain plots in detail
@@ -82,8 +82,8 @@ it's variable length, but this application only ever uses two lengths *foreshado
 
 [x] citations fix
 [x] fix footnotes
-[ ] 70% dimness for diagrams fading in
-[ ] finish countermeasures
+[x] 70% dimness for diagrams fading in
+[x] finish countermeasures
 
 [x] fade in experiment setup section
     reduce to pipeline + key
