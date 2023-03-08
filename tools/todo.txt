@@ -1,3 +1,4 @@
+Fix up docker build to work with factored out libraries
 Investigate whether functions like auto data_word(int pos) &
 need to actually be a ref
 Rename libccsds -> libspp

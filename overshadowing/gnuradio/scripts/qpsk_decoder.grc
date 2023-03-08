@@ -1,6 +1,7 @@
 options:
   parameters:
     author: ''
+    catch_exceptions: 'True'
     category: QPSK
     cmake_opt: ''
     comment: ''
@@ -190,6 +191,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
+    coding: digital.DIFF_DIFFERENTIAL
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -343,3 +345,4 @@ connections:
 
 metadata:
   file_format: 1
+  grc_version: 3.9.8.0
