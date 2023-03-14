@@ -13,7 +13,7 @@ If you use this repository please cite the paper as follows:
 
 ```
 @article{salkield2023firefly,
-  author = {Salkield, Edd and Smailes, Joshua and K\"ohler, Sebastian and Birnbach, Simon and Baker, Richard and Strohmeier, Martin and Martinovic, Ivan},
+  author = {Salkield, Edd and K\"ohler, Sebastian and Birnbach, Simon and Baker, Richard and Strohmeier, Martin and Martinovic, Ivan},
   title = {{Firefly: Spoofing Earth Observation Satellite Data through Radio Overshadowing}},
   year = {2023},
   journal = {{NDSS Workshop on the Security of Space and Satellite Systems (SpaceSec)}},
